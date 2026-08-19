@@ -7,8 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700;800&display=swap" rel="stylesheet">
-<!-- Twitch és YouTube API-k -->
-<script src="https://player.twitch.tv/js/embed/v1.js"></script>
+<!-- 🌐 HIVATALOS YOUTUBE & TWITCH IFRAME API -->
 <script src="https://www.youtube.com/iframe_api"></script>
 
 <style>
@@ -187,25 +186,13 @@
     }
     .tv-video-deck.active { opacity: 1; z-index: 2; }
 
-    /* 🌐 STREAM LEJÁTSZÓ RÉTEG ÉS INTERAKCIÓ-VÉDŐ PAJZS */
-    .tv-embed-container {
-        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        z-index: 1; opacity: 0; background: #000;
-        transition: opacity 0.6s ease-in-out; display: none;
+    /* 🌐 STREAM & YOUTUBE LEJÁTSZÓ RÉTEG */
+    .tv-embed-deck {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
+        z-index: 1; opacity: 0; pointer-events: auto; display: none; background: #000;
+        transition: opacity 0.6s ease-in-out;
     }
-    .tv-embed-container.active { display: block; opacity: 1; z-index: 4; }
-    .tv-embed-container iframe, .tv-embed-container div { width: 100%; height: 100%; border: none; }
-
-    /* 🔒 KÜLSŐ PANEL ZÁROLÓ (NEM LEHET BELETEKERNI VAGY MENÜT NYITNI) */
-    .stream-shield-overlay {
-        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        z-index: 5; background: transparent; cursor: default;
-    }
-
-    .tv-background-stream-dock {
-        position: absolute; top: -9999px; left: -9999px; width: 320px; height: 180px;
-        visibility: hidden; pointer-events: none; opacity: 0;
-    }
+    .tv-embed-deck.active { display: block; opacity: 1; z-index: 4; }
 
     .tv-video-deck.enhanced-mode { filter: contrast(1.04) saturate(1.06); }
 
@@ -238,7 +225,7 @@
         background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.45); padding: 6px 18px; border-radius: 10px;
     }
 
-    /* 🏷️ JOBB FELSŐ LOGÓ + FIX 🔴 ÉLŐ BADGE */
+    /* 🏷️ JOBB FELSŐ LOGÓ + FIX (NEM PULZÁLÓ) 🔴 ÉLŐ BADGE */
     .tv-watermark-wrap {
         position: absolute; top: 26px; right: 32px; z-index: 30; display: none;
         flex-direction: column; align-items: flex-end; gap: 6px; user-select: none; pointer-events: none;
@@ -257,7 +244,7 @@
         letter-spacing: -0.4px; display: flex; align-items: center; text-shadow: 0 2px 4px rgba(0,0,0,0.9);
     }
 
-    /* 🔴 FIX ÉLŐ JELZÉS */
+    /* 🔴 DISZKRÉT FIX ÉLŐ JELZÉS */
     .tv-live-on-air-tag {
         display: none; align-items: center; gap: 4px; background: #ef4444; color: #ffffff;
         font-family: 'Space Mono', monospace; font-weight: 800; font-size: 0.65rem; padding: 2px 7px;
@@ -272,9 +259,9 @@
     }
     .tv-morning-clock.active { display: inline-block; }
 
-    /* 📡 ÉLŐ ELŐREJELZŐ SÁV (BAL FELÜLRE HELYEZVE) */
+    /* 📡 DISZKRÉT ÉLŐ ELŐREJELZŐ SÁV */
     .tv-incoming-alert {
-        position: absolute; top: 24px; left: 24px; bottom: auto; background: rgba(9, 14, 26, 0.95);
+        position: absolute; bottom: 52px; left: 20px; background: rgba(9, 14, 26, 0.95);
         border-left: 4px solid #ef4444; border-radius: 8px; padding: 8px 14px; color: #fff;
         font-family: 'Space Mono', monospace; font-size: 0.75rem; font-weight: 700;
         display: none; align-items: center; gap: 8px; z-index: 34;
@@ -344,7 +331,7 @@
     .nmhh-number { font-family: 'Inter', sans-serif; font-weight: 900; font-size: 1.05rem; color: #ffffff; line-height: 1; }
     .nmhh-child-svg { width: 36px; height: 36px; fill: #22c55e; }
 
-    /* 📰 24/7 ALSÓ HÍRSÁV (NYUGODT, SZEMKÍMÉLŐ SEBESSÉGGEL ÉS RÉSZLETES LEÍRÁSSAL) */
+    /* 📰 24/7 ALSÓ HÍRSÁV */
     .tv-news-ticker-bar {
         position: absolute; bottom: 0; left: 0; width: 100%; height: 40px; background: #090e1a;
         border-top: 2px solid var(--theme-primary); z-index: 34; display: flex; align-items: stretch;
@@ -369,15 +356,13 @@
     .ticker-crawl-viewport { flex: 1; overflow: hidden; position: relative; display: flex; align-items: center; background: #090e1a; }
     .ticker-crawl-track {
         display: inline-flex; align-items: center; white-space: nowrap; padding-left: 100%;
-        animation-name: crawlAnim; animation-duration: 110s; /* Kényelmes, nyugodt olvasási sebesség */
-        animation-timing-function: linear; animation-iteration-count: infinite;
+        animation-name: crawlAnim; animation-duration: 50s; animation-timing-function: linear; animation-iteration-count: infinite;
         will-change: transform;
     }
-    .crawl-news-item { display: inline-flex; align-items: center; font-size: 0.82rem; color: #ffffff; gap: 8px; }
+    .crawl-news-item { display: inline-flex; align-items: center; font-size: 0.82rem; color: #ffffff; gap: 6px; }
     .crawl-news-tag { font-family: 'Space Mono', monospace; font-size: 0.60rem; font-weight: 900; color: var(--theme-primary); background: #1e293b; padding: 2px 6px; border-radius: 4px; }
-    .crawl-news-title { font-weight: 800; color: #ffffff; }
-    .crawl-news-desc { color: #cbd5e1; font-size: 0.78rem; font-weight: 400; opacity: 0.9; }
-    .crawl-separator { display: inline-flex; align-items: center; margin: 0 24px; opacity: 0.8; }
+    .crawl-news-promo { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
+    .crawl-separator { display: inline-flex; align-items: center; margin: 0 20px; opacity: 0.8; }
     .crawl-separator .kb-icon-mini { width: 15px; height: 15px; stroke: var(--theme-primary); }
 
     @keyframes crawlAnim { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
@@ -394,7 +379,7 @@
     }
     .btn-tv-primary:hover { background: #7dd3fc; }
 
-    .stream-card, .calendar-panel, .rundown-panel, .library-panel {
+    .stream-card, .calendar-panel, .rundown-panel, .library-panel, .yt-library-panel {
         background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 10px;
     }
     .calendar-days-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
@@ -430,13 +415,6 @@
     .btn-act.active-toggle { border-color: var(--accent-green); color: var(--accent-green); background: rgba(34,197,94,0.1); }
     .btn-act.active-live { border-color: var(--accent-red); color: var(--accent-red); background: rgba(239,68,68,0.15); }
     .btn-del-sm { background: none; border: none; color: var(--accent-red); cursor: pointer; opacity: 0.7; padding: 2px 6px; }
-
-    .position-floating-panel {
-        position: fixed; bottom: 24px; left: 24px; width: 390px; max-width: calc(100vw - 48px); background: #0f172a;
-        border: 1.5px solid var(--accent-cyan); border-radius: 18px; padding: 16px 18px; display: none; flex-direction: column; gap: 12px;
-        box-shadow: 0 16px 40px rgba(0,0,0,0.85); z-index: 99999; max-height: 85vh; overflow-y: auto;
-    }
-    .position-floating-panel.active { display: flex; }
 
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.8); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 20px; }
     .modal-overlay.active { display: flex; }
@@ -483,12 +461,9 @@
         <video id="tv-video-deck-a" class="tv-video-deck active" playsinline preload="auto"></video>
         <video id="tv-video-deck-b" class="tv-video-deck" playsinline preload="none"></video>
 
-        <!-- 🌐 STREAM LEJÁTSZÓ KONTÉNER (TWITCH & YOUTUBE) + INTERAKCIÓ PAJZS -->
-        <div id="tv-embed-container" class="tv-embed-container">
-            <div id="tv-embed-slot"></div>
-            <!-- 🔒 ÁTLÁTSZÓ PAJZS (MEGGÁTOLJA A BELETEKERÉST ÉS A VEZÉRLŐK KATTINTÁSÁT) -->
-            <div class="stream-shield-overlay" id="stream-shield"></div>
-        </div>
+        <!-- 🌐 STREAM & YOUTUBE LEJÁTSZÓ KONTÉNER -->
+        <div id="tv-yt-player-slot" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:1;"></div>
+        <iframe id="tv-embed-deck" class="tv-embed-deck" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen></iframe>
 
         <!-- 📺 PHILIPS MONOSZKÓP -->
         <div class="tv-monoscope-layer" id="tv-monoscope-layer">
@@ -510,7 +485,7 @@
             </div>
         </div>
 
-        <!-- 📡 DISZKRÉT ÉLŐ ELŐREJELZŐ SÁV (BAL FELÜL) -->
+        <!-- 📡 DISZKRÉT ÉLŐ ELŐREJELZŐ SÁV -->
         <div class="tv-incoming-alert" id="tv-incoming-alert">
             <span>📡</span>
             <span id="tv-incoming-alert-text">HAMAROSAN ÉLŐBEN: Kapcsoljuk a közvetítést...</span>
@@ -537,7 +512,7 @@
             </div>
         </div>
 
-        <!-- 📰 24/7 ALSÓ HÍRSÁV (RÉSZLETES HÍREKKEL, NYUGODT TEMPÓBAN) -->
+        <!-- 📰 24/7 ALSÓ HÍRSÁV -->
         <div class="tv-news-ticker-bar" id="tv-news-ticker-bar">
             <div class="ticker-weather-block" id="ticker-weather-block">
                 <div class="ticker-date-badge">
@@ -554,12 +529,12 @@
             </div>
             <div class="ticker-crawl-viewport">
                 <div class="ticker-crawl-track" id="ticker-crawl-track">
-                    <span class="crawl-news-item"><span class="crawl-news-tag">KÉPBEN! HÍREK</span><span class="crawl-news-title">Friss zenei és közéleti hírek betöltése...</span></span>
+                    <span class="crawl-news-item"><span class="crawl-news-tag">KÉPBEN! HÍREK</span><span class="crawl-news-title">Friss zenei és bulvár hírek betöltése folyamatban...</span></span>
                 </div>
             </div>
         </div>
 
-        <!-- 🏷️ JOBB FELSŐ LOGÓ + FIX 🔴 ÉLŐ BADGE -->
+        <!-- 🏷️ JOBB FELSŐ LOGÓ + FIX (NEM PULZÁLÓ) 🔴 ÉLŐ BADGE -->
         <div class="tv-watermark-wrap" id="tv-watermark-wrap">
             <div style="display:flex; align-items:center;">
                 <div class="tv-watermark-clean" id="tv-watermark-clean">
@@ -583,11 +558,6 @@
         </div>
     </div>
 
-    <!-- 🤫 LÁTHATATLAN HÁTTÉR PUFFERELŐ DOKK -->
-    <div id="tv-background-stream-dock" class="tv-background-stream-dock">
-        <div id="bg-stream-slot"></div>
-    </div>
-
     <!-- 🎛️ TV VEZÉRLŐ SÁV -->
     <div class="tv-controls-bar">
         <button class="btn-tv-primary" id="btn-tv-toggle" onclick="toggleTvBroadcast()">📺 ÉLŐ TV ADÁS BEKAPCSOLÁSA</button>
@@ -601,7 +571,7 @@
             <button class="btn-act" id="btn-rating-toggle" onclick="toggleAgeRating()">🟡🔴 Korhatár: BE</button>
             <select id="tv-rating-select" onchange="onRatingSelectChange(this.value)" style="background:#090d16; color:#fff; border:1px solid #334155; border-radius:8px; padding:5px 8px; font-family:'Space Mono',monospace; font-size:0.75rem; outline:none; font-weight:700; cursor:pointer;">
                 <option value="none">🚫 Nincs</option>
-                <option value="0">🟢 0 (Gyermekbarát)</option>
+                <option value="0">🟢 0 (Gyerekbarát)</option>
                 <option value="6">🟡 6</option>
                 <option value="12" selected>🟡 12</option>
                 <option value="16">🟡 16</option>
@@ -609,7 +579,6 @@
             </select>
 
             <button class="btn-act active-toggle" id="btn-agc-toggle" onclick="toggleAudioCompressor()">🎚️ AGC: BE</button>
-            <button class="btn-act" onclick="togglePositionModal()">📍 Pozíciók & Időzítő</button>
             <button class="btn-act" onclick="toggleCustomFullscreen()">⛶ Teljes Képernyő</button>
             <button class="btn-act" onclick="togglePiP()">🗔 PiP</button>
         </div>
@@ -621,30 +590,58 @@
         </div>
     </div>
 
-    <!-- 🌐 YOUTUBE IDŐZÍTŐ ÉS TWITCH VEZÉRLŐ PANEL -->
-    <div class="stream-card">
+    <!-- 🎬 ÚJ: YOUTUBE ZENETÁR & AUTOMATIKUS CÍMFELISMERŐ PANEL -->
+    <div class="yt-library-panel">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
             <div style="font-family:'Space Mono',monospace; font-size:0.85rem; font-weight:800; color:var(--accent-red); display:flex; align-items:center; gap:6px;">
-                <span>🎬 YOUTUBE VIDEÓK IDŐZÍTÉSE & TWITCH STREAMER DETEKTOR</span>
+                <span>🎬 YOUTUBE ZENETÁR & KÖTEGELT LINKFELISMERŐ (Auto Cím & Előadó)</span>
             </div>
-            <button class="btn-act active-live" onclick="openYouTubeModal()">➕ Új YouTube Műsor Időzítése</button>
+            <button class="btn-act active-live" onclick="openYouTubeModal()">➕ Új YouTube Link Időzítése</button>
         </div>
 
         <div style="background:var(--card-sub); padding:12px; border-radius:12px; border:1px solid var(--border); display:flex; flex-direction:column; gap:8px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-                <span style="font-family:'Space Mono',monospace; font-size:0.75rem; font-weight:800; color:var(--accent-purple);">
-                    📡 TWITCH STREAMEREK ÁLLAPOTA (Kattintás nélküli háttér puffereléssel és 1 perc offline visszakapcsolással):
-                </span>
-                <label style="display:flex; align-items:center; gap:6px; font-size:0.72rem; color:var(--accent-green); font-family:'Space Mono',monospace; cursor:pointer;">
-                    <input type="checkbox" id="chk-twitch-auto-switch" checked onchange="toggleTwitchAutoSwitch(this.checked)"> Auto-Átkapcsolás Aktív
-                </label>
+            <label style="font-size:0.72rem; color:var(--text-muted); font-family:'Space Mono',monospace;">
+                Több YouTube videó link bemásolása egyszerre (egymás alá soronként, vagy Playlist URL):
+            </label>
+            <div style="display:flex; gap:8px;">
+                <textarea id="inp-bulk-youtube-links" placeholder="https://www.youtube.com/watch?v=...&#10;https://youtu.be/...&#10;https://www.youtube.com/playlist?list=..." style="width:100%; height:50px; background:#090d16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 10px; font-family:'Space Mono',monospace; font-size:0.75rem; outline:none; resize:none;"></textarea>
+                <button class="btn-act" style="background:var(--accent-red); color:#fff; font-weight:800; white-space:nowrap; padding:0 14px;" onclick="importBulkYouTubeLinks()">📥 Beolvasás</button>
             </div>
-            <div style="display:flex; gap:8px; align-items:center;">
-                <input type="text" id="inp-twitch-channel-add" placeholder="Csatorna neve (pl. thevr, feketeviktor, ninja)..." style="background:#090d16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 10px; font-family:'Space Mono',monospace; font-size:0.78rem; outline:none; flex:1;">
-                <button class="btn-act" style="background:var(--accent-purple); color:#000; font-weight:800;" onclick="addTwitchMonitoredChannel()">➕ Hozzáadás</button>
-            </div>
-            <div id="twitch-monitored-list" style="display:flex; flex-wrap:wrap; gap:8px; margin-top:4px;"></div>
         </div>
+
+        <div style="max-height:160px; overflow-y:auto; margin-top:6px;">
+            <table class="rundown-table">
+                <thead>
+                    <tr>
+                        <th>FELISMERT ELŐADÓ & DALCÍM</th>
+                        <th>YOUTUBE ID</th>
+                        <th>TV ADÁSBA HELYEZÉS</th>
+                        <th>TÖRLÉS</th>
+                    </tr>
+                </thead>
+                <tbody id="yt-library-tbody">
+                    <tr><td colspan="4" style="text-align:center; color:#94a3b8; padding:10px;">Nincs importált YouTube zene.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 📡 TWITCH STREAMER VEZÉRLŐ PANEL -->
+    <div class="stream-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div style="font-family:'Space Mono',monospace; font-size:0.85rem; font-weight:800; color:var(--accent-purple); display:flex; align-items:center; gap:6px;">
+                <span>📡 TWITCH STREAMEREK ÁLLAPOTA (6 perc stabilitás + 30s háttér-előpufferelés)</span>
+            </div>
+            <label style="display:flex; align-items:center; gap:6px; font-size:0.72rem; color:var(--accent-green); font-family:'Space Mono',monospace; cursor:pointer;">
+                <input type="checkbox" id="chk-twitch-auto-switch" checked onchange="toggleTwitchAutoSwitch(this.checked)"> Auto-Átkapcsolás Aktív
+            </label>
+        </div>
+
+        <div style="display:flex; gap:8px; align-items:center;">
+            <input type="text" id="inp-twitch-channel-add" placeholder="Csatorna neve (pl. thevr, feketeviktor, ninja)..." style="background:#090d16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 10px; font-family:'Space Mono',monospace; font-size:0.78rem; outline:none; flex:1;">
+            <button class="btn-act" style="background:var(--accent-purple); color:#000; font-weight:800;" onclick="addTwitchMonitoredChannel()">➕ Hozzáadás</button>
+        </div>
+        <div id="twitch-monitored-list" style="display:flex; flex-wrap:wrap; gap:8px; margin-top:4px;"></div>
     </div>
 
     <!-- 📅 7 NAPOS TV MŰSORNAPTÁR -->
@@ -699,7 +696,7 @@
             <button class="btn-act" onclick="loadR2Library()">🔄 Tárhely Újraolvasása</button>
         </div>
 
-        <div style="max-height:200px; overflow-y:auto;">
+        <div style="max-height:180px; overflow-y:auto;">
             <table class="rundown-table">
                 <thead>
                     <tr>
@@ -719,24 +716,24 @@
     <div class="log-box" id="studio-log"></div>
 </div>
 
-<!-- 🪟 YOUTUBE VIDEÓ / MŰSOR IDŐZÍTŐ MODAL (MÁSODPERC PONTOSSÁGGAL) -->
+<!-- 🪟 YOUTUBE VIDEÓ / MŰSOR IDŐZÍTŐ MODAL -->
 <div class="modal-overlay" id="youtube-modal">
     <div class="modal-card">
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
             <div style="font-family:'Space Mono',monospace; font-size:0.85rem; font-weight:800; color:var(--accent-red);">
-                🎬 YOUTUBE MŰSOR IDŐZÍTÉSE AZ ADÁSLÁNCBA
+                🎬 YOUTUBE VIDEÓ / MŰSOR IDŐZÍTÉSE AZ ADÁSLÁNCBA
             </div>
             <button class="btn-del-sm" onclick="closeYouTubeModal()">✖ Bezárás</button>
         </div>
 
         <div>
             <label style="font-family:'Space Mono',monospace; font-size:0.7rem; color:var(--text-muted); display:block; margin-bottom:4px;">YOUTUBE LINK / URL:</label>
-            <input type="text" id="inp-yt-url" placeholder="https://www.youtube.com/watch?v=... vagy https://youtu.be/..." style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-family:'Space Mono',monospace; font-size:0.82rem; outline:none; font-weight:700;">
+            <input type="text" id="inp-yt-url" placeholder="https://www.youtube.com/watch?v=... vagy https://youtu.be/..." oninput="autoDetectYouTubeTitle(this.value)" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-family:'Space Mono',monospace; font-size:0.82rem; outline:none; font-weight:700;">
         </div>
 
         <div>
-            <label style="font-family:'Space Mono',monospace; font-size:0.7rem; color:var(--text-muted); display:block; margin-bottom:4px;">MŰSOR VAGY VIDEÓ CÍME:</label>
-            <input type="text" id="inp-yt-title" placeholder="Pl. KÉPBEN! KÜLÖNKIADÁS" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-family:'Space Mono',monospace; font-size:0.82rem; outline:none; font-weight:700;">
+            <label style="font-family:'Space Mono',monospace; font-size:0.7rem; color:var(--text-muted); display:block; margin-bottom:4px;">FELISMERT ELŐADÓ ÉS DALCÍM:</label>
+            <input type="text" id="inp-yt-title" placeholder="Pl. Dua Lipa - Houdini" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-family:'Space Mono',monospace; font-size:0.82rem; outline:none; font-weight:700;">
         </div>
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
@@ -759,27 +756,23 @@
 
         <div style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); border-radius:10px; padding:12px; display:flex; flex-direction:column; gap:8px;">
             <div>
-                <label style="font-family:'Space Mono',monospace; font-size:0.68rem; color:var(--accent-red); font-weight:700;">⏱️ ADÁSKEZDET PONTOSAN (Óra:Perc:Mp):</label>
+                <label style="font-family:'Space Mono',monospace; font-size:0.68rem; color:var(--accent-red); font-weight:700;">⏱️ ADÁSKEZDET (Óra:Perc:Mp):</label>
                 <input type="text" id="modal-yt-start-time" value="20:00:00" oninput="updateYouTubeCalculatedEndTime()" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-family:'Space Mono',monospace; font-size:0.8rem; font-weight:700; outline:none;">
             </div>
 
-            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:6px;">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
                 <div>
-                    <label style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted);">HOSSZ (ÓRA):</label>
+                    <label style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted);">VIDEÓ HOSSZA (ÓRA):</label>
                     <input type="number" id="inp-yt-dur-hours" value="0" min="0" max="23" oninput="updateYouTubeCalculatedEndTime()" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-family:'Space Mono',monospace; font-size:0.8rem; outline:none; font-weight:700;">
                 </div>
                 <div>
-                    <label style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted);">HOSSZ (PERC):</label>
-                    <input type="number" id="inp-yt-dur-mins" value="45" min="0" max="59" oninput="updateYouTubeCalculatedEndTime()" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-family:'Space Mono',monospace; font-size:0.8rem; outline:none; font-weight:700;">
-                </div>
-                <div>
-                    <label style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted);">HOSSZ (MP):</label>
-                    <input type="number" id="inp-yt-dur-secs" value="0" min="0" max="59" oninput="updateYouTubeCalculatedEndTime()" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-family:'Space Mono',monospace; font-size:0.8rem; outline:none; font-weight:700;">
+                    <label style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted);">VIDEÓ HOSSZA (PERC):</label>
+                    <input type="number" id="inp-yt-dur-mins" value="4" min="1" max="59" oninput="updateYouTubeCalculatedEndTime()" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-family:'Space Mono',monospace; font-size:0.8rem; outline:none; font-weight:700;">
                 </div>
             </div>
 
             <div style="font-family:'Space Mono',monospace; font-size:0.72rem; color:var(--text-muted); background:#060a12; padding:6px 10px; border-radius:6px;">
-                🏁 Adás vége: <strong id="yt-calculated-end-time" style="color:#facc15;">20:45:00</strong> ➔ Pontban ekkor a lánc automatikusan átúsztat a klipekre!
+                🏁 Adás vége: <strong id="yt-calculated-end-time" style="color:#facc15;">20:04:00</strong> ➔ Utána az adáslánc azonnal folytatja a zenei klipeket!
             </div>
         </div>
 
@@ -789,95 +782,15 @@
     </div>
 </div>
 
-<!-- 🪟 LEBEGŐ ÉLŐ POZÍCIÓ & KORHATÁR IDŐZÍTŐ PANEL -->
-<div class="position-floating-panel" id="position-modal">
-    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
-        <div style="font-family:'Space Mono',monospace; font-size:0.8rem; font-weight:800; color:var(--accent-cyan);">
-            <span>📍 GRAFIKAI & KORHATÁR VEZÉRLŐ</span>
-        </div>
-        <button class="btn-del-sm" onclick="togglePositionModal()" style="font-size:0.9rem;">✖</button>
-    </div>
-
-    <div style="background:var(--card-sub); padding:10px 12px; border-radius:12px; border:1px solid var(--border); display:flex; flex-direction:column; gap:8px;">
-        <div style="font-family:'Space Mono',monospace; font-size:0.72rem; font-weight:800; color:var(--accent-cyan); display:flex; justify-content:space-between;">
-            <span>🏷️ 1. LOGÓ & VÍZJEL</span>
-        </div>
-        <div>
-            <label style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted); display:flex; justify-content:space-between;">
-                <span>FENTRŐL (Top):</span> <strong id="lbl-logo-top" style="color:#fff;">26 px</strong>
-            </label>
-            <input type="range" min="10" max="150" value="26" id="rng-logo-top" style="width:100%; accent-color:var(--accent-cyan);" oninput="updatePositionsUI()">
-        </div>
-        <div>
-            <label style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted); display:flex; justify-content:space-between;">
-                <span>JOBBRÓL (Right):</span> <strong id="lbl-logo-right" style="color:#fff;">32 px</strong>
-            </label>
-            <input type="range" min="10" max="150" value="32" id="rng-logo-right" style="width:100%; accent-color:var(--accent-cyan);" oninput="updatePositionsUI()">
-        </div>
-        <div>
-            <label style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted); display:flex; justify-content:space-between;">
-                <span>MÉRET (Skála):</span> <strong id="lbl-logo-scale" style="color:#fff;">100%</strong>
-            </label>
-            <input type="range" min="70" max="140" value="100" id="rng-logo-scale" style="width:100%; accent-color:var(--accent-cyan);" oninput="updatePositionsUI()">
-        </div>
-    </div>
-
-    <div style="background:var(--card-sub); padding:10px 12px; border-radius:12px; border:1px solid var(--border); display:flex; flex-direction:column; gap:8px;">
-        <div style="font-family:'Space Mono',monospace; font-size:0.72rem; font-weight:800; color:#facc15; display:flex; justify-content:space-between;">
-            <span>🟡🔴 2. KORHATÁR KARIKA</span>
-        </div>
-        <div>
-            <label style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted); display:flex; justify-content:space-between;">
-                <span>ALULRŐL (Bottom):</span> <strong id="lbl-pos-bottom" style="color:#fff;">48 px</strong>
-            </label>
-            <input type="range" min="20" max="150" value="48" id="rng-pos-bottom" style="width:100%; accent-color:var(--accent-cyan);" oninput="updatePositionsUI()">
-        </div>
-        <div>
-            <label style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted); display:flex; justify-content:space-between;">
-                <span>JOBBRÓL (Right):</span> <strong id="lbl-pos-right" style="color:#fff;">28 px</strong>
-            </label>
-            <input type="range" min="10" max="150" value="28" id="rng-pos-right" style="width:100%; accent-color:var(--accent-cyan);" oninput="updatePositionsUI()">
-        </div>
-        <div>
-            <label style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted); display:flex; justify-content:space-between;">
-                <span>MÉRET:</span> <strong id="lbl-pos-size" style="color:#fff;">36 px</strong>
-            </label>
-            <input type="range" min="26" max="54" value="36" id="rng-pos-size" style="width:100%; accent-color:var(--accent-cyan);" oninput="updatePositionsUI()">
-        </div>
-    </div>
-
-    <div style="background:var(--card-sub); padding:10px 12px; border-radius:12px; border:1px solid var(--border); display:flex; flex-direction:column; gap:8px;">
-        <div style="font-family:'Space Mono',monospace; font-size:0.72rem; font-weight:800; color:#22c55e; display:flex; justify-content:space-between; align-items:center;">
-            <span>⏱️ 3. KORHATÁR IDŐZÍTŐ (NMHH)</span>
-            <label style="display:flex; align-items:center; gap:4px; font-size:0.65rem; cursor:pointer;">
-                <input type="checkbox" id="chk-rating-auto-timer" checked onchange="toggleRatingAutoTimer(this.checked)"> Aktív
-            </label>
-        </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-            <div>
-                <label style="font-family:'Space Mono',monospace; font-size:0.62rem; color:var(--text-muted);">FELKERÜL:</label>
-                <input type="time" id="inp-rating-on-time" value="06:00" style="width:100%; background:#090d16; color:#fff; border:1px solid var(--border); border-radius:6px; padding:4px 8px; font-family:'Space Mono',monospace; font-size:0.75rem; outline:none; font-weight:700;">
-            </div>
-            <div>
-                <label style="font-family:'Space Mono',monospace; font-size:0.62rem; color:var(--text-muted);">LEKERÜL:</label>
-                <input type="time" id="inp-rating-off-time" value="21:00" style="width:100%; background:#090d16; color:#fff; border:1px solid var(--border); border-radius:6px; padding:4px 8px; font-family:'Space Mono',monospace; font-size:0.75rem; outline:none; font-weight:700;">
-            </div>
-        </div>
-    </div>
-
-    <button class="btn-act" style="background:var(--accent-cyan); color:#000; font-size:0.8rem; padding:10px; border:none; font-weight:800;" onclick="saveAllPositionsToCloud()">
-        💾 Mentés és Felhő-Szinkronizálás
-    </button>
-</div>
-
 <script>
     const WORKER_URL = "https://kepbenoszlop.androjid21.workers.dev";
     const R2_PUBLIC_URL = "https://pub-7af7418ac8c74dd88ba4c97fe4a00b7b.r2.dev/";
     const FIREBASE_URL = "https://hiroszlop-default-rtdb.europe-west1.firebasedatabase.app";
-    const VIDEO_CROSSFADE_SEC = 4;
+    const VIDEO_CROSSFADE_SEC = 5;
     const TWITCH_STABILIZATION_MINUTES = 6;
 
     let r2Library = [];
+    let ytLibrary = JSON.parse(localStorage.getItem('kb_yt_library') || '[]');
     let weekSchedules = {};
     let selectedDayIndex = 0;
     let isTvBroadcasting = false;
@@ -888,24 +801,19 @@
     let masterVolume = 0.9;
     let transitionLock = false;
 
-    // 📡 TWITCH STREAMER VEZÉRLŐ & HÁTTÉR PUFFERELŐ
+    // 📡 TWITCH STREAMER DETEKTOR
     let monitoredTwitchChannels = JSON.parse(localStorage.getItem('kb_twitch_monitors') || '["thevr"]');
     let isTwitchAutoSwitchEnabled = localStorage.getItem('kb_twitch_auto_switch') !== 'false';
     let streamerOnlineSince = {};
-    let streamerOfflineTimer = {};
     let twitchLiveQueue = [];
     let pendingStreamerToSwitch = null;
     let currentActiveTwitchStreamer = null;
     let twitchCheckTimer = null;
-    let activeTwitchPlayer = null;
-    let bgTwitchPlayer = null;
-    let activeYouTubePlayer = null;
 
     let isLogoVisible = localStorage.getItem('kb_tv_logo_visible') !== 'false';
     let isVideoEnhanced = localStorage.getItem('kb_video_enhanced') === 'true';
     let currentAgeRating = localStorage.getItem('kb_tv_rating') || "12";
     let lastActiveRating = (currentAgeRating === "none") ? "12" : currentAgeRating;
-    let isRatingAutoTimerEnabled = localStorage.getItem('kb_rating_auto_timer') !== 'false';
     let currentActiveDaypartKey = 'delelott';
     let liveBadgeMode = localStorage.getItem('kb_live_badge_mode') || 'auto';
 
@@ -916,20 +824,19 @@
 
     let isNewsTickerManualEnabled = true;
     let cachedNewsItems = [
-        { title: "KÉPBEN! Master Studio – Folyamatos 24/7 zenei és hírsugárzás", description: "Legfrissebb slágerek, HD klipek és valós idejű hírfolyam a nap 24 órájában.", source: "KÉPBEN!" },
-        { title: "KÉPBEN! MUSIC – HD zenei televízió", description: "A legújabb hazai és nemzetközi klipek prémium kép- és hangminőségben.", source: "KÉPBEN! MUSIC" }
+        { title: "KÉPBEN! Master Studio – Folyamatos 24/7 zenei és hírsugárzás", source: "KÉPBEN!" },
+        { title: "Friss slágerek és HD videóklipek a nap 24 órájában", source: "KÉPBEN! MUSIC" }
     ];
 
     let audioCtx = null;
+    let compressorNode = null;
+    let masterGainNode = null;
     let isAgcActive = true;
     let isAudioInitialized = false;
 
     const deckA = document.getElementById('tv-video-deck-a');
     const deckB = document.getElementById('tv-video-deck-b');
-    const embedContainer = document.getElementById('tv-embed-container');
-    const embedSlot = document.getElementById('tv-embed-slot');
-    const bgStreamSlot = document.getElementById('bg-stream-slot');
-
+    const embedDeck = document.getElementById('tv-embed-deck');
     const tvScreenContainer = document.getElementById('tv-screen-container');
     const monoscopeLayer = document.getElementById('tv-monoscope-layer');
     const standbyScreen = document.getElementById('tv-standby-screen');
@@ -954,17 +861,6 @@
     const tickerLiveDate = document.getElementById('ticker-live-date');
     const tickerLiveDay = document.getElementById('ticker-live-day');
 
-    const tvDaypartConfig = {
-        ejjel: { title: "🌙 KÉPBEN! Éjjel", primaryColor: "#818cf8", gradient: "linear-gradient(135deg, #050811 0%, #1e1b4b 100%)" },
-        reggel: { title: "🌅 Ébredj KÉPBEN!", primaryColor: "#f59e0b", gradient: "linear-gradient(135deg, #1b263b 0%, #78350f 100%)" },
-        delelott: { title: "☀️ KÉPBEN! Délelőtt", primaryColor: "#38bdf8", gradient: "linear-gradient(135deg, #0b1329 0%, #0369a1 100%)" },
-        delben: { title: "🍽️ KÉPBEN! Délben", primaryColor: "#10b981", gradient: "linear-gradient(135deg, #062419 0%, #047857 100%)" },
-        delutan: { title: "🌆 KÉPBEN! Délután", primaryColor: "#06b6d4", gradient: "linear-gradient(135deg, #0b1329 0%, #0e7490 100%)" },
-        este: { title: "🎉 KÉPBEN! Este", primaryColor: "#c084fc", gradient: "linear-gradient(135deg, #0b1329 0%, #6b21a8 100%)" },
-        kesoeste: { title: "🌃 KÉPBEN! Késő Este", primaryColor: "#6366f1", gradient: "linear-gradient(135deg, #0b1026 0%, #312e81 100%)" },
-        live: { title: "🔴 KÉPBEN! ÉLŐ KÖZVETÍTÉS", primaryColor: "#ef4444", gradient: "linear-gradient(135deg, #1e0b0b 0%, #7f1d1d 100%)" }
-    };
-
     const defaultSampleClips = [
         { title: "Big Buck Bunny · Nyitány", filename: "bunny.mp4", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", duration: 210, size: "35.20 MB" },
         { title: "Tears of Steel · Sci-Fi", filename: "tears.mp4", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4", duration: 180, size: "28.50 MB" },
@@ -973,7 +869,6 @@
 
     function log(msg, type = 'info') {
         const box = document.getElementById('studio-log');
-        if (!box) return;
         const time = new Date().toLocaleTimeString('hu-HU');
         const div = document.createElement('div');
         div.style.marginBottom = '2px';
@@ -983,16 +878,6 @@
         div.textContent = `[${time}] ${msg}`;
         box.appendChild(div);
         box.scrollTop = box.scrollHeight;
-    }
-
-    function getDaypartKeyForHour(hour) {
-        if (hour >= 0 && hour < 6) return 'ejjel';
-        if (hour >= 6 && hour < 10) return 'reggel';
-        if (hour >= 10 && hour < 12) return 'delelott';
-        if (hour >= 12 && hour < 13) return 'delben';
-        if (hour >= 13 && hour < 18) return 'delutan';
-        if (hour >= 18 && hour < 22) return 'este';
-        return 'kesoeste';
     }
 
     function shuffleArray(array) {
@@ -1009,12 +894,14 @@
         return raw.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
     }
 
+    // 🎵 INTELLIGENS ZENEI CÍMTISZTÍTÓ & NORMALIZÁLÓ MOTOR
     function sanitizeMusicTitle(raw) {
         if (!raw) return "";
         let s = raw.replace(/\.(mp4|webm|mov|mkv|mp3|avi|flv)$/i, '').replace(/_/g, ' ');
         s = s.replace(/^\s*\d{1,3}[\.\-\s_]+/i, '');
-        s = s.replace(/\s*[\[\(](official\s*(music\s*)?video|video|audio|lyrics|4k|60fps|hd|hq|clip\s*officiel|official\s*hd|hivatalos\s*(vide[oó]klip|klip))[\]\)]/gi, '');
+        s = s.replace(/\s*[\[\(](official\s*(music\s*)?video|video|audio|lyrics|4k|60fps|hd|hq|clip\s*officiel|official\s*hd|hivatalos\s*(vide[oó]klip|klip|zenei\s*videó))[\]\)]/gi, '');
         s = s.replace(/\s*(official\s*(music\s*)?video|vide[oó]\s*clip|clip\s*officiel|official\s*audio|hivatalos\s*vide[oó]klip)\b/gi, '');
+        s = s.replace(/\s*\|\s*4K.*$/i, '').replace(/\s*\|\s*HD.*$/i, '');
         return s.replace(/\s+/g, ' ').trim();
     }
 
@@ -1025,6 +912,7 @@
         if (cleaned.includes(' - ')) parts = cleaned.split(' - ');
         else if (cleaned.includes(' – ')) parts = cleaned.split(' – ');
         else if (cleaned.includes(' · ')) parts = cleaned.split(' · ');
+        else if (cleaned.includes(': ')) parts = cleaned.split(': ');
 
         if (parts.length >= 2) {
             return { artist: parts[0].trim() || "KÉPBEN! MUSIC", title: parts.slice(1).join(' - ').trim() || cleaned };
@@ -1032,12 +920,125 @@
         return { artist: "KÉPBEN! SLÁGER", title: cleaned };
     }
 
-    function getCleanParentDomains() {
+    function extractYouTubeVideoId(url) {
+        if (!url) return null;
+        url = url.trim();
+        const regExp = /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|live\/|shorts\/|watch\?v=|watch\?.+&v=))([\w-]{11})/i;
+        const match = url.match(regExp);
+        return (match && match[1]) ? match[1] : null;
+    }
+
+    // 📡 AUTOMATA YOUTUBE CÍMLEKÉRDEZŐ (oEmbed API - CORS-mentes)
+    async function autoDetectYouTubeTitle(url) {
+        const id = extractYouTubeVideoId(url);
+        if (!id) return;
+        try {
+            const res = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${id}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data && data.title) {
+                    const parsed = parseArtistAndTitle(data.title);
+                    document.getElementById('inp-yt-title').value = `${parsed.artist} - ${parsed.title}`;
+                    log(`✨ [YOUTUBE CÍM FELISMERVE] ${parsed.artist} - ${parsed.title}`, 'success');
+                }
+            }
+        } catch(e){}
+    }
+
+    // 📥 KÖTEGELT YOUTUBE LINK IMPORTÁLÓ
+    async function importBulkYouTubeLinks() {
+        const rawText = document.getElementById('inp-bulk-youtube-links').value.trim();
+        if (!rawText) return alert("Kérlek illessz be legalább egy YouTube linket!");
+
+        const lines = rawText.split(/\r?\n/);
+        let importedCount = 0;
+
+        for (const line of lines) {
+            const videoId = extractYouTubeVideoId(line);
+            if (!videoId) continue;
+
+            if (ytLibrary.some(item => item.id === videoId)) continue; // Duplikáció védelem
+
+            let autoTitle = `YouTube Videó (${videoId})`;
+            try {
+                const res = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.title) autoTitle = sanitizeMusicTitle(data.title);
+                }
+            } catch(e){}
+
+            ytLibrary.push({
+                id: videoId,
+                title: autoTitle,
+                url: `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=0&controls=1&enablejsapi=1&playsinline=1&rel=0`,
+                rawUrl: line.trim(),
+                duration: 240
+            });
+            importedCount++;
+        }
+
+        localStorage.setItem('kb_yt_library', JSON.stringify(ytLibrary));
+        renderYouTubeLibraryTable();
+        document.getElementById('inp-bulk-youtube-links').value = '';
+        log(`📥 [YOUTUBE IMPORT] ${importedCount} db új zene hozzáadva a YouTube tárhoz!`, 'success');
+    }
+
+    function renderYouTubeLibraryTable() {
+        const tbody = document.getElementById('yt-library-tbody');
+        if (ytLibrary.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#94a3b8; padding:10px;">Nincs importált YouTube zene.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = ytLibrary.map((item, idx) => `
+            <tr>
+                <td style="max-width:320px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                    <strong>🎬 ${item.title}</strong>
+                </td>
+                <td style="font-family:'Space Mono',monospace; color:var(--text-muted); font-size:0.75rem;">${item.id}</td>
+                <td><button class="btn-act" style="color:var(--accent-cyan);" onclick="insertYouTubeItemDirect(${idx})">+ Adásba</button></td>
+                <td><button class="btn-del-sm" onclick="deleteYouTubeItem(${idx})">🗑️ Törlés</button></td>
+            </tr>
+        `).join('');
+    }
+
+    function deleteYouTubeItem(idx) {
+        ytLibrary.splice(idx, 1);
+        localStorage.setItem('kb_yt_library', JSON.stringify(ytLibrary));
+        renderYouTubeLibraryTable();
+    }
+
+    function insertYouTubeItemDirect(idx) {
+        const item = ytLibrary[idx];
+        if (!item) return;
+        document.getElementById('inp-yt-url').value = item.rawUrl || `https://www.youtube.com/watch?v=${item.id}`;
+        document.getElementById('inp-yt-title').value = item.title;
+        openYouTubeModal();
+    }
+
+    function getTwitchEmbedUrl(channel) {
         let currentHost = window.location.hostname;
         if (!currentHost || window.location.protocol === 'file:') currentHost = "localhost";
         const parentDomains = new Set(["localhost", "127.0.0.1", "robszerko.github.io"]);
         if (currentHost) parentDomains.add(currentHost);
-        return Array.from(parentDomains);
+        const parentQuery = Array.from(parentDomains).map(d => `parent=${encodeURIComponent(d)}`).join('&');
+        return `https://player.twitch.tv/?channel=${encodeURIComponent(channel)}&${parentQuery}&autoplay=true&muted=false`;
+    }
+
+    function parseUptimeToMinutes(text) {
+        if (!text || text.toLowerCase().includes('offline') || text.toLowerCase().includes('not found')) return -1;
+        let totalMinutes = 0;
+        const daysMatch = text.match(/(\d+)\s*day/i);
+        const hoursMatch = text.match(/(\d+)\s*hour/i);
+        const minsMatch = text.match(/(\d+)\s*min/i);
+        const secsMatch = text.match(/(\d+)\s*sec/i);
+
+        if (daysMatch) totalMinutes += parseInt(daysMatch[1]) * 1440;
+        if (hoursMatch) totalMinutes += parseInt(hoursMatch[1]) * 60;
+        if (minsMatch) totalMinutes += parseInt(minsMatch[1]);
+        if (secsMatch && !daysMatch && !hoursMatch && !minsMatch) totalMinutes += 0.5;
+        if (totalMinutes === 0 && !daysMatch && !hoursMatch && !minsMatch) totalMinutes = 1;
+        return totalMinutes;
     }
 
     function updateLiveBadgeUI(isStreamActive = false, streamType = 'clips') {
@@ -1045,7 +1046,7 @@
         if (liveBadgeMode === 'on') showLive = true;
         else if (liveBadgeMode === 'off') showLive = false;
         else {
-            showLive = (Boolean(currentActiveTwitchStreamer) || (isStreamActive && streamType === 'twitch'));
+            showLive = Boolean(currentActiveTwitchStreamer) || (isStreamActive && streamType === 'twitch');
         }
 
         if (showLive && isTvBroadcasting) {
@@ -1068,7 +1069,7 @@
 
         localStorage.setItem('kb_live_badge_mode', liveBadgeMode);
         document.getElementById('btn-live-badge-toggle').textContent = `🔴 ÉLŐ: ${liveBadgeMode.toUpperCase()}`;
-        updateLiveBadgeUI(Boolean(currentActiveTwitchStreamer), currentActiveTwitchStreamer ? 'twitch' : 'clips');
+        updateLiveBadgeUI(Boolean(currentlyPlayingId && (currentActiveTwitchStreamer || embedDeck.classList.contains('active'))));
         syncBroadcastSettingsToCloud();
     }
 
@@ -1121,44 +1122,6 @@
         syncBroadcastSettingsToCloud();
     }
 
-    function parseUptimeToMinutes(text) {
-        if (!text || text.toLowerCase().includes('offline') || text.toLowerCase().includes('not found')) return -1;
-        let totalMinutes = 0;
-        const daysMatch = text.match(/(\d+)\s*day/i);
-        const hoursMatch = text.match(/(\d+)\s*hour/i);
-        const minsMatch = text.match(/(\d+)\s*min/i);
-        const secsMatch = text.match(/(\d+)\s*sec/i);
-
-        if (daysMatch) totalMinutes += parseInt(daysMatch[1]) * 1440;
-        if (hoursMatch) totalMinutes += parseInt(hoursMatch[1]) * 60;
-        if (minsMatch) totalMinutes += parseInt(minsMatch[1]);
-        if (secsMatch && !daysMatch && !hoursMatch && !minsMatch) totalMinutes += 0.5;
-        if (totalMinutes === 0 && !daysMatch && !hoursMatch && !minsMatch) totalMinutes = 1;
-        return totalMinutes;
-    }
-
-    // 📡 TWITCH HÁTTÉR PUFFERELŐ DOKK (AZONNALI, KATTINTÁSMENTES INDULÁSRA KÉSZÜLVE)
-    function preloadTwitchStreamInBackground(channel) {
-        if (typeof Twitch === 'undefined') return;
-        bgStreamSlot.innerHTML = `<div id="bg-twitch-node" style="width:100%; height:100%;"></div>`;
-        try {
-            bgTwitchPlayer = new Twitch.Player("bg-twitch-node", {
-                channel: channel,
-                parent: getCleanParentDomains(),
-                width: "100%",
-                height: "100%",
-                autoplay: true,
-                muted: true,
-                controls: false
-            });
-            bgTwitchPlayer.addEventListener(Twitch.Player.READY, () => {
-                bgTwitchPlayer.setMuted(true);
-                bgTwitchPlayer.play();
-                log(`⚡ [TWITCH ELŐKÉSZÍTVE] ${channel.toUpperCase()} a háttérben már elindult és pufferel!`, 'info');
-            });
-        } catch (err) {}
-    }
-
     async function checkTwitchStreamersLiveStatus() {
         if (!isTwitchAutoSwitchEnabled || monitoredTwitchChannels.length === 0) return;
         const now = Date.now();
@@ -1171,13 +1134,12 @@
                     const minutesLive = parseUptimeToMinutes(text);
 
                     if (minutesLive >= 0) {
-                        delete streamerOfflineTimer[channel];
                         if (!streamerOnlineSince[channel]) streamerOnlineSince[channel] = now - (minutesLive * 60 * 1000);
 
                         if (minutesLive >= TWITCH_STABILIZATION_MINUTES) {
                             if (!twitchLiveQueue.includes(channel) && currentActiveTwitchStreamer !== channel) {
                                 twitchLiveQueue.push(channel);
-                                log(`📋 [TWITCH] ${channel.toUpperCase()} elérte a stabilitási időt. Várakozik a klip végére.`, 'success');
+                                log(`📋 [TWITCH] ${channel.toUpperCase()} elérte a 6 percet. Várakozik a klip végére.`, 'success');
                             }
                         } else {
                             const remainingWait = Math.ceil(TWITCH_STABILIZATION_MINUTES - minutesLive);
@@ -1190,17 +1152,11 @@
                         delete streamerOnlineSince[channel];
                         twitchLiveQueue = twitchLiveQueue.filter(c => c !== channel);
 
-                        // 1 PERCES OFFLINE TÜRELMI IDŐ A BIZTOS VISSZAKAPCSOLÁSHOZ
+                        // Ha épp ez a streamer volt adásban és offline lett -> AZONNALI VISSZATÉRÉS!
                         if (currentActiveTwitchStreamer === channel) {
-                            if (!streamerOfflineTimer[channel]) {
-                                streamerOfflineTimer[channel] = now;
-                                log(`⚠️ [TWITCH FIGYELMEZTETÉS] ${channel} streamje megszakadt, visszakapcsolás 1 percen belül ha nem áll helyre...`, 'warn');
-                            } else if (now - streamerOfflineTimer[channel] >= 60000) {
-                                log(`📡 [TWITCH VÉGE] ${channel} adása véget ért (1 perce offline). Visszakapcsolás a klipekre!`, 'warn');
-                                delete streamerOfflineTimer[channel];
-                                currentActiveTwitchStreamer = null;
-                                handleNextStreamOrClips();
-                            }
+                            log(`📡 [TWITCH VÉGE] ${channel} adása offline lett. Azonnali visszakapcsolás a klipekre!`, 'warn');
+                            currentActiveTwitchStreamer = null;
+                            handleNextStreamOrClips();
                         }
                     }
                 }
@@ -1209,13 +1165,16 @@
 
         renderTwitchMonitoredList();
 
+        // 30 MÁSODPERCES HÁTTÉR ELŐPUFFERELÉS
         if (!currentActiveTwitchStreamer && twitchLiveQueue.length > 0 && isTvBroadcasting) {
             const nextStreamer = twitchLiveQueue[0];
             if (pendingStreamerToSwitch !== nextStreamer) {
                 pendingStreamerToSwitch = nextStreamer;
                 incomingAlertText.textContent = `HAMAROSAN ÉLŐBEN: ${nextStreamer.toUpperCase()} közvetítése a klip után...`;
                 incomingAlert.classList.add('active');
-                preloadTwitchStreamInBackground(nextStreamer);
+                
+                embedDeck.src = getTwitchEmbedUrl(nextStreamer);
+                log(`⏳ [ELŐPUFFERELVE] ${nextStreamer.toUpperCase()} adása a háttérben már töltődik!`, 'info');
                 syncBroadcastSettingsToCloud();
             }
         }
@@ -1223,7 +1182,6 @@
 
     function forceSwitchToTwitchStreamer(channel) {
         pendingStreamerToSwitch = channel;
-        preloadTwitchStreamInBackground(channel);
         executeTwitchSwitchOnClipEnd();
     }
 
@@ -1235,70 +1193,39 @@
         currentActiveTwitchStreamer = streamer;
 
         incomingAlert.classList.remove('active');
-        hideLowerThirdImmediate();
+
+        // Korhatár azonnali levétele
         ageRatingContainer.style.display = 'none';
 
-        // LÁGY ÁTÚSZTATÁS A TWITCHRE
-        const activeDeck = activeDeckName === 'A' ? deckA : deckB;
-        fadeVolumeAndOpacity(activeDeck, 0, 1.2, () => {
-            deckA.pause(); deckB.pause();
-            deckA.style.opacity = '0'; deckB.style.opacity = '0';
-            deckA.classList.remove('active'); deckB.classList.remove('active');
-        });
+        deckA.pause(); deckB.pause();
+        deckA.style.opacity = '0'; deckB.style.opacity = '0';
+        deckA.classList.remove('active'); deckB.classList.remove('active');
 
-        const bgNode = document.getElementById('bg-twitch-node');
-        if (bgNode && bgTwitchPlayer) {
-            embedSlot.innerHTML = "";
-            embedSlot.appendChild(bgNode);
-            activeTwitchPlayer = bgTwitchPlayer;
-            bgTwitchPlayer = null;
-            activeTwitchPlayer.setMuted(false);
-            activeTwitchPlayer.setVolume(masterVolume);
-            activeTwitchPlayer.play();
-        } else {
-            embedSlot.innerHTML = `<div id="active-twitch-embed-node" style="width:100%; height:100%;"></div>`;
-            try {
-                activeTwitchPlayer = new Twitch.Player("active-twitch-embed-node", {
-                    channel: streamer,
-                    parent: getCleanParentDomains(),
-                    width: "100%",
-                    height: "100%",
-                    autoplay: true,
-                    muted: false,
-                    controls: false
-                });
-                activeTwitchPlayer.addEventListener(Twitch.Player.READY, () => {
-                    activeTwitchPlayer.setMuted(false);
-                    activeTwitchPlayer.setVolume(masterVolume);
-                    activeTwitchPlayer.play();
-                });
-            } catch (err) {}
-        }
-
-        embedContainer.classList.add('active');
-        embedContainer.style.opacity = '1';
+        embedDeck.src = getTwitchEmbedUrl(streamer);
+        embedDeck.classList.add('active');
+        embedDeck.style.opacity = '1';
 
         updateLiveBadgeUI(true, 'twitch');
-        log(`🔴 [ADÁSBAN] ${streamer.toUpperCase()} Twitch élő közvetítés elindult!`, 'success');
+        log(`🔴 [ADÁSBAN] ${streamer.toUpperCase()} Twitch élő adása elindult!`, 'success');
         syncBroadcastSettingsToCloud();
     }
 
     function handleNextStreamOrClips() {
         incomingAlert.classList.remove('active');
-        hideLowerThirdImmediate();
         pendingStreamerToSwitch = null;
 
         if (twitchLiveQueue.length > 0) {
             const nextStreamer = twitchLiveQueue.shift();
-            pendingStreamerToSwitch = nextStreamer;
-            executeTwitchSwitchOnClipEnd();
+            currentActiveTwitchStreamer = nextStreamer;
+            ageRatingContainer.style.display = 'none';
+            embedDeck.src = getTwitchEmbedUrl(nextStreamer);
+            embedDeck.classList.add('active');
+            updateLiveBadgeUI(true, 'twitch');
+            log(`🔴 [KÖVETKEZŐ ÉLŐ] ${nextStreamer.toUpperCase()} adásban.`, 'success');
         } else {
-            embedContainer.classList.remove('active');
-            embedContainer.style.opacity = '0';
-            embedSlot.innerHTML = "";
-            activeTwitchPlayer = null;
-            activeYouTubePlayer = null;
-            currentActiveTwitchStreamer = null;
+            embedDeck.classList.remove('active');
+            embedDeck.style.opacity = '0';
+            embedDeck.src = "about:blank";
 
             updateLiveBadgeUI(false, 'clips');
             evaluateAgeRatingVisibility();
@@ -1306,18 +1233,17 @@
             const now = new Date();
             const curSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
             checkScheduleAndPlayback(curSec, weekSchedules[getSelectedDateKey(0)] || []);
-            log("🎵 Visszakapcsolva a zenei műsorra és a hírszalagra.", 'success');
+            log("🎵 Visszakapcsolva a zenei adásra és hírszalagra.", 'success');
         }
         syncBroadcastSettingsToCloud();
     }
 
-    // 🎬 YOUTUBE IDŐZÍTÉS & MÁSODPERCRE PONTOS FINOM ÁTÚSZTATÁS
+    // 🎬 YOUTUBE MODAL & GOLYÓÁLLÓ HÉZAGKITÖLTŐ ADÁSLÁNC
     function updateYouTubeCalculatedEndTime() {
         const timeInput = document.getElementById('modal-yt-start-time').value.trim();
         const hours = parseInt(document.getElementById('inp-yt-dur-hours').value) || 0;
         const mins = parseInt(document.getElementById('inp-yt-dur-mins').value) || 0;
-        const secs = parseInt(document.getElementById('inp-yt-dur-secs').value) || 0;
-        const totalDurSec = (hours * 3600) + (mins * 60) + secs;
+        const totalDurSec = (hours * 3600) + (mins * 60);
 
         const parts = timeInput.split(':').map(Number);
         const startSec = (parts[0] || 0) * 3600 + (parts[1] || 0) * 60 + (parts[2] || 0);
@@ -1343,19 +1269,19 @@
         const title = document.getElementById('inp-yt-title').value.trim() || "KÉPBEN! KÜLÖNKIADÁS";
         const hours = parseInt(document.getElementById('inp-yt-dur-hours').value) || 0;
         const mins = parseInt(document.getElementById('inp-yt-dur-mins').value) || 0;
-        const secs = parseInt(document.getElementById('inp-yt-dur-secs').value) || 0;
-        const durationSec = (hours * 3600) + (mins * 60) + secs;
+        const durationSec = (hours * 3600) + (mins * 60);
         const timeInput = document.getElementById('modal-yt-start-time').value.trim();
         const dayChoice = document.getElementById('modal-yt-day-select').value;
         const itemRating = document.getElementById('modal-yt-rating-select').value;
 
         if (!rawUrl) return alert("Kérlek add meg a YouTube linket!");
-        if (durationSec <= 0) return alert("A videó hossza legalább 5 másodperc kell legyen!");
+        if (durationSec <= 0) return alert("A videó hossza legalább 1 perc kell legyen!");
 
-        const ytMatch = rawUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|live\/|shorts\/|watch\?v=|watch\?.+&v=))([\w-]{11})/i);
-        if (!ytMatch || !ytMatch[1]) return alert("Érvénytelen YouTube videó link!");
+        const videoId = extractYouTubeVideoId(rawUrl);
+        if (!videoId) return alert("Érvénytelen YouTube videó link!");
 
-        const videoId = ytMatch[1];
+        const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=0&controls=1&enablejsapi=1&playsinline=1&rel=0`;
+
         const dateKey = (dayChoice === 'today') ? getSelectedDateKey(0) : getSelectedDateKey(selectedDayIndex);
         if (!weekSchedules[dateKey]) weekSchedules[dateKey] = [];
         
@@ -1365,8 +1291,8 @@
         const newYouTubeItem = {
             id: 'yt_' + Date.now(),
             filename: 'YOUTUBE_' + videoId,
-            videoId: videoId,
             title: title,
+            url: embedUrl,
             rawUrl: rawUrl,
             isStream: true,
             streamType: 'youtube',
@@ -1389,87 +1315,7 @@
         log(`🎬 [YOUTUBE IDŐZÍTVE] ${title} (${formatSecToHMS(startSec)} - ${formatSecToHMS(startSec + durationSec)})`, 'success');
     }
 
-    function playYouTubeVideoSafe(videoId, offsetSec = 0) {
-        hideLowerThirdImmediate();
-        embedSlot.innerHTML = `<div id="active-yt-player-node" style="width:100%; height:100%;"></div>`;
-        embedContainer.classList.add('active');
-        embedContainer.style.opacity = '1';
-
-        // LÁGY VOLUMEN ÉS KÉP ÁTÚSZTATÁS A DECKRŐL
-        const currentDeck = activeDeckName === 'A' ? deckA : deckB;
-        fadeVolumeAndOpacity(currentDeck, 0, 1.5, () => {
-            currentDeck.pause();
-            currentDeck.style.opacity = '0';
-            currentDeck.classList.remove('active');
-        });
-
-        if (typeof YT !== 'undefined' && YT.Player) {
-            activeYouTubePlayer = new YT.Player('active-yt-player-node', {
-                videoId: videoId,
-                playerVars: {
-                    autoplay: 1,
-                    controls: 0, // Teljesen elrejtett YouTube panel
-                    disablekb: 1, // Billentyűzet tiltása
-                    fs: 0, // Külső fullscreen tiltása
-                    modestbranding: 1,
-                    playsinline: 1,
-                    rel: 0,
-                    start: Math.floor(offsetSec),
-                    origin: window.location.origin || "https://localhost",
-                    widget_referrer: window.location.href,
-                    enablejsapi: 1
-                },
-                events: {
-                    onReady: (event) => {
-                        event.target.setVolume(Math.round(masterVolume * 100));
-                        event.target.playVideo();
-                    },
-                    onStateChange: (event) => {
-                        if (event.data === YT.PlayerState.ENDED) {
-                            log("🎬 YouTube műsor befejeződött. Azonnali átúsztatás a klipekre!", 'success');
-                            executeVideoCrossfade(true);
-                        }
-                    },
-                    onError: (event) => {
-                        log(`⚠️ YouTube hiba (Hibakód: ${event.data}). Automatikus visszatérés a zenei műsorra.`, 'warn');
-                        executeVideoCrossfade(true);
-                    }
-                }
-            });
-        } else {
-            const cleanOrigin = encodeURIComponent(window.location.origin || "https://localhost");
-            embedSlot.innerHTML = `
-                <iframe src="https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=0&controls=0&disablekb=1&enablejsapi=1&playsinline=1&rel=0&origin=${cleanOrigin}" 
-                        allow="autoplay; fullscreen; encrypted-media; picture-in-picture" 
-                        referrerpolicy="no-referrer" 
-                        allowfullscreen style="width:100%; height:100%; border:none;">
-                </iframe>
-            `;
-        }
-    }
-
-    function fadeVolumeAndOpacity(element, targetVal, durationSec, callback) {
-        if (!element) return;
-        const steps = 20;
-        const interval = (durationSec * 1000) / steps;
-        let curStep = 0;
-        const initVol = element.volume !== undefined ? element.volume : 1;
-        const initOp = parseFloat(element.style.opacity || "1");
-
-        const t = setInterval(() => {
-            curStep++;
-            const progress = curStep / steps;
-            if (element.volume !== undefined) element.volume = Math.max(0, initVol * (1 - progress));
-            element.style.opacity = Math.max(0, initOp * (1 - progress)).toFixed(2);
-
-            if (curStep >= steps) {
-                clearInterval(t);
-                if (callback) callback();
-            }
-        }, interval);
-    }
-
-    // 🧮 24 ÓRÁS MÁSODPERC-PONTOS ADÁSLÁNC ÚJRATERVEZŐ
+    // 🧮 24 ÓRÁS ADÁSLÁNC ÚJRATERVEZŐ (HÉZAGMENTES KITÖLTÉSSEL)
     function autoGenerateDaySchedule(dayOffset, forceRegenerate = false) {
         const pool = r2Library.length > 0 ? r2Library : defaultSampleClips;
         const dateKey = getSelectedDateKey(dayOffset);
@@ -1482,13 +1328,13 @@
         for (const stream of fixedStreams) {
             while (curTime < stream.startSec) {
                 const gap = stream.startSec - curTime;
-                if (gap <= 5) { curTime = stream.startSec; break; }
+                if (gap <= 15) { curTime = stream.startSec; break; }
 
                 const clip = getNextRotatedClip();
                 if (!clip) break;
 
                 let clipDur = clip.duration || 210;
-                if (clipDur > gap) clipDur = gap; // Pontosan a megadott másodpercig tart a klip!
+                if (clipDur > gap) clipDur = gap;
 
                 const curHour = Math.floor(curTime / 3600);
                 finalSchedule.push({
@@ -1515,7 +1361,7 @@
 
         while (curTime < 86400) {
             const gap = 86400 - curTime;
-            if (gap <= 5) break;
+            if (gap <= 15) break;
 
             const clip = getNextRotatedClip();
             if (!clip) break;
@@ -1562,7 +1408,7 @@
         return `${h}:${m}:${s}`;
     }
 
-    // 📺 ADÁSLEJÁTSZÁS & VALÓS IDEJŰ ELLENŐRZÉS
+    // 📺 ADÁSLEJÁTSZÁS
     function checkScheduleAndPlayback(currentSecToday, schedule) {
         if (!isTvBroadcasting || transitionLock || currentActiveTwitchStreamer) return;
         if (!schedule || schedule.length === 0) { showStandby(null); return; }
@@ -1579,27 +1425,30 @@
             currentClipIndex = foundIdx;
             currentlyPlayingId = clip.id;
             isEndSequenceRunning = false;
-            isIntroBannerRunning = false;
-            hideLowerThirdImmediate();
+            isIntroBannerRunning = true;
 
+            // 🎬 YOUTUBE VIDEÓ LEJÁTSZÁSA
             if (clip.isStream) {
                 deckA.pause(); deckB.pause();
                 deckA.classList.remove('active'); deckB.classList.remove('active');
                 deckA.style.opacity = '0'; deckB.style.opacity = '0';
+
+                // Korhatár azonnali levétele
                 ageRatingContainer.style.display = 'none';
 
-                const offsetSec = Math.max(0, currentSecToday - clip.startSec);
-                playYouTubeVideoSafe(clip.videoId, offsetSec);
+                embedDeck.src = clip.url;
+                embedDeck.classList.add('active');
+                embedDeck.style.opacity = '1';
 
-                updateLiveBadgeUI(false, clip.streamType);
+                updateLiveBadgeUI(true, clip.streamType);
+                setTimeout(() => runTrackPresentationSequence(schedule, true), 500);
                 return;
             }
 
-            embedContainer.classList.remove('active');
-            embedContainer.style.opacity = '0';
-            embedSlot.innerHTML = "";
-            activeYouTubePlayer = null;
-
+            // 🎬 R2 VIDEÓKLIP
+            embedDeck.classList.remove('active');
+            embedDeck.style.opacity = '0';
+            embedDeck.src = "about:blank";
             updateLiveBadgeUI(false, 'clips');
             evaluateAgeRatingVisibility();
 
@@ -1620,11 +1469,12 @@
             activeDeck.play().catch(() => {});
             
             if (offsetSec < 15) setTimeout(() => runTrackPresentationSequence(schedule, true), 500);
+            else isIntroBannerRunning = false;
 
             preloadNextDeckClip(schedule);
         } else {
-            embedContainer.classList.remove('active');
-            embedSlot.innerHTML = "";
+            embedDeck.classList.remove('active');
+            embedDeck.src = "about:blank";
             updateLiveBadgeUI(false, 'clips');
             let nextClip = schedule.find(item => item.startSec > currentSecToday) || schedule[0];
             showStandby(nextClip ? nextClip.startTimeStr : null);
@@ -1633,7 +1483,7 @@
 
     function attachVideoDeckListeners(deck, deckLetter) {
         deck.ontimeupdate = () => {
-            if (activeDeckName !== deckLetter || !deck.duration || !isTvBroadcasting || isVideoTransitioning || transitionLock) return;
+            if (activeDeckName !== deckLetter || !deck.duration || isMonoscopeActive || isVideoTransitioning || !isTvBroadcasting || transitionLock) return;
             const curTime = deck.currentTime;
             const remaining = deck.duration - curTime;
             const todayKey = getSelectedDateKey(0);
@@ -1687,6 +1537,7 @@
         
         isVideoTransitioning = true;
         transitionLock = true;
+        isIntroBannerRunning = true;
         hideLowerThirdImmediate();
 
         const currentDeck = activeDeckName === 'A' ? deckA : deckB;
@@ -1702,19 +1553,15 @@
             currentDeck.style.opacity = '0';
             currentDeck.classList.remove('active');
             ageRatingContainer.style.display = 'none';
-
-            playYouTubeVideoSafe(newClip.videoId, 0);
-
-            updateLiveBadgeUI(false, newClip.streamType);
+            embedDeck.src = newClip.url;
+            embedDeck.classList.add('active');
+            embedDeck.style.opacity = '1';
+            updateLiveBadgeUI(true, newClip.streamType);
             isVideoTransitioning = false;
             transitionLock = false;
+            setTimeout(() => runTrackPresentationSequence(schedule, true), 500);
             return;
         }
-
-        embedContainer.classList.remove('active');
-        embedContainer.style.opacity = '0';
-        embedSlot.innerHTML = "";
-        activeYouTubePlayer = null;
 
         updateLiveBadgeUI(false, 'clips');
         evaluateAgeRatingVisibility();
@@ -1935,7 +1782,7 @@
     }
 
     function triggerLowerThirdBanner(type, rawTrackTitle, showCat) {
-        if (!isTvBroadcasting || !isLogoVisible || currentActiveTwitchStreamer || embedContainer.classList.contains('active')) return;
+        if (!isTvBroadcasting || !isLogoVisible) return;
         const showConfig = tvDaypartConfig[showCat] || tvDaypartConfig.delelott;
         applyDaypartTheme(showCat);
 
@@ -1962,7 +1809,7 @@
     }
 
     function runTrackPresentationSequence(schedule, isIntro = true) {
-        if (!isTvBroadcasting || !isLogoVisible || currentActiveTwitchStreamer || embedContainer.classList.contains('active')) return;
+        if (!isTvBroadcasting || !isLogoVisible) return;
         clearTimeout(bannerHideTimeout);
         bannerSequenceTimers.forEach(t => clearTimeout(t));
         bannerSequenceTimers = [];
@@ -1971,20 +1818,18 @@
         else isEndSequenceRunning = true;
 
         const curClip = schedule[currentClipIndex];
-        if (!curClip || curClip.isStream) return;
-
         const curCat = curClip?.cat || getDaypartKeyForHour(new Date().getHours());
         const nextClip = schedule[(currentClipIndex + 1) % schedule.length];
         const laterClip = schedule[(currentClipIndex + 2) % schedule.length];
 
-        triggerLowerThirdBanner("MOST", curClip.title, curCat);
+        if (curClip) triggerLowerThirdBanner("MOST", curClip.title, curCat);
 
         bannerSequenceTimers.push(setTimeout(() => {
-            if (nextClip && isTvBroadcasting && !nextClip.isStream) triggerLowerThirdBanner("KÖVETKEZIK", nextClip.title, curCat);
+            if (nextClip && isTvBroadcasting) triggerLowerThirdBanner("KÖVETKEZIK", nextClip.title, curCat);
         }, 5000));
 
         bannerSequenceTimers.push(setTimeout(() => {
-            if (laterClip && isTvBroadcasting && !laterClip.isStream) triggerLowerThirdBanner("KÉSŐBB", laterClip.title, curCat);
+            if (laterClip && isTvBroadcasting) triggerLowerThirdBanner("KÉSŐBB", laterClip.title, curCat);
         }, 10000));
 
         bannerSequenceTimers.push(setTimeout(() => {
@@ -2002,12 +1847,8 @@
             deckA.pause(); deckB.pause();
             deckA.src = ""; deckB.src = "";
             deckA.style.opacity = '0'; deckB.style.opacity = '0';
-            embedContainer.classList.remove('active');
-            embedSlot.innerHTML = "";
-            activeTwitchPlayer = null;
-            activeYouTubePlayer = null;
-            bgStreamSlot.innerHTML = "";
-
+            embedDeck.classList.remove('active');
+            embedDeck.src = "about:blank";
             hideLowerThirdImmediate();
             incomingAlert.classList.remove('active');
             isTvBroadcasting = false;
@@ -2086,7 +1927,7 @@
     }
 
     function evaluateAgeRatingVisibility() {
-        if (!isTvBroadcasting || currentAgeRating === 'none' || currentActiveTwitchStreamer || embedContainer.classList.contains('active')) {
+        if (!isTvBroadcasting || currentAgeRating === 'none' || currentActiveTwitchStreamer || embedDeck.classList.contains('active')) {
             ageRatingContainer.style.display = 'none';
             return;
         }
@@ -2101,78 +1942,12 @@
 
     function onRatingSelectChange(val) { applyAgeRating(val); syncBroadcastSettingsToCloud(); }
 
-    function togglePositionModal() {
-        const modal = document.getElementById('position-modal');
-        const isActive = modal.classList.toggle('active');
-        if (isActive) {
-            watermarkWrap.style.display = 'flex';
-            ageRatingContainer.style.display = 'flex';
-        } else {
-            applyLogoVisibility();
-            evaluateAgeRatingVisibility();
-        }
-    }
-
-    function updatePositionsUI() {
-        const lt = document.getElementById('rng-logo-top').value;
-        const lr = document.getElementById('rng-logo-right').value;
-        const ls = document.getElementById('rng-logo-scale').value;
-
-        const pb = document.getElementById('rng-pos-bottom').value;
-        const pr = document.getElementById('rng-pos-right').value;
-        const ps = document.getElementById('rng-pos-size').value;
-
-        document.getElementById('lbl-logo-top').textContent = `${lt} px`;
-        document.getElementById('lbl-logo-right').textContent = `${lr} px`;
-        document.getElementById('lbl-logo-scale').textContent = `${ls}%`;
-
-        document.getElementById('lbl-pos-bottom').textContent = `${pb} px`;
-        document.getElementById('lbl-pos-right').textContent = `${pr} px`;
-        document.getElementById('lbl-pos-size').textContent = `${ps} px`;
-
-        watermarkWrap.style.top = `${lt}px`;
-        watermarkWrap.style.right = `${lr}px`;
-        watermarkWrap.style.transform = `scale(${ls / 100})`;
-
-        ageRatingContainer.style.bottom = `${pb}px`;
-        ageRatingContainer.style.right = `${pr}px`;
-        nmhhRingBox.style.width = `${ps}px`;
-        nmhhRingBox.style.height = `${ps}px`;
-    }
-
-    function saveAllPositionsToCloud() {
-        const lt = document.getElementById('rng-logo-top').value;
-        const lr = document.getElementById('rng-logo-right').value;
-        const ls = document.getElementById('rng-logo-scale').value;
-
-        const pb = document.getElementById('rng-pos-bottom').value;
-        const pr = document.getElementById('rng-pos-right').value;
-        const ps = document.getElementById('rng-pos-size').value;
-
-        localStorage.setItem('kb_tv_logo_t', lt);
-        localStorage.setItem('kb_tv_logo_r', lr);
-        localStorage.setItem('kb_tv_logo_s', ls);
-        localStorage.setItem('kb_tv_pos_b', pb);
-        localStorage.setItem('kb_tv_pos_r', pr);
-        localStorage.setItem('kb_tv_pos_s', ps);
-
-        syncBroadcastSettingsToCloud();
-        togglePositionModal();
-        log("📍 Grafikai pozíciók mentve és szinkronizálva!", 'success');
-    }
-
-    function toggleRatingAutoTimer(checked) {
-        isRatingAutoTimerEnabled = checked;
-        localStorage.setItem('kb_rating_auto_timer', checked.toString());
-        syncBroadcastSettingsToCloud();
-    }
-
     function showStandby(resumeTimeStr) {
         if (!isTvBroadcasting) return;
         deckA.pause(); deckB.pause();
         deckA.src = ""; deckB.src = "";
-        embedContainer.classList.remove('active');
-        embedSlot.innerHTML = "";
+        embedDeck.classList.remove('active');
+        embedDeck.src = "about:blank";
         hideLowerThirdImmediate();
         standbyScreen.classList.add('active');
         standbyResumeTimeEl.textContent = resumeTimeStr ? `${resumeTimeStr}-kor` : "--:--:--";
@@ -2208,6 +1983,11 @@
         try {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
+            compressorNode = audioCtx.createDynamicsCompressor();
+            masterGainNode = audioCtx.createGain();
+            masterGainNode.gain.setValueAtTime(masterVolume, audioCtx.currentTime);
+            compressorNode.connect(masterGainNode);
+            masterGainNode.connect(audioCtx.destination);
             isAudioInitialized = true;
         } catch(e) {}
     }
@@ -2220,8 +2000,6 @@
     function setTvVolume(val) {
         masterVolume = parseFloat(val);
         deckA.volume = masterVolume; deckB.volume = masterVolume;
-        if (activeTwitchPlayer && activeTwitchPlayer.setVolume) activeTwitchPlayer.setVolume(masterVolume);
-        if (activeYouTubePlayer && activeYouTubePlayer.setVolume) activeYouTubePlayer.setVolume(Math.round(masterVolume * 100));
         document.getElementById('tv-vol-text').textContent = Math.round(val * 100) + '%';
     }
 
@@ -2321,12 +2099,6 @@
             active_twitch_streamer: currentActiveTwitchStreamer,
             pending_streamer: pendingStreamerToSwitch,
             video_enhanced: isVideoEnhanced,
-            logo_pos_t: localStorage.getItem('kb_tv_logo_t') || "26",
-            logo_pos_r: localStorage.getItem('kb_tv_logo_r') || "32",
-            logo_scale: localStorage.getItem('kb_tv_logo_s') || "100",
-            rating_pos_b: localStorage.getItem('kb_tv_pos_b') || "48",
-            rating_pos_r: localStorage.getItem('kb_tv_pos_r') || "28",
-            rating_pos_s: localStorage.getItem('kb_tv_pos_s') || "36",
             updatedAt: new Date().toISOString()
         };
         try {
@@ -2340,7 +2112,7 @@
             if (res.ok) {
                 const data = await res.json();
                 if (data.news && Object.keys(data.news).length > 0) {
-                    cachedNewsItems = Object.values(data.news).slice(0, 10);
+                    cachedNewsItems = Object.values(data.news).slice(0, 8);
                 }
             }
         } catch(e) {}
@@ -2351,17 +2123,14 @@
         if (!tickerCrawlTrack) return;
         const separatorHtml = `<span class="crawl-separator"><svg class="kb-icon-mini" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg></span>`;
         tickerCrawlTrack.innerHTML = cachedNewsItems.map(n => `
-            <span class="crawl-news-item">
-                <span class="crawl-news-tag">HÍREK · ${n.source || 'KÉPBEN!'}</span>
-                <span class="crawl-news-title">${cleanHtmlText(n.title)}</span>
-                ${n.description ? `<span class="crawl-news-desc">— ${cleanHtmlText(n.description)}</span>` : ''}
-            </span>
+            <span class="crawl-news-item"><span class="crawl-news-tag">HÍREK · ${n.source || 'KÉPBEN!'}</span><span class="crawl-news-title">${cleanHtmlText(n.title)}</span></span>
         `).join(separatorHtml);
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
         init7DayCalendar();
         await loadR2Library();
+        renderYouTubeLibraryTable();
         fetchLiveNews();
         renderTwitchMonitoredList();
 
@@ -2374,7 +2143,10 @@
                 const cloud = await setRes.json();
                 if (cloud && cloud.active_twitch_streamer) {
                     currentActiveTwitchStreamer = cloud.active_twitch_streamer;
-                    forceSwitchToTwitchStreamer(currentActiveTwitchStreamer);
+                    embedDeck.src = getTwitchEmbedUrl(currentActiveTwitchStreamer);
+                    embedDeck.classList.add('active');
+                    embedDeck.style.opacity = '1';
+                    updateLiveBadgeUI(true, 'twitch');
                 }
             }
             if (schedRes.ok) weekSchedules = (await schedRes.json()) || {};
@@ -2395,7 +2167,7 @@
 
 ---
 
-### 2. FÁJL: `nezo music 2.html` (Nézői Lejátszó)
+### 2. FÁJL: `nezo music 2.html` (Nézői Lejátszó – Teljes, vágatlan kód)
 
 ```html
 <!DOCTYPE html>
@@ -2404,11 +2176,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>KÉPBEN! MUSIC TELEVISION · Élő Adás</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700;800&display=swap" rel="stylesheet">
-<!-- Twitch és YouTube API-k -->
-<script src="https://player.twitch.tv/js/embed/v1.js"></script>
-<script src="https://www.youtube.com/iframe_api"></script>
 
 <style>
     :root {
@@ -2486,29 +2256,23 @@
     }
     .tv-video-deck.active { opacity: 1; z-index: 2; }
 
-    /* 🌐 BEÁGYAZOTT STREAM RÉTEG ÉS PANEL ZÁROLÓ PAJZS */
-    .tv-embed-container {
+    /* 🌐 BEÁGYAZOTT STREAM RÉTEG */
+    .tv-embed-deck {
         position: absolute;
         top: 0; left: 0;
         width: 100%; height: 100%;
         border: none;
         z-index: 1;
         opacity: 0;
+        pointer-events: auto;
         display: none;
         background: #000;
         transition: opacity 0.6s ease-in-out;
     }
-    .tv-embed-container.active {
+    .tv-embed-deck.active {
         display: block;
         opacity: 1;
         z-index: 4;
-    }
-    .tv-embed-container iframe, .tv-embed-container div { width: 100%; height: 100%; border: none; }
-
-    /* 🔒 KÜLSŐ PANEL ÉS BELETEKERÉS ZÁROLÁS */
-    .stream-shield-overlay {
-        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        z-index: 5; background: transparent; cursor: default;
     }
 
     .tv-video-deck.enhanced-mode {
@@ -2558,7 +2322,7 @@
         background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.45); padding: 6px 18px; border-radius: 10px;
     }
 
-    /* 🏷️ JOBB FELSŐ LOGÓ + FIX 🔴 ÉLŐ BADGE */
+    /* 🏷️ JOBB FELSŐ LOGÓ + FIX (NEM PULZÁLÓ) 🔴 ÉLŐ BADGE */
     .tv-watermark-wrap {
         position: absolute;
         top: 26px; right: 32px;
@@ -2599,7 +2363,7 @@
         text-shadow: 0 2px 4px rgba(0,0,0,0.9);
     }
 
-    /* 🔴 FIX ÉLŐ JELZÉS */
+    /* 🔴 DISZKRÉT FIX ÉLŐ JELZÉS */
     .tv-live-on-air-tag {
         display: none;
         align-items: center;
@@ -2624,12 +2388,11 @@
     }
     .tv-morning-clock.active { display: inline-block; }
 
-    /* 📡 ÉLŐ ELŐREJELZŐ SÁV (BAL FELÜL) */
+    /* 📡 ÉLŐ ELŐREJELZŐ SÁV */
     .tv-incoming-alert {
         position: absolute;
-        top: 24px;
-        left: 24px;
-        bottom: auto;
+        bottom: 52px;
+        left: 20px;
         background: rgba(9, 14, 26, 0.95);
         border-left: 4px solid #ef4444;
         border-radius: 8px;
@@ -2779,7 +2542,7 @@
     .nmhh-number { font-family: 'Inter', sans-serif; font-weight: 900; font-size: 1.05rem; color: #ffffff !important; line-height: 1; }
     .nmhh-child-svg { width: 36px; height: 36px; fill: #22c55e; }
 
-    /* 📰 FIX HÍRSÁV (NYUGODT TEMPÓ & RÉSZLETES LEÍRÁS) */
+    /* 📰 FIX HÍRSÁV */
     .tv-news-ticker-bar {
         position: absolute;
         bottom: 0;
@@ -2830,15 +2593,13 @@
     .ticker-crawl-viewport { flex: 1; overflow: hidden; position: relative; display: flex; align-items: center; background: #090e1a; }
     .ticker-crawl-track {
         display: inline-flex; align-items: center; white-space: nowrap; padding-left: 100%;
-        animation-name: crawlAnim; animation-duration: 110s; /* Kellemes, szemkímélő olvasási sebesség */
-        animation-timing-function: linear; animation-iteration-count: infinite;
+        animation-name: crawlAnim; animation-duration: 50s; animation-timing-function: linear; animation-iteration-count: infinite;
         will-change: transform;
     }
-    .crawl-news-item { display: inline-flex; align-items: center; font-size: 0.82rem; color: #ffffff; gap: 8px; }
+    .crawl-news-item { display: inline-flex; align-items: center; font-size: 0.82rem; color: #ffffff; gap: 6px; }
     .crawl-news-tag { font-family: 'Space Mono', monospace; font-size: 0.60rem; font-weight: 900; color: var(--theme-primary); background: #1e293b; padding: 2px 6px; border-radius: 4px; }
-    .crawl-news-title { font-weight: 800; color: #ffffff; }
-    .crawl-news-desc { color: #cbd5e1; font-size: 0.78rem; font-weight: 400; opacity: 0.9; }
-    .crawl-separator { display: inline-flex; align-items: center; margin: 0 24px; opacity: 0.8; }
+    .crawl-news-promo { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
+    .crawl-separator { display: inline-flex; align-items: center; margin: 0 20px; opacity: 0.8; }
     .crawl-separator .kb-icon-mini { width: 15px; height: 15px; stroke: var(--theme-primary); }
 
     @keyframes crawlAnim { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
@@ -2894,12 +2655,8 @@
         <video id="tv-video-deck-a" class="tv-video-deck active" playsinline preload="auto" webkit-playsinline></video>
         <video id="tv-video-deck-b" class="tv-video-deck" playsinline preload="none" webkit-playsinline></video>
 
-        <!-- 🌐 YOUTUBE & TWITCH ÉLŐ LEJÁTSZÓ KONTÉNER + INTERAKCIÓ-VÉDELEM -->
-        <div id="tv-embed-container" class="tv-embed-container">
-            <div id="tv-embed-slot"></div>
-            <!-- 🔒 ÁTLÁTSZÓ PAJZS (MEGÁLLÍTJA A BELETEKERÉST ÉS AZ ILLETÉKTELEN KATTINTÁSOKAT) -->
-            <div class="stream-shield-overlay" id="stream-shield"></div>
-        </div>
+        <!-- 🌐 YOUTUBE & TWITCH ÉLŐ LEJÁTSZÓ -->
+        <iframe id="tv-embed-deck" class="tv-embed-deck" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen></iframe>
 
         <!-- 📺 PHILIPS MONOSZKÓP -->
         <div class="tv-monoscope-layer" id="tv-monoscope-layer">
@@ -2921,7 +2678,7 @@
             </div>
         </div>
 
-        <!-- 📡 DISZKRÉT ÉLŐ ELŐREJELZŐ SÁV (BAL FELÜL) -->
+        <!-- 📡 DISZKRÉT ÉLŐ ELŐREJELZŐ SÁV -->
         <div class="tv-incoming-alert" id="tv-incoming-alert">
             <span>📡</span>
             <span id="tv-incoming-alert-text">HAMAROSAN ÉLŐBEN: Kapcsoljuk a közvetítést...</span>
@@ -2951,7 +2708,7 @@
                 </div>
             </div>
 
-            <!-- 📰 FIX ALSÓ HÍRSÁV (RÉSZLETES LEÍRÁSSAL, KELLEMES TEMPÓBAN) -->
+            <!-- 📰 FIX ALSÓ HÍRSÁV -->
             <div class="tv-news-ticker-bar" id="tv-news-ticker-bar">
                 <div class="ticker-weather-block" id="ticker-weather-block">
                     <div class="ticker-date-badge">
@@ -2969,7 +2726,7 @@
 
                 <div class="ticker-crawl-viewport">
                     <div class="ticker-crawl-track" id="ticker-crawl-track">
-                        <span class="crawl-news-item"><span class="crawl-news-tag">KÉPBEN! HÍREK</span><span class="crawl-news-title">Friss zenei és közéleti hírek betöltése folyamatban...</span></span>
+                        <span class="crawl-news-item"><span class="crawl-news-tag">KÉPBEN! HÍREK</span><span class="crawl-news-title">Friss zenei és bulvár hírek betöltése folyamatban...</span></span>
                     </div>
                 </div>
             </div>
@@ -3050,10 +2807,7 @@
 
     const WORKER_URL = "https://kepbenoszlop.androjid21.workers.dev";
     const FIREBASE_URL = "https://hiroszlop-default-rtdb.europe-west1.firebasedatabase.app";
-    const VIDEO_CROSSFADE_SEC = 4;
-
-    const BASE_SCREEN_WIDTH = 1000;
-    let currentScaleRatio = 1;
+    const VIDEO_CROSSFADE_SEC = 5;
 
     let weekSchedules = {};
     let isTvBroadcasting = false;
@@ -3073,9 +2827,6 @@
     let currentActiveDaypartKey = 'delelott';
     let liveBadgeMode = 'auto';
     let currentActiveTwitchStreamer = null;
-    let cloudPositions = null;
-    let activeTwitchPlayer = null;
-    let activeYouTubePlayer = null;
 
     let isIntroBannerRunning = false;
     let isEndSequenceRunning = false;
@@ -3083,18 +2834,17 @@
     let bannerSequenceTimers = [];
 
     let cachedNewsItems = [
-        { title: "KÉPBEN! Élő Adás – Folyamatos 24/7 zenei műsorfolyam", description: "Legfrissebb slágerek, HD klipek és valós idejű hírfolyam a nap 24 órájában.", source: "KÉPBEN!" },
-        { title: "KÉPBEN! MUSIC – HD videóklipek és slágerek megszakítás nélkül", description: "A legújabb hazai és nemzetközi klipek prémium kép- és hangminőségben.", source: "MUSIC TV" }
+        { title: "KÉPBEN! Élő Adás – Folyamatos 24/7 zenei műsorfolyam", source: "KÉPBEN!" },
+        { title: "KÉPBEN! MUSIC – HD videóklipek és slágerek megszakítás nélkül", source: "MUSIC TV" }
     ];
 
     let audioCtx = null;
+    let masterGainNode = null;
     let isAudioInitialized = false;
 
     const deckA = document.getElementById('tv-video-deck-a');
     const deckB = document.getElementById('tv-video-deck-b');
-    const embedContainer = document.getElementById('tv-embed-container');
-    const embedSlot = document.getElementById('tv-embed-slot');
-
+    const embedDeck = document.getElementById('tv-embed-deck');
     const tvScreenContainer = document.getElementById('tv-screen-container');
     const monoscopeLayer = document.getElementById('tv-monoscope-layer');
     const standbyScreen = document.getElementById('tv-standby-screen');
@@ -3130,14 +2880,6 @@
         live: { title: "🔴 KÉPBEN! ÉLŐ KÖZVETÍTÉS", primaryColor: "#ef4444", gradient: "linear-gradient(135deg, #1e0b0b 0%, #7f1d1d 100%)" }
     };
 
-    function getCleanParentDomains() {
-        let currentHost = window.location.hostname;
-        if (!currentHost || window.location.protocol === 'file:') currentHost = "localhost";
-        const parentDomains = new Set(["localhost", "127.0.0.1", "robszerko.github.io"]);
-        if (currentHost) parentDomains.add(currentHost);
-        return Array.from(parentDomains);
-    }
-
     function getDaypartKeyForHour(hour) {
         if (hour >= 0 && hour < 6) return 'ejjel';
         if (hour >= 6 && hour < 10) return 'reggel';
@@ -3163,7 +2905,6 @@
         let s = raw.replace(/\.(mp4|webm|mov|mkv|mp3|avi|flv)$/i, '').replace(/_/g, ' ');
         s = s.replace(/^\s*\d{1,3}[\.\-\s_]+/i, '');
         s = s.replace(/\s*[\[\(](official\s*(music\s*)?video|video|audio|lyrics|4k|60fps|hd|hq|clip\s*officiel|official\s*hd|hivatalos\s*(vide[oó]klip|klip))[\]\)]/gi, '');
-        s = s.replace(/\s*(official\s*(music\s*)?video|vide[oó]\s*clip|clip\s*officiel|official\s*audio|hivatalos\s*vide[oó]klip)\b/gi, '');
         return s.replace(/\s+/g, ' ').trim();
     }
 
@@ -3181,12 +2922,21 @@
         return { artist: "KÉPBEN! SLÁGER", title: cleaned };
     }
 
+    function getTwitchEmbedUrl(channel) {
+        let currentHost = window.location.hostname;
+        if (!currentHost || window.location.protocol === 'file:') currentHost = "localhost";
+        const parentDomains = new Set(["localhost", "127.0.0.1", "robszerko.github.io"]);
+        if (currentHost) parentDomains.add(currentHost);
+        const parentQuery = Array.from(parentDomains).map(d => `parent=${encodeURIComponent(d)}`).join('&');
+        return `https://player.twitch.tv/?channel=${encodeURIComponent(channel)}&${parentQuery}&autoplay=true&muted=false`;
+    }
+
     function updateLiveBadgeUI(isStreamActive = false, streamType = 'clips') {
         let showLive = false;
         if (liveBadgeMode === 'on') showLive = true;
         else if (liveBadgeMode === 'off') showLive = false;
         else {
-            showLive = (Boolean(currentActiveTwitchStreamer) || (isStreamActive && streamType === 'twitch'));
+            showLive = Boolean(currentActiveTwitchStreamer) || (isStreamActive && streamType === 'twitch');
         }
 
         if (showLive && isViewerPlaying && isTvBroadcasting) {
@@ -3202,43 +2952,14 @@
         }
     }
 
-    function updateResponsiveScaling() {
-        const currentWidth = tvScreenContainer.clientWidth;
-        currentScaleRatio = Math.max(0.35, currentWidth / BASE_SCREEN_WIDTH);
-        applyCloudPositions();
-    }
-
-    const resizeObserver = new ResizeObserver(() => updateResponsiveScaling());
-    resizeObserver.observe(tvScreenContainer);
-
-    function applyCloudPositions() {
-        const b = parseFloat(cloudPositions?.rating_pos_b || 48);
-        const r = parseFloat(cloudPositions?.rating_pos_r || 28);
-        const s = parseFloat(cloudPositions?.rating_pos_s || 36);
-
-        const lt = parseFloat(cloudPositions?.logo_pos_t || 26);
-        const lr = parseFloat(cloudPositions?.logo_pos_r || 32);
-        const ls = parseFloat(cloudPositions?.logo_scale || 100);
-
-        ageRatingContainer.style.bottom = `${b * currentScaleRatio}px`;
-        ageRatingContainer.style.right = `${r * currentScaleRatio}px`;
-        ageRatingContainer.style.transform = `scale(${currentScaleRatio})`;
-
-        nmhhRingBox.style.width = `${s}px`;
-        nmhhRingBox.style.height = `${s}px`;
-        const numEl = nmhhRingBox.querySelector('.nmhh-number');
-        if (numEl) numEl.style.fontSize = `${s * 0.46}px`;
-
-        watermarkWrap.style.top = `${lt * currentScaleRatio}px`;
-        watermarkWrap.style.right = `${lr * currentScaleRatio}px`;
-        watermarkWrap.style.transform = `scale(${currentScaleRatio * (ls / 100)})`;
-    }
-
     function setupAudioNodes() {
         if (isAudioInitialized) return;
         try {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
+            masterGainNode = audioCtx.createGain();
+            masterGainNode.gain.setValueAtTime(masterVolume, audioCtx.currentTime);
+            masterGainNode.connect(audioCtx.destination);
             isAudioInitialized = true;
         } catch(e) {}
     }
@@ -3248,104 +2969,13 @@
         if (isMuted && masterVolume > 0) isMuted = false;
         deckA.volume = isMuted ? 0 : masterVolume;
         deckB.volume = isMuted ? 0 : masterVolume;
-        if (activeTwitchPlayer && activeTwitchPlayer.setVolume) activeTwitchPlayer.setVolume(isMuted ? 0 : masterVolume);
-        if (activeYouTubePlayer && activeYouTubePlayer.setVolume) activeYouTubePlayer.setVolume(isMuted ? 0 : Math.round(masterVolume * 100));
     }
 
     function toggleMute() {
         isMuted = !isMuted;
         deckA.volume = isMuted ? 0 : masterVolume;
         deckB.volume = isMuted ? 0 : masterVolume;
-        if (activeTwitchPlayer && activeTwitchPlayer.setMuted) activeTwitchPlayer.setMuted(isMuted);
-        if (activeYouTubePlayer) {
-            if (isMuted) activeYouTubePlayer.mute();
-            else activeYouTubePlayer.unMute();
-        }
         document.getElementById('vol-slider').value = isMuted ? 0 : masterVolume;
-    }
-
-    function playYouTubeVideoSafe(videoId, offsetSec = 0) {
-        hideLowerThirdImmediate();
-        embedSlot.innerHTML = `<div id="viewer-yt-player-node" style="width:100%; height:100%;"></div>`;
-        embedContainer.classList.add('active');
-        embedContainer.style.opacity = '1';
-
-        if (typeof YT !== 'undefined' && YT.Player) {
-            activeYouTubePlayer = new YT.Player('viewer-yt-player-node', {
-                videoId: videoId,
-                playerVars: {
-                    autoplay: 1,
-                    controls: 0,
-                    disablekb: 1,
-                    fs: 0,
-                    modestbranding: 1,
-                    playsinline: 1,
-                    rel: 0,
-                    start: Math.floor(offsetSec),
-                    origin: window.location.origin || "https://localhost",
-                    widget_referrer: window.location.href,
-                    enablejsapi: 1
-                },
-                events: {
-                    onReady: (event) => {
-                        if (isMuted) event.target.mute();
-                        else {
-                            event.target.unMute();
-                            event.target.setVolume(Math.round(masterVolume * 100));
-                        }
-                        event.target.playVideo();
-                    },
-                    onStateChange: (event) => {
-                        if (event.data === YT.PlayerState.ENDED) {
-                            executeVideoCrossfade(true);
-                        }
-                    },
-                    onError: () => {
-                        executeVideoCrossfade(true);
-                    }
-                }
-            });
-        } else {
-            const cleanOrigin = encodeURIComponent(window.location.origin || "https://localhost");
-            embedSlot.innerHTML = `
-                <iframe src="https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=0&controls=0&disablekb=1&enablejsapi=1&playsinline=1&rel=0&origin=${cleanOrigin}" 
-                        allow="autoplay; fullscreen; encrypted-media; picture-in-picture" 
-                        referrerpolicy="no-referrer" 
-                        allowfullscreen style="width:100%; height:100%; border:none;">
-                </iframe>
-            `;
-        }
-    }
-
-    function switchViewerToTwitchStream(channel) {
-        hideLowerThirdImmediate();
-        ageRatingContainer.style.display = 'none';
-        deckA.pause(); deckB.pause();
-        deckA.style.opacity = '0'; deckB.style.opacity = '0';
-        deckA.classList.remove('active'); deckB.classList.remove('active');
-
-        embedSlot.innerHTML = `<div id="viewer-twitch-embed-node" style="width:100%; height:100%;"></div>`;
-        embedContainer.classList.add('active');
-        embedContainer.style.opacity = '1';
-
-        try {
-            activeTwitchPlayer = new Twitch.Player("viewer-twitch-embed-node", {
-                channel: channel,
-                parent: getCleanParentDomains(),
-                width: "100%",
-                height: "100%",
-                autoplay: true,
-                muted: isMuted,
-                controls: false
-            });
-            activeTwitchPlayer.addEventListener(Twitch.Player.READY, () => {
-                activeTwitchPlayer.setMuted(isMuted);
-                activeTwitchPlayer.setVolume(isMuted ? 0 : masterVolume);
-                activeTwitchPlayer.play();
-            });
-        } catch(e){}
-
-        updateLiveBadgeUI(true, 'twitch');
     }
 
     function toggleViewerPlayback() {
@@ -3363,7 +2993,10 @@
             text.textContent = 'LEÁLLÍTÁS';
 
             if (currentActiveTwitchStreamer) {
-                switchViewerToTwitchStream(currentActiveTwitchStreamer);
+                embedDeck.src = getTwitchEmbedUrl(currentActiveTwitchStreamer);
+                embedDeck.classList.add('active');
+                embedDeck.style.opacity = '1';
+                updateLiveBadgeUI(true, 'twitch');
             } else {
                 const now = new Date();
                 const currentSecToday = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
@@ -3379,11 +3012,8 @@
             deckA.pause(); deckB.pause();
             deckA.src = ""; deckB.src = "";
             deckA.style.opacity = '0'; deckB.style.opacity = '0';
-            embedContainer.classList.remove('active');
-            embedSlot.innerHTML = "";
-            activeTwitchPlayer = null;
-            activeYouTubePlayer = null;
-
+            embedDeck.classList.remove('active');
+            embedDeck.src = "about:blank";
             hideMonoscope();
             hideStandby();
             hideLowerThirdImmediate();
@@ -3408,9 +3038,6 @@
         const dayNamesHu = ["VASÁRNAP", "HÉTFŐ", "KEDD", "SZERDA", "CSÜTÖRTÖK", "PÉNTEK", "SZOMBAT"];
         if (tickerLiveDate) tickerLiveDate.textContent = `${y}.${mo}.${dt}.`;
         if (tickerLiveDay) tickerLiveDay.textContent = dayNamesHu[now.getDay()];
-
-        const monoClock = document.getElementById('mono-live-clock');
-        if (monoClock) monoClock.textContent = `${h}:${m}:${s}`;
 
         const currentSecToday = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
         const hourNum = now.getHours();
@@ -3463,28 +3090,31 @@
             currentClipIndex = foundIdx;
             currentlyPlayingId = clip.id;
             isEndSequenceRunning = false;
-            isIntroBannerRunning = false;
-            hideLowerThirdImmediate();
+            isIntroBannerRunning = true;
 
+            // 🌐 KÜLSŐ STREAM (YOUTUBE / TWITCH)
             if (clip.isStream) {
                 deckA.pause(); deckB.pause();
                 deckA.classList.remove('active'); deckB.classList.remove('active');
                 deckA.style.opacity = '0'; deckB.style.opacity = '0';
+
+                // Korhatár azonnali levétele
                 ageRatingContainer.style.display = 'none';
 
-                const offsetSec = Math.max(0, currentSecToday - clip.startSec);
-                playYouTubeVideoSafe(clip.videoId, offsetSec);
+                embedDeck.src = clip.url;
+                embedDeck.classList.add('active');
+                embedDeck.style.opacity = '1';
 
-                updateLiveBadgeUI(false, clip.streamType);
+                updateLiveBadgeUI(true, clip.streamType);
                 applyVisuals();
+                setTimeout(() => runTrackPresentationSequence(schedule, true), 500);
                 return;
             }
 
-            embedContainer.classList.remove('active');
-            embedContainer.style.opacity = '0';
-            embedSlot.innerHTML = "";
-            activeYouTubePlayer = null;
-
+            // 🎬 R2 VIDEÓKLIP
+            embedDeck.classList.remove('active');
+            embedDeck.style.opacity = '0';
+            embedDeck.src = "about:blank";
             updateLiveBadgeUI(false, 'clips');
             evaluateAgeRatingVisibility();
 
@@ -3504,12 +3134,13 @@
             activeDeck.play().catch(() => {});
 
             if (offsetSec < 15) setTimeout(() => runTrackPresentationSequence(schedule, true), 500);
+            else isIntroBannerRunning = false;
 
             applyVisuals();
             preloadNextDeckClip(schedule);
         } else {
-            embedContainer.classList.remove('active');
-            embedSlot.innerHTML = "";
+            embedDeck.classList.remove('active');
+            embedDeck.src = "about:blank";
             updateLiveBadgeUI(false, 'clips');
             let nextClip = schedule.find(item => item.startSec > currentSecToday) || schedule[0];
             showStandby(nextClip ? nextClip.startTimeStr : null);
@@ -3519,7 +3150,6 @@
     function applyVisuals() {
         watermarkWrap.style.display = (isViewerPlaying && isLogoVisible) ? 'flex' : 'none';
         applyAgeRating(currentAgeRating);
-        applyCloudPositions();
     }
 
     function applyAgeRating(rating) {
@@ -3547,7 +3177,7 @@
     }
 
     function evaluateAgeRatingVisibility() {
-        if (!isViewerPlaying || currentAgeRating === 'none' || currentActiveTwitchStreamer || embedContainer.classList.contains('active')) {
+        if (!isViewerPlaying || currentAgeRating === 'none' || currentActiveTwitchStreamer || embedDeck.classList.contains('active')) {
             ageRatingContainer.style.display = 'none';
             return;
         }
@@ -3558,8 +3188,8 @@
         if (!isViewerPlaying) return;
         deckA.pause(); deckB.pause();
         deckA.src = ""; deckB.src = "";
-        embedContainer.classList.remove('active');
-        embedSlot.innerHTML = "";
+        embedDeck.classList.remove('active');
+        embedDeck.src = "about:blank";
         hideLowerThirdImmediate();
         standbyScreen.classList.add('active');
         standbyResumeTimeEl.textContent = resumeTimeStr ? `${resumeTimeStr}-kor` : "--:--:--";
@@ -3574,8 +3204,8 @@
             currentClipIndex = -1;
             deckA.pause(); deckB.pause();
             deckA.src = ""; deckB.src = "";
-            embedContainer.classList.remove('active');
-            embedSlot.innerHTML = "";
+            embedDeck.classList.remove('active');
+            embedDeck.src = "about:blank";
             hideLowerThirdImmediate();
             monoscopeLayer.classList.add('active');
         }
@@ -3634,6 +3264,7 @@
 
         isVideoTransitioning = true;
         transitionLock = true;
+        isIntroBannerRunning = true;
         hideLowerThirdImmediate();
 
         const currentDeck = activeDeckName === 'A' ? deckA : deckB;
@@ -3649,19 +3280,15 @@
             currentDeck.style.opacity = '0';
             currentDeck.classList.remove('active');
             ageRatingContainer.style.display = 'none';
-
-            playYouTubeVideoSafe(newClip.videoId, 0);
-
-            updateLiveBadgeUI(false, newClip.streamType);
+            embedDeck.src = newClip.url;
+            embedDeck.classList.add('active');
+            embedDeck.style.opacity = '1';
+            updateLiveBadgeUI(true, newClip.streamType);
             isVideoTransitioning = false;
             transitionLock = false;
+            setTimeout(() => runTrackPresentationSequence(schedule, true), 500);
             return;
         }
-
-        embedContainer.classList.remove('active');
-        embedContainer.style.opacity = '0';
-        embedSlot.innerHTML = "";
-        activeYouTubePlayer = null;
 
         updateLiveBadgeUI(false, 'clips');
         evaluateAgeRatingVisibility();
@@ -3719,7 +3346,7 @@
     }
 
     function triggerLowerThirdBanner(type, rawTrackTitle, showCat) {
-        if (!isViewerPlaying || !isLogoVisible || currentActiveTwitchStreamer || embedContainer.classList.contains('active')) return;
+        if (!isViewerPlaying || !isLogoVisible) return;
         const showConfig = tvDaypartConfig[showCat] || tvDaypartConfig.delelott;
         applyDaypartTheme(showCat);
 
@@ -3746,7 +3373,7 @@
     }
 
     function runTrackPresentationSequence(schedule, isIntro = true) {
-        if (!isViewerPlaying || !isLogoVisible || currentActiveTwitchStreamer || embedContainer.classList.contains('active')) return;
+        if (!isViewerPlaying || !isLogoVisible) return;
         clearTimeout(bannerHideTimeout);
         bannerSequenceTimers.forEach(t => clearTimeout(t));
         bannerSequenceTimers = [];
@@ -3755,20 +3382,18 @@
         else isEndSequenceRunning = true;
 
         const curClip = schedule[currentClipIndex];
-        if (!curClip || curClip.isStream) return;
-
         const curCat = curClip?.cat || getDaypartKeyForHour(new Date().getHours());
         const nextClip = schedule[(currentClipIndex + 1) % schedule.length];
         const laterClip = schedule[(currentClipIndex + 2) % schedule.length];
 
-        triggerLowerThirdBanner("MOST", curClip.title, curCat);
+        if (curClip) triggerLowerThirdBanner("MOST", curClip.title, curCat);
 
         bannerSequenceTimers.push(setTimeout(() => {
-            if (nextClip && isViewerPlaying && !nextClip.isStream) triggerLowerThirdBanner("KÖVETKEZIK", nextClip.title, curCat);
+            if (nextClip && isViewerPlaying) triggerLowerThirdBanner("KÖVETKEZIK", nextClip.title, curCat);
         }, 5000));
 
         bannerSequenceTimers.push(setTimeout(() => {
-            if (laterClip && isViewerPlaying && !laterClip.isStream) triggerLowerThirdBanner("KÉSŐBB", laterClip.title, curCat);
+            if (laterClip && isViewerPlaying) triggerLowerThirdBanner("KÉSŐBB", laterClip.title, curCat);
         }, 10000));
 
         bannerSequenceTimers.push(setTimeout(() => {
@@ -3784,7 +3409,7 @@
             if (res.ok) {
                 const data = await res.json();
                 if (data.news && Object.keys(data.news).length > 0) {
-                    cachedNewsItems = Object.values(data.news).slice(0, 10);
+                    cachedNewsItems = Object.values(data.news).slice(0, 8);
                 }
             }
         } catch(e) {}
@@ -3795,11 +3420,7 @@
         if (!tickerCrawlTrack) return;
         const separatorHtml = `<span class="crawl-separator"><svg class="kb-icon-mini" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg></span>`;
         tickerCrawlTrack.innerHTML = cachedNewsItems.map(n => `
-            <span class="crawl-news-item">
-                <span class="crawl-news-tag">HÍREK · ${n.source || 'KÉPBEN!'}</span>
-                <span class="crawl-news-title">${cleanHtmlText(n.title)}</span>
-                ${n.description ? `<span class="crawl-news-desc">— ${cleanHtmlText(n.description)}</span>` : ''}
-            </span>
+            <span class="crawl-news-item"><span class="crawl-news-tag">HÍREK · ${n.source || 'KÉPBEN!'}</span><span class="crawl-news-title">${cleanHtmlText(n.title)}</span></span>
         `).join(separatorHtml);
     }
 
@@ -3812,25 +3433,19 @@
         if (s.live_badge_mode !== undefined) liveBadgeMode = s.live_badge_mode;
 
         if (s.active_twitch_streamer) {
-            if (currentActiveTwitchStreamer !== s.active_twitch_streamer) {
-                currentActiveTwitchStreamer = s.active_twitch_streamer;
-                if (isViewerPlaying) switchViewerToTwitchStream(currentActiveTwitchStreamer);
-            }
+            currentActiveTwitchStreamer = s.active_twitch_streamer;
+            ageRatingContainer.style.display = 'none';
+            embedDeck.src = getTwitchEmbedUrl(currentActiveTwitchStreamer);
+            embedDeck.classList.add('active');
+            embedDeck.style.opacity = '1';
+            updateLiveBadgeUI(true, 'twitch');
         } else if (currentActiveTwitchStreamer && !s.active_twitch_streamer) {
             currentActiveTwitchStreamer = null;
-            embedContainer.classList.remove('active');
-            embedContainer.style.opacity = '0';
-            embedSlot.innerHTML = "";
-            activeTwitchPlayer = null;
-            activeYouTubePlayer = null;
+            embedDeck.classList.remove('active');
+            embedDeck.style.opacity = '0';
+            embedDeck.src = "about:blank";
             updateLiveBadgeUI(false, 'clips');
             evaluateAgeRatingVisibility();
-
-            if (isViewerPlaying) {
-                const now = new Date();
-                const curSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-                checkScheduleAndPlayback(curSec, weekSchedules[getSelectedDateKey(0)] || []);
-            }
         }
 
         if (s.pending_streamer) {
@@ -3848,8 +3463,6 @@
                 deckA.classList.remove('enhanced-mode'); deckB.classList.remove('enhanced-mode');
             }
         }
-
-        cloudPositions = s;
 
         const badge = document.getElementById('live-status-badge');
         const text = document.getElementById('live-status-text');
@@ -3933,7 +3546,6 @@
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
-        updateResponsiveScaling();
         initRealtimeBroadcastSync();
         fetchLiveNews();
     });
