@@ -602,11 +602,11 @@
         </div>
     </div>
 
-    <!-- 🎬 YOUTUBE IDŐZÍTŐ ÉS TWITCH VEZÉRLŐ PANEL -->
+    <!-- 🎬 YOUTUBE & TWITCH CSATORNA FIGYELŐ PANEL -->
     <div class="stream-card">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
             <div style="font-family:'Space Mono',monospace; font-size:0.85rem; font-weight:800; color:var(--accent-red); display:flex; align-items:center; gap:6px;">
-                <span>🎬 YOUTUBE MŰSOR IDŐZÍTÉSE & TWITCH STREAMER DETEKTOR</span>
+                <span>🎬 YOUTUBE & TWITCH CSATORNA FIGYELŐ (Auto Élő Detektálás & 30s Pufferelés)</span>
             </div>
             <button class="btn-act active-live" onclick="openYouTubeModal()">➕ Új YouTube Műsor Időzítése</button>
         </div>
@@ -614,15 +614,19 @@
         <div style="background:var(--card-sub); padding:12px; border-radius:12px; border:1px solid var(--border); display:flex; flex-direction:column; gap:8px;">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
                 <span style="font-family:'Space Mono',monospace; font-size:0.75rem; font-weight:800; color:var(--accent-purple);">
-                    📡 TWITCH CSATORNÁK (6 perc stabilitás + 30s háttér-előpufferelés):
+                    📡 FELVETT ÉLŐ CSATORNÁK (Twitch és YouTube):
                 </span>
                 <label style="display:flex; align-items:center; gap:6px; font-size:0.72rem; color:var(--accent-green); font-family:'Space Mono',monospace; cursor:pointer;">
                     <input type="checkbox" id="chk-twitch-auto-switch" checked onchange="toggleTwitchAutoSwitch(this.checked)"> Auto-Átkapcsolás Aktív
                 </label>
             </div>
             <div style="display:flex; gap:8px; align-items:center;">
-                <input type="text" id="inp-twitch-channel-add" placeholder="Csatorna neve (pl. thevr, feketeviktor, ninja)..." style="background:#090d16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 10px; font-family:'Space Mono',monospace; font-size:0.78rem; outline:none; flex:1;">
-                <button class="btn-act" style="background:var(--accent-purple); color:#000; font-weight:800;" onclick="addTwitchMonitoredChannel()">➕ Hozzáadás</button>
+                <select id="sel-stream-type-add" style="background:#090d16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-family:'Space Mono',monospace; font-size:0.75rem; outline:none; font-weight:700;">
+                    <option value="twitch">🟣 Twitch</option>
+                    <option value="youtube">🔴 YouTube</option>
+                </select>
+                <input type="text" id="inp-twitch-channel-add" placeholder="Csatorna neve vagy YouTube handle (@thevr, feketeviktor)..." style="background:#090d16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 10px; font-family:'Space Mono',monospace; font-size:0.78rem; outline:none; flex:1;">
+                <button class="btn-act" style="background:var(--accent-purple); color:#000; font-weight:800;" onclick="addStreamMonitoredChannel()">➕ Hozzáadás</button>
             </div>
             <div id="twitch-monitored-list" style="display:flex; flex-wrap:wrap; gap:8px; margin-top:4px;"></div>
         </div>
@@ -738,10 +742,10 @@
             <div>
                 <label style="font-family:'Space Mono',monospace; font-size:0.7rem; color:var(--text-muted); display:block; margin-bottom:4px;">KORHATÁR BESOROLÁS:</label>
                 <select id="modal-yt-rating-select" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:8px; font-family:'Space Mono',monospace; font-size:0.75rem; outline:none;">
-                    <option value="none">🚫 Nincs</option>
+                    <option value="none" selected>🚫 Nincs (Nem jelenik meg)</option>
                     <option value="0">🟢 0 (Gyerekbarát)</option>
                     <option value="6">🟡 6</option>
-                    <option value="12" selected>🟡 12</option>
+                    <option value="12">🟡 12</option>
                     <option value="16">🟡 16</option>
                     <option value="18">🔴 18</option>
                 </select>
@@ -766,7 +770,7 @@
             </div>
 
             <div style="font-family:'Space Mono',monospace; font-size:0.72rem; color:var(--text-muted); background:#060a12; padding:6px 10px; border-radius:6px;">
-                🏁 Adás vége: <strong id="yt-calculated-end-time" style="color:#facc15;">20:45:00</strong> ➔ Utána az adáslánc azonnal folytatja a zenei klipeket!
+                🏁 Adás vége: <strong id="yt-calculated-end-time" style="color:#facc15;">20:45:00</strong> ➔ Utána az Auto DJ azonnal folytatja a zenei klipeket!
             </div>
         </div>
 
@@ -776,7 +780,7 @@
     </div>
 </div>
 
-<!-- 🪟 LEBEGŐ ÉLŐ POZÍCIÓ & KORHATÁR IDŐZÍTŐ PANEL (100%-IG MŰKÖDŐ VEZÉRLŐKKEL) -->
+<!-- 🪟 LEBEGŐ ÉLŐ POZÍCIÓ & KORHATÁR IDŐZÍTŐ PANEL -->
 <div class="position-floating-panel" id="position-modal">
     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
         <div style="font-family:'Space Mono',monospace; font-size:0.8rem; font-weight:800; color:var(--accent-cyan);">
@@ -865,7 +869,7 @@
     const R2_PUBLIC_URL = "https://pub-7af7418ac8c74dd88ba4c97fe4a00b7b.r2.dev/";
     const FIREBASE_URL = "https://hiroszlop-default-rtdb.europe-west1.firebasedatabase.app";
     const VIDEO_CROSSFADE_SEC = 5;
-    const TWITCH_STABILIZATION_MINUTES = 6;
+    const STREAM_STABILIZATION_MINUTES = 6;
 
     let r2Library = [];
     let weekSchedules = {};
@@ -878,14 +882,14 @@
     let masterVolume = 0.9;
     let transitionLock = false;
 
-    // 📡 TWITCH STREAMER DETEKTOR
-    let monitoredTwitchChannels = JSON.parse(localStorage.getItem('kb_twitch_monitors') || '["thevr"]');
-    let isTwitchAutoSwitchEnabled = localStorage.getItem('kb_twitch_auto_switch') !== 'false';
+    // 📡 ÉLŐ CSATORNA DETEKTOR (TWITCH + YOUTUBE)
+    let monitoredChannels = JSON.parse(localStorage.getItem('kb_monitored_channels') || '[{"name":"thevr","type":"twitch"}]');
+    let isAutoSwitchEnabled = localStorage.getItem('kb_twitch_auto_switch') !== 'false';
     let streamerOnlineSince = {};
-    let twitchLiveQueue = [];
+    let liveQueue = [];
     let pendingStreamerToSwitch = null;
-    let currentActiveTwitchStreamer = null;
-    let twitchCheckTimer = null;
+    let currentActiveStreamer = null;
+    let streamCheckTimer = null;
 
     let isLogoVisible = localStorage.getItem('kb_tv_logo_visible') !== 'false';
     let isVideoEnhanced = localStorage.getItem('kb_video_enhanced') === 'true';
@@ -1058,7 +1062,7 @@
         if (liveBadgeMode === 'on') showLive = true;
         else if (liveBadgeMode === 'off') showLive = false;
         else {
-            showLive = Boolean(currentActiveTwitchStreamer) || (isStreamActive && isLive);
+            showLive = Boolean(currentActiveStreamer) || (isStreamActive && isLive);
         }
 
         if (showLive && isTvBroadcasting) {
@@ -1067,7 +1071,7 @@
             liveOnAirTag.classList.remove('active');
         }
 
-        if (isStreamActive || currentActiveTwitchStreamer) {
+        if (isStreamActive || currentActiveStreamer) {
             newsTickerBar.style.display = 'none';
         } else {
             if (isNewsTickerManualEnabled) newsTickerBar.style.display = 'flex';
@@ -1081,7 +1085,7 @@
 
         localStorage.setItem('kb_live_badge_mode', liveBadgeMode);
         document.getElementById('btn-live-badge-toggle').textContent = `🔴 ÉLŐ: ${liveBadgeMode.toUpperCase()}`;
-        updateLiveBadgeUI(Boolean(currentlyPlayingId && (currentActiveTwitchStreamer || embedDeck.classList.contains('active'))));
+        updateLiveBadgeUI(Boolean(currentlyPlayingId && (currentActiveStreamer || embedDeck.classList.contains('active'))));
         syncBroadcastSettingsToCloud();
     }
 
@@ -1094,135 +1098,159 @@
     }
 
     function toggleTwitchAutoSwitch(enabled) {
-        isTwitchAutoSwitchEnabled = enabled;
+        isAutoSwitchEnabled = enabled;
         localStorage.setItem('kb_twitch_auto_switch', enabled.toString());
         syncBroadcastSettingsToCloud();
     }
 
-    function renderTwitchMonitoredList() {
+    function renderMonitoredChannelsList() {
         const container = document.getElementById('twitch-monitored-list');
         if (!container) return;
-        container.innerHTML = monitoredTwitchChannels.map((ch, idx) => {
-            const isOnline = streamerOnlineSince[ch] !== undefined;
-            const isPlaying = currentActiveTwitchStreamer === ch;
+        container.innerHTML = monitoredChannels.map((item, idx) => {
+            const isOnline = streamerOnlineSince[item.name] !== undefined;
+            const isPlaying = currentActiveStreamer && currentActiveStreamer.name === item.name;
+            const typeIcon = item.type === 'youtube' ? '🔴 YT' : '🟣 TW';
             return `
                 <div style="display:inline-flex; align-items:center; gap:6px; background:#070d1a; border:1px solid ${isOnline ? '#22c55e' : '#334155'}; padding:4px 10px; border-radius:8px; font-family:'Space Mono',monospace; font-size:0.75rem; color:#fff;">
                     <span style="color:${isOnline ? '#22c55e' : '#94a3b8'}; font-weight:800;">${isOnline ? '🟢 ÉLŐ' : '⚪ OFF'}</span>
-                    <strong>${ch}</strong>
-                    ${isOnline && !isPlaying ? `<button onclick="forceSwitchToTwitchStreamer('${ch}')" style="background:#22c55e; color:#000; border:none; padding:2px 6px; border-radius:4px; font-weight:800; cursor:pointer; font-size:0.65rem;">▶ Kapcsolás</button>` : ''}
-                    <button onclick="removeTwitchChannel(${idx})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:800;">×</button>
+                    <span style="font-size:0.68rem; color:var(--text-muted);">${typeIcon}</span>
+                    <strong>${item.name}</strong>
+                    ${isOnline && !isPlaying ? `<button onclick="forceSwitchToStreamer(${idx})" style="background:#22c55e; color:#000; border:none; padding:2px 6px; border-radius:4px; font-weight:800; cursor:pointer; font-size:0.65rem;">▶ Kapcsolás</button>` : ''}
+                    <button onclick="removeStreamChannel(${idx})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:800;">×</button>
                 </div>
             `;
         }).join('');
     }
 
-    function addTwitchMonitoredChannel() {
+    function addStreamMonitoredChannel() {
         const input = document.getElementById('inp-twitch-channel-add');
+        const type = document.getElementById('sel-stream-type-add').value;
         let ch = input.value.trim().toLowerCase().replace(/^@/, '');
         if (ch.includes('twitch.tv/')) {
             const m = ch.match(/twitch\.tv\/([a-zA-Z0-9_]+)/);
             if (m) ch = m[1];
         }
         if (!ch) return;
-        if (!monitoredTwitchChannels.includes(ch)) {
-            monitoredTwitchChannels.push(ch);
-            localStorage.setItem('kb_twitch_monitors', JSON.stringify(monitoredTwitchChannels));
-            renderTwitchMonitoredList();
+        if (!monitoredChannels.some(item => item.name === ch)) {
+            monitoredChannels.push({ name: ch, type: type });
+            localStorage.setItem('kb_monitored_channels', JSON.stringify(monitoredChannels));
+            renderMonitoredChannelsList();
             syncBroadcastSettingsToCloud();
-            log(`📡 Twitch streamer hozzáadva: ${ch}`, 'success');
-            checkTwitchStreamersLiveStatus();
+            log(`📡 Csatorna hozzáadva a figyelőhöz: ${ch} (${type.toUpperCase()})`, 'success');
+            checkStreamersLiveStatus();
         }
         input.value = '';
     }
 
-    function removeTwitchChannel(idx) {
-        monitoredTwitchChannels.splice(idx, 1);
-        localStorage.setItem('kb_twitch_monitors', JSON.stringify(monitoredTwitchChannels));
-        renderTwitchMonitoredList();
+    function removeStreamChannel(idx) {
+        monitoredChannels.splice(idx, 1);
+        localStorage.setItem('kb_monitored_channels', JSON.stringify(monitoredChannels));
+        renderMonitoredChannelsList();
         syncBroadcastSettingsToCloud();
     }
 
-    async function checkTwitchStreamersLiveStatus() {
-        if (!isTwitchAutoSwitchEnabled || monitoredTwitchChannels.length === 0) return;
+    async function checkStreamersLiveStatus() {
+        if (!isAutoSwitchEnabled || monitoredChannels.length === 0) return;
         const now = Date.now();
 
-        for (const channel of monitoredTwitchChannels) {
+        for (const item of monitoredChannels) {
             try {
-                const res = await fetch(`https://decapi.me/twitch/uptime/${encodeURIComponent(channel)}?_t=${now}`);
-                if (res.ok) {
-                    const text = (await res.text()).trim();
-                    const minutesLive = parseUptimeToMinutes(text);
+                let isLive = false;
+                let minutesLive = -1;
 
-                    if (minutesLive >= 0) {
-                        if (!streamerOnlineSince[channel]) streamerOnlineSince[channel] = now - (minutesLive * 60 * 1000);
+                if (item.type === 'twitch') {
+                    const res = await fetch(`https://decapi.me/twitch/uptime/${encodeURIComponent(item.name)}?_t=${now}`);
+                    if (res.ok) {
+                        const text = (await res.text()).trim();
+                        minutesLive = parseUptimeToMinutes(text);
+                        isLive = (minutesLive >= 0);
+                    }
+                } else if (item.type === 'youtube') {
+                    // YouTube Live Status Check
+                    const res = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/@${encodeURIComponent(item.name)}/live`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data && data.title && !data.error) {
+                            isLive = true;
+                            minutesLive = 10;
+                        }
+                    }
+                }
 
-                        if (minutesLive >= TWITCH_STABILIZATION_MINUTES) {
-                            if (!twitchLiveQueue.includes(channel) && currentActiveTwitchStreamer !== channel) {
-                                twitchLiveQueue.push(channel);
-                                log(`📋 [TWITCH] ${channel.toUpperCase()} stabil (${Math.floor(minutesLive)} perce él). Várakozik a klip végére.`, 'success');
-                            }
-                        } else {
-                            if (!currentActiveTwitchStreamer) {
-                                incomingAlertText.textContent = `📡 ${channel.toUpperCase()} hamarosan élőben jelentkezik...`;
-                                incomingAlert.classList.add('active');
-                            }
+                if (isLive) {
+                    if (!streamerOnlineSince[item.name]) streamerOnlineSince[item.name] = now - (Math.max(0, minutesLive) * 60 * 1000);
+
+                    if (minutesLive >= STREAM_STABILIZATION_MINUTES || item.type === 'youtube') {
+                        if (!liveQueue.some(q => q.name === item.name) && (!currentActiveStreamer || currentActiveStreamer.name !== item.name)) {
+                            liveQueue.push(item);
+                            log(`📋 [ÉLŐ DETEKTÁLVA] ${item.name.toUpperCase()} stabil! Hozzáadva az átkapcsolási sorhoz.`, 'success');
                         }
                     } else {
-                        delete streamerOnlineSince[channel];
-                        twitchLiveQueue = twitchLiveQueue.filter(c => c !== channel);
-
-                        // 🛑 OFFLINE ÉRZÉKELÉS -> AZONNALI VISSZAKAPCSOLÁS!
-                        if (currentActiveTwitchStreamer === channel) {
-                            log(`📡 [TWITCH VÉGE] ${channel} adása offline. Visszatérés a klipekre!`, 'warn');
-                            currentActiveTwitchStreamer = null;
-                            handleNextStreamOrClips();
+                        if (!currentActiveStreamer) {
+                            incomingAlertText.textContent = `📡 ${item.name.toUpperCase()} hamarosan élőben jelentkezik...`;
+                            incomingAlert.classList.add('active');
                         }
+                    }
+                } else {
+                    delete streamerOnlineSince[item.name];
+                    liveQueue = liveQueue.filter(q => q.name !== item.name);
+
+                    // 🛑 OFFLINE ÉRZÉKELÉS -> AZONNALI VISSZAKAPCSOLÁS!
+                    if (currentActiveStreamer && currentActiveStreamer.name === item.name) {
+                        log(`📡 [ÉLŐ VÉGE] ${item.name} adása offline lett. Azonnali visszakapcsolás!`, 'warn');
+                        currentActiveStreamer = null;
+                        handleNextStreamOrClips();
                     }
                 }
             } catch(e){}
         }
 
-        renderTwitchMonitoredList();
+        renderMonitoredChannelsList();
 
         // 30 MP-ES HÁTTÉR ELŐPUFFERELÉS
-        if (!currentActiveTwitchStreamer && twitchLiveQueue.length > 0 && isTvBroadcasting) {
-            const nextStreamer = twitchLiveQueue[0];
-            if (pendingStreamerToSwitch !== nextStreamer) {
-                pendingStreamerToSwitch = nextStreamer;
-                incomingAlertText.textContent = `📡 ${nextStreamer.toUpperCase()} hamarosan élőben jelentkezik...`;
+        if (!currentActiveStreamer && liveQueue.length > 0 && isTvBroadcasting) {
+            const nextStream = liveQueue[0];
+            if (!pendingStreamerToSwitch || pendingStreamerToSwitch.name !== nextStream.name) {
+                pendingStreamerToSwitch = nextStream;
+                incomingAlertText.textContent = `📡 ${nextStream.name.toUpperCase()} hamarosan élőben jelentkezik...`;
                 incomingAlert.classList.add('active');
                 
-                embedDeck.src = getTwitchEmbedUrl(nextStreamer);
-                log(`⏳ [HÁTTÉR PUFFER] ${nextStreamer.toUpperCase()} adása a háttérben elindult!`, 'info');
+                if (nextStream.type === 'twitch') embedDeck.src = getTwitchEmbedUrl(nextStream.name);
+                else embedDeck.src = `https://www.youtube-nocookie.com/embed/live_stream?channel=${nextStream.name}&autoplay=1&mute=0&controls=0`;
+
+                log(`⏳ [HÁTTÉR PUFFER] ${nextStream.name.toUpperCase()} adása a háttérben előtöltődik!`, 'info');
                 syncBroadcastSettingsToCloud();
             }
         }
     }
 
-    function forceSwitchToTwitchStreamer(channel) {
-        pendingStreamerToSwitch = channel;
-        executeTwitchSwitchOnClipEnd();
+    function forceSwitchToStreamer(idx) {
+        pendingStreamerToSwitch = monitoredChannels[idx];
+        executeLiveSwitchOnClipEnd();
     }
 
-    function executeTwitchSwitchOnClipEnd() {
+    function executeLiveSwitchOnClipEnd() {
         if (!pendingStreamerToSwitch) return;
         const streamer = pendingStreamerToSwitch;
         pendingStreamerToSwitch = null;
-        twitchLiveQueue = twitchLiveQueue.filter(c => c !== streamer);
-        currentActiveTwitchStreamer = streamer;
+        liveQueue = liveQueue.filter(q => q.name !== streamer.name);
+        currentActiveStreamer = streamer;
 
         incomingAlert.classList.remove('active');
+        ageRatingContainer.style.display = 'none';
 
         deckA.pause(); deckB.pause();
         deckA.style.opacity = '0'; deckB.style.opacity = '0';
         deckA.classList.remove('active'); deckB.classList.remove('active');
 
-        embedDeck.src = getTwitchEmbedUrl(streamer);
+        if (streamer.type === 'twitch') embedDeck.src = getTwitchEmbedUrl(streamer.name);
+        else embedDeck.src = `https://www.youtube-nocookie.com/embed/live_stream?channel=${streamer.name}&autoplay=1&mute=0&controls=0`;
+
         embedDeck.classList.add('active');
         embedDeck.style.opacity = '1';
 
         updateLiveBadgeUI(true, true);
-        log(`🔴 [ADÁSBAN] ${streamer.toUpperCase()} Twitch élő közvetítése átúsztatva!`, 'success');
+        log(`🔴 [ADÁSBAN] ${streamer.name.toUpperCase()} élő közvetítése elindult!`, 'success');
         syncBroadcastSettingsToCloud();
     }
 
@@ -1230,14 +1258,18 @@
         incomingAlert.classList.remove('active');
         pendingStreamerToSwitch = null;
 
-        if (twitchLiveQueue.length > 0) {
-            const nextStreamer = twitchLiveQueue.shift();
-            currentActiveTwitchStreamer = nextStreamer;
-            embedDeck.src = getTwitchEmbedUrl(nextStreamer);
+        if (liveQueue.length > 0) {
+            const nextStream = liveQueue.shift();
+            currentActiveStreamer = nextStream;
+            ageRatingContainer.style.display = 'none';
+            if (nextStream.type === 'twitch') embedDeck.src = getTwitchEmbedUrl(nextStream.name);
+            else embedDeck.src = `https://www.youtube-nocookie.com/embed/live_stream?channel=${nextStream.name}&autoplay=1&mute=0&controls=0`;
+
             embedDeck.classList.add('active');
             updateLiveBadgeUI(true, true);
-            log(`🔴 [KÖVETKEZŐ ÉLŐ] ${nextStreamer.toUpperCase()} adásban.`, 'success');
+            log(`🔴 [KÖVETKEZŐ ÉLŐ] ${nextStream.name.toUpperCase()} adásban.`, 'success');
         } else {
+            // Visszatérés a zenei klipekre és hírszalagra
             embedDeck.classList.remove('active');
             embedDeck.style.opacity = '0';
             embedDeck.src = "about:blank";
@@ -1248,7 +1280,7 @@
             const now = new Date();
             const curSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
             checkScheduleAndPlayback(curSec, weekSchedules[getSelectedDateKey(0)] || []);
-            log("🎵 Visszakapcsolva a zenei adásláncra.", 'success');
+            log("🎵 Visszakapcsolva az Auto DJ zenei adásláncára.", 'success');
         }
         syncBroadcastSettingsToCloud();
     }
@@ -1344,7 +1376,7 @@
         weekSchedules[dateKey] = (weekSchedules[dateKey] || []).filter(i => i.isStream && Math.abs(i.startSec - startSec) > 60);
         weekSchedules[dateKey].push(newYouTubeItem);
 
-        // 🧮 Újratervezzük a napot és azonnal megjelenítjük a táblázatban
+        // 🧮 Újratervezzük a napot és azonnal megjelenítjük
         autoGenerateDaySchedule(targetDayOffset, true);
         selectCalendarDay(targetDayOffset);
 
@@ -1436,7 +1468,7 @@
         saveWeekSchedules();
         renderRundownTable();
 
-        if (dayOffset === 0 && isTvBroadcasting && !currentlyPlayingId && !currentActiveTwitchStreamer) {
+        if (dayOffset === 0 && isTvBroadcasting && !currentlyPlayingId && !currentActiveStreamer) {
             const now = new Date();
             const currentSecToday = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
             checkScheduleAndPlayback(currentSecToday, finalSchedule);
@@ -1453,7 +1485,7 @@
 
     // 📺 ADÁSLEJÁTSZÁS (SZIGORÚ VÉGE IDŐVEL)
     function checkScheduleAndPlayback(currentSecToday, schedule) {
-        if (!isTvBroadcasting || transitionLock || currentActiveTwitchStreamer) return;
+        if (!isTvBroadcasting || transitionLock || currentActiveStreamer) return;
         if (!schedule || schedule.length === 0) { showStandby(null); return; }
 
         const foundIdx = schedule.findIndex(item => currentSecToday >= item.startSec && currentSecToday < item.endSec);
@@ -1534,7 +1566,7 @@
             const schedule = weekSchedules[todayKey] || [];
 
             if (remaining <= 1.5 && pendingStreamerToSwitch) {
-                executeTwitchSwitchOnClipEnd();
+                executeLiveSwitchOnClipEnd();
                 return;
             }
 
@@ -1549,7 +1581,7 @@
 
         deck.onended = () => {
             if (activeDeckName === deckLetter && !isVideoTransitioning && !transitionLock) {
-                if (pendingStreamerToSwitch) executeTwitchSwitchOnClipEnd();
+                if (pendingStreamerToSwitch) executeLiveSwitchOnClipEnd();
                 else executeVideoCrossfade(true);
             }
         };
@@ -1802,12 +1834,6 @@
             morningClockEl.classList.remove('active');
         }
 
-        const curCat = getDaypartKeyForHour(hourNum);
-        if (curCat !== currentActiveDaypartKey) {
-            currentActiveDaypartKey = curCat;
-            applyDaypartTheme(curCat);
-        }
-
         evaluateAgeRatingVisibility();
 
         const todayKey = getSelectedDateKey(0);
@@ -1817,17 +1843,11 @@
             highlightCurrentOnAirRow(currentSecToday, todaySchedule);
         }
 
-        if (isTvBroadcasting && !currentlyPlayingId && !isVideoTransitioning && !transitionLock && !currentActiveTwitchStreamer) {
+        if (isTvBroadcasting && !currentlyPlayingId && !isVideoTransitioning && !transitionLock && !currentActiveStreamer) {
             checkScheduleAndPlayback(currentSecToday, todaySchedule);
         }
     }
     setInterval(updateClock, 1000);
-
-    function applyDaypartTheme(cat) {
-        const conf = { primaryColor: "#38bdf8", gradient: "linear-gradient(135deg, #0b1329 0%, #1e3a8a 100%)" };
-        document.documentElement.style.setProperty('--theme-primary', conf.primaryColor);
-        document.documentElement.style.setProperty('--theme-gradient', conf.gradient);
-    }
 
     function triggerLowerThirdBanner(type, rawTrackTitle, showCat) {
         if (!isTvBroadcasting || !isLogoVisible) return;
@@ -1898,7 +1918,7 @@
             isTvBroadcasting = false;
             currentClipIndex = -1;
             currentlyPlayingId = null;
-            currentActiveTwitchStreamer = null;
+            currentActiveStreamer = null;
 
             watermarkWrap.style.display = 'none';
             ageRatingContainer.style.display = 'none';
@@ -1923,7 +1943,7 @@
             const now = new Date();
             const currentSecToday = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
             checkScheduleAndPlayback(currentSecToday, schedule);
-            checkTwitchStreamersLiveStatus();
+            checkStreamersLiveStatus();
             log("📺 TV adás bekapcsolva!", 'success');
         }
         syncBroadcastSettingsToCloud();
@@ -2212,9 +2232,9 @@
             logo_visible: isLogoVisible,
             live_badge_mode: liveBadgeMode,
             ticker_speed_sec: currentTickerSpeedSec,
-            twitch_monitors: monitoredTwitchChannels,
-            twitch_auto_switch: isTwitchAutoSwitchEnabled,
-            active_twitch_streamer: currentActiveTwitchStreamer,
+            monitored_channels: monitoredChannels,
+            twitch_auto_switch: isAutoSwitchEnabled,
+            active_streamer: currentActiveStreamer,
             pending_streamer: pendingStreamerToSwitch,
             video_enhanced: isVideoEnhanced,
             logo_pos_t: localStorage.getItem('kb_tv_logo_t') || "26",
@@ -2256,7 +2276,7 @@
         init7DayCalendar();
         await loadR2Library();
         fetchLiveNews();
-        renderTwitchMonitoredList();
+        renderMonitoredChannelsList();
 
         document.getElementById('rng-ticker-speed').value = currentTickerSpeedSec;
         document.getElementById('lbl-ticker-speed').textContent = `${currentTickerSpeedSec}s`;
@@ -2269,9 +2289,10 @@
             if (setRes.ok) {
                 const cloud = await setRes.json();
                 if (cloud) {
-                    if (cloud.active_twitch_streamer) {
-                        currentActiveTwitchStreamer = cloud.active_twitch_streamer;
-                        embedDeck.src = getTwitchEmbedUrl(currentActiveTwitchStreamer);
+                    if (cloud.active_streamer) {
+                        currentActiveStreamer = cloud.active_streamer;
+                        if (currentActiveStreamer.type === 'twitch') embedDeck.src = getTwitchEmbedUrl(currentActiveStreamer.name);
+                        else embedDeck.src = `https://www.youtube-nocookie.com/embed/live_stream?channel=${currentActiveStreamer.name}&autoplay=1&mute=0&controls=0`;
                         embedDeck.classList.add('active');
                         embedDeck.style.opacity = '1';
                         updateLiveBadgeUI(true, true);
@@ -2286,15 +2307,18 @@
             if (schedRes.ok) weekSchedules = (await schedRes.json()) || {};
         } catch(e){}
 
+        // 🤖 AUTO DJ INDÍTÁSA
         if (Object.keys(weekSchedules).length === 0) {
             for (let i = 0; i < 7; i++) autoGenerateDaySchedule(i);
         }
 
         selectCalendarDay(0);
 
+        // 10 percenként frissülő hírek
         setInterval(fetchLiveNews, 10 * 60 * 1000);
-        twitchCheckTimer = setInterval(checkTwitchStreamersLiveStatus, 10 * 1000);
-        checkTwitchStreamersLiveStatus();
+
+        streamCheckTimer = setInterval(checkStreamersLiveStatus, 10 * 1000);
+        checkStreamersLiveStatus();
     });
 </script>
 </body>
@@ -2460,7 +2484,7 @@
         background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.45); padding: 6px 18px; border-radius: 10px;
     }
 
-    /* 🏷️ JOBB FELSŐ LOGÓ + FIX (NEM PULZÁLÓ) 🔴 ÉLŐ BADGE */
+    /* 🏷️ JOBB FELSŐ LOGÓ + FIX 🔴 ÉLŐ BADGE */
     .tv-watermark-wrap {
         position: absolute;
         top: 26px; right: 32px;
@@ -2947,9 +2971,6 @@
     const FIREBASE_URL = "https://hiroszlop-default-rtdb.europe-west1.firebasedatabase.app";
     const VIDEO_CROSSFADE_SEC = 5;
 
-    const BASE_SCREEN_WIDTH = 1000;
-    let currentScaleRatio = 1;
-
     let weekSchedules = {};
     let isTvBroadcasting = false;
     let isViewerPlaying = false;
@@ -2966,9 +2987,8 @@
     let isVideoEnhanced = true;
     let currentAgeRating = "12";
     let liveBadgeMode = 'auto';
-    let currentActiveTwitchStreamer = null;
+    let currentActiveStreamer = null;
     let currentTickerSpeedSec = 50;
-    let cloudPositions = null;
 
     let isIntroBannerRunning = false;
     let isEndSequenceRunning = false;
@@ -3057,7 +3077,7 @@
         if (liveBadgeMode === 'on') showLive = true;
         else if (liveBadgeMode === 'off') showLive = false;
         else {
-            showLive = Boolean(currentActiveTwitchStreamer) || (isStreamActive && isLive);
+            showLive = Boolean(currentActiveStreamer) || (isStreamActive && isLive);
         }
 
         if (showLive && isViewerPlaying && isTvBroadcasting) {
@@ -3066,43 +3086,11 @@
             liveOnAirTag.classList.remove('active');
         }
 
-        if (isStreamActive || currentActiveTwitchStreamer) {
+        if (isStreamActive || currentActiveStreamer) {
             newsTickerBar.style.display = 'none';
         } else {
             newsTickerBar.style.display = 'flex';
         }
-    }
-
-    function updateResponsiveScaling() {
-        const currentWidth = tvScreenContainer.clientWidth;
-        currentScaleRatio = Math.max(0.35, currentWidth / BASE_SCREEN_WIDTH);
-        applyCloudPositions();
-    }
-
-    const resizeObserver = new ResizeObserver(() => updateResponsiveScaling());
-    resizeObserver.observe(tvScreenContainer);
-
-    function applyCloudPositions() {
-        const b = parseFloat(cloudPositions?.rating_pos_b || 48);
-        const r = parseFloat(cloudPositions?.rating_pos_r || 28);
-        const s = parseFloat(cloudPositions?.rating_pos_s || 36);
-
-        const lt = parseFloat(cloudPositions?.logo_pos_t || 26);
-        const lr = parseFloat(cloudPositions?.logo_pos_r || 32);
-        const ls = parseFloat(cloudPositions?.logo_scale || 100);
-
-        ageRatingContainer.style.bottom = `${b * currentScaleRatio}px`;
-        ageRatingContainer.style.right = `${r * currentScaleRatio}px`;
-        ageRatingContainer.style.transform = `scale(${currentScaleRatio})`;
-
-        nmhhRingBox.style.width = `${s}px`;
-        nmhhRingBox.style.height = `${s}px`;
-        const numEl = nmhhRingBox.querySelector('.nmhh-number');
-        if (numEl) numEl.style.fontSize = `${s * 0.46}px`;
-
-        watermarkWrap.style.top = `${lt * currentScaleRatio}px`;
-        watermarkWrap.style.right = `${lr * currentScaleRatio}px`;
-        watermarkWrap.style.transform = `scale(${currentScaleRatio * (ls / 100)})`;
     }
 
     function setupAudioNodes() {
@@ -3145,8 +3133,9 @@
             icon.textContent = '⏹';
             text.textContent = 'LEÁLLÍTÁS';
 
-            if (currentActiveTwitchStreamer) {
-                embedDeck.src = getTwitchEmbedUrl(currentActiveTwitchStreamer);
+            if (currentActiveStreamer) {
+                if (currentActiveStreamer.type === 'twitch') embedDeck.src = getTwitchEmbedUrl(currentActiveStreamer.name);
+                else embedDeck.src = `https://www.youtube-nocookie.com/embed/live_stream?channel=${currentActiveStreamer.name}&autoplay=1&mute=0&controls=0`;
                 embedDeck.classList.add('active');
                 embedDeck.style.opacity = '1';
                 updateLiveBadgeUI(true, true);
@@ -3192,9 +3181,6 @@
         if (tickerLiveDate) tickerLiveDate.textContent = `${y}.${mo}.${dt}.`;
         if (tickerLiveDay) tickerLiveDay.textContent = dayNamesHu[now.getDay()];
 
-        const monoClock = document.getElementById('mono-live-clock');
-        if (monoClock) monoClock.textContent = `${h}:${m}:${s}`;
-
         const currentSecToday = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
         const hourNum = now.getHours();
 
@@ -3207,7 +3193,7 @@
 
         evaluateAgeRatingVisibility();
 
-        if (isViewerPlaying && !currentlyPlayingId && !isVideoTransitioning && !transitionLock && !currentActiveTwitchStreamer) {
+        if (isViewerPlaying && !currentlyPlayingId && !isVideoTransitioning && !transitionLock && !currentActiveStreamer) {
             const todayKey = getSelectedDateKey(0);
             checkScheduleAndPlayback(currentSecToday, weekSchedules[todayKey] || []);
         }
@@ -3215,7 +3201,7 @@
     setInterval(updateClock, 1000);
 
     function checkScheduleAndPlayback(currentSecToday, schedule) {
-        if (!isViewerPlaying || transitionLock || currentActiveTwitchStreamer) return;
+        if (!isViewerPlaying || transitionLock || currentActiveStreamer) return;
 
         if (!schedule || schedule.length === 0 || !isTvBroadcasting) {
             showMonoscope();
@@ -3295,7 +3281,6 @@
     function applyVisuals() {
         watermarkWrap.style.display = (isViewerPlaying && isLogoVisible) ? 'flex' : 'none';
         applyAgeRating(currentAgeRating);
-        applyCloudPositions();
     }
 
     function applyAgeRating(rating) {
@@ -3391,8 +3376,7 @@
 
     function preloadNextDeckClip(schedule) {
         if (schedule.length === 0) return;
-        const nextIdx = (currentClipIndex + 1) % schedule.length;
-        const nextClip = schedule[nextIdx];
+        const nextClip = schedule[(currentClipIndex + 1) % schedule.length];
         if (nextClip && nextClip.isStream) return;
         const inactiveDeck = activeDeckName === 'A' ? deckB : deckA;
         if (inactiveDeck && nextClip) {
@@ -3444,9 +3428,7 @@
         if (newClip.rating) applyAgeRating(newClip.rating);
         evaluateAgeRatingVisibility();
 
-        if (!nextDeck.src || nextDeck.src === '' || !nextDeck.src.includes(encodeURIComponent(newClip.filename))) {
-            nextDeck.src = newClip.url;
-        }
+        if (!nextDeck.src || nextDeck.src === '') nextDeck.src = newClip.url;
 
         nextDeck.currentTime = 0;
         nextDeck.volume = (forceImmediate || isMuted) ? (isMuted ? 0 : masterVolume) : 0;
@@ -3587,15 +3569,17 @@
             if (tickerCrawlTrack) tickerCrawlTrack.style.animationDuration = `${currentTickerSpeedSec}s`;
         }
 
-        if (s.active_twitch_streamer) {
-            currentActiveTwitchStreamer = s.active_twitch_streamer;
+        if (s.active_streamer) {
+            currentActiveStreamer = s.active_streamer;
             ageRatingContainer.style.display = 'none';
-            embedDeck.src = getTwitchEmbedUrl(currentActiveTwitchStreamer);
+            if (currentActiveStreamer.type === 'twitch') embedDeck.src = getTwitchEmbedUrl(currentActiveStreamer.name);
+            else embedDeck.src = `https://www.youtube-nocookie.com/embed/live_stream?channel=${currentActiveStreamer.name}&autoplay=1&mute=0&controls=0`;
+
             embedDeck.classList.add('active');
             embedDeck.style.opacity = '1';
             updateLiveBadgeUI(true, true);
-        } else if (currentActiveTwitchStreamer && !s.active_twitch_streamer) {
-            currentActiveTwitchStreamer = null;
+        } else if (currentActiveStreamer && !s.active_streamer) {
+            currentActiveStreamer = null;
             embedDeck.classList.remove('active');
             embedDeck.style.opacity = '0';
             embedDeck.src = "about:blank";
@@ -3604,7 +3588,7 @@
         }
 
         if (s.pending_streamer) {
-            incomingAlertText.textContent = `📡 ${s.pending_streamer.toUpperCase()} hamarosan élőben jelentkezik...`;
+            incomingAlertText.textContent = `📡 ${s.pending_streamer.name.toUpperCase()} hamarosan élőben jelentkezik...`;
             incomingAlert.classList.add('active');
         } else {
             incomingAlert.classList.remove('active');
@@ -3618,8 +3602,6 @@
                 deckA.classList.remove('enhanced-mode'); deckB.classList.remove('enhanced-mode');
             }
         }
-
-        cloudPositions = s;
 
         const badge = document.getElementById('live-status-badge');
         const text = document.getElementById('live-status-text');
@@ -3643,7 +3625,7 @@
     function applyScheduleState(data) {
         if (!data || typeof data !== 'object') return;
         weekSchedules = data;
-        if (isViewerPlaying && isTvBroadcasting && !currentActiveTwitchStreamer) {
+        if (isViewerPlaying && isTvBroadcasting && !currentActiveStreamer) {
             const now = new Date();
             const currentSecToday = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
             const todaySched = weekSchedules[getSelectedDateKey(0)] || [];
@@ -3703,7 +3685,6 @@
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
-        updateResponsiveScaling();
         initRealtimeBroadcastSync();
         fetchLiveNews();
         setInterval(fetchLiveNews, 10 * 60 * 1000);
