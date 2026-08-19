@@ -187,14 +187,20 @@
     }
     .tv-video-deck.active { opacity: 1; z-index: 2; }
 
-    /* 🌐 STREAM LEJÁTSZÓ RÉTEG */
+    /* 🌐 STREAM LEJÁTSZÓ RÉTEG ÉS INTERAKCIÓ-VÉDŐ PAJZS */
     .tv-embed-container {
         position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        z-index: 1; opacity: 0; pointer-events: auto; background: #000;
-        transition: opacity 0.4s ease-in-out; display: none;
+        z-index: 1; opacity: 0; background: #000;
+        transition: opacity 0.6s ease-in-out; display: none;
     }
     .tv-embed-container.active { display: block; opacity: 1; z-index: 4; }
     .tv-embed-container iframe, .tv-embed-container div { width: 100%; height: 100%; border: none; }
+
+    /* 🔒 KÜLSŐ PANEL ZÁROLÓ (NEM LEHET BELETEKERNI VAGY MENÜT NYITNI) */
+    .stream-shield-overlay {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        z-index: 5; background: transparent; cursor: default;
+    }
 
     .tv-background-stream-dock {
         position: absolute; top: -9999px; left: -9999px; width: 320px; height: 180px;
@@ -266,7 +272,7 @@
     }
     .tv-morning-clock.active { display: inline-block; }
 
-    /* 📡 ÉLŐ ELŐREJELZŐ SÁV (BAL FELÜL) */
+    /* 📡 ÉLŐ ELŐREJELZŐ SÁV (BAL FELÜLRE HELYEZVE) */
     .tv-incoming-alert {
         position: absolute; top: 24px; left: 24px; bottom: auto; background: rgba(9, 14, 26, 0.95);
         border-left: 4px solid #ef4444; border-radius: 8px; padding: 8px 14px; color: #fff;
@@ -338,7 +344,7 @@
     .nmhh-number { font-family: 'Inter', sans-serif; font-weight: 900; font-size: 1.05rem; color: #ffffff; line-height: 1; }
     .nmhh-child-svg { width: 36px; height: 36px; fill: #22c55e; }
 
-    /* 📰 24/7 ALSÓ HÍRSÁV */
+    /* 📰 24/7 ALSÓ HÍRSÁV (NYUGODT, SZEMKÍMÉLŐ SEBESSÉGGEL ÉS RÉSZLETES LEÍRÁSSAL) */
     .tv-news-ticker-bar {
         position: absolute; bottom: 0; left: 0; width: 100%; height: 40px; background: #090e1a;
         border-top: 2px solid var(--theme-primary); z-index: 34; display: flex; align-items: stretch;
@@ -363,12 +369,15 @@
     .ticker-crawl-viewport { flex: 1; overflow: hidden; position: relative; display: flex; align-items: center; background: #090e1a; }
     .ticker-crawl-track {
         display: inline-flex; align-items: center; white-space: nowrap; padding-left: 100%;
-        animation-name: crawlAnim; animation-duration: 50s; animation-timing-function: linear; animation-iteration-count: infinite;
+        animation-name: crawlAnim; animation-duration: 110s; /* Kényelmes, nyugodt olvasási sebesség */
+        animation-timing-function: linear; animation-iteration-count: infinite;
         will-change: transform;
     }
-    .crawl-news-item { display: inline-flex; align-items: center; font-size: 0.82rem; color: #ffffff; gap: 6px; }
+    .crawl-news-item { display: inline-flex; align-items: center; font-size: 0.82rem; color: #ffffff; gap: 8px; }
     .crawl-news-tag { font-family: 'Space Mono', monospace; font-size: 0.60rem; font-weight: 900; color: var(--theme-primary); background: #1e293b; padding: 2px 6px; border-radius: 4px; }
-    .crawl-separator { display: inline-flex; align-items: center; margin: 0 20px; opacity: 0.8; }
+    .crawl-news-title { font-weight: 800; color: #ffffff; }
+    .crawl-news-desc { color: #cbd5e1; font-size: 0.78rem; font-weight: 400; opacity: 0.9; }
+    .crawl-separator { display: inline-flex; align-items: center; margin: 0 24px; opacity: 0.8; }
     .crawl-separator .kb-icon-mini { width: 15px; height: 15px; stroke: var(--theme-primary); }
 
     @keyframes crawlAnim { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
@@ -474,9 +483,11 @@
         <video id="tv-video-deck-a" class="tv-video-deck active" playsinline preload="auto"></video>
         <video id="tv-video-deck-b" class="tv-video-deck" playsinline preload="none"></video>
 
-        <!-- 🌐 STREAM LEJÁTSZÓ KONTÉNER (TWITCH & YOUTUBE) -->
+        <!-- 🌐 STREAM LEJÁTSZÓ KONTÉNER (TWITCH & YOUTUBE) + INTERAKCIÓ PAJZS -->
         <div id="tv-embed-container" class="tv-embed-container">
             <div id="tv-embed-slot"></div>
+            <!-- 🔒 ÁTLÁTSZÓ PAJZS (MEGGÁTOLJA A BELETEKERÉST ÉS A VEZÉRLŐK KATTINTÁSÁT) -->
+            <div class="stream-shield-overlay" id="stream-shield"></div>
         </div>
 
         <!-- 📺 PHILIPS MONOSZKÓP -->
@@ -526,7 +537,7 @@
             </div>
         </div>
 
-        <!-- 📰 24/7 ALSÓ HÍRSÁV -->
+        <!-- 📰 24/7 ALSÓ HÍRSÁV (RÉSZLETES HÍREKKEL, NYUGODT TEMPÓBAN) -->
         <div class="tv-news-ticker-bar" id="tv-news-ticker-bar">
             <div class="ticker-weather-block" id="ticker-weather-block">
                 <div class="ticker-date-badge">
@@ -543,7 +554,7 @@
             </div>
             <div class="ticker-crawl-viewport">
                 <div class="ticker-crawl-track" id="ticker-crawl-track">
-                    <span class="crawl-news-item"><span class="crawl-news-tag">KÉPBEN! HÍREK</span><span class="crawl-news-title">Friss zenei és bulvár hírek betöltése folyamatban...</span></span>
+                    <span class="crawl-news-item"><span class="crawl-news-tag">KÉPBEN! HÍREK</span><span class="crawl-news-title">Friss zenei és közéleti hírek betöltése...</span></span>
                 </div>
             </div>
         </div>
@@ -622,7 +633,7 @@
         <div style="background:var(--card-sub); padding:12px; border-radius:12px; border:1px solid var(--border); display:flex; flex-direction:column; gap:8px;">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
                 <span style="font-family:'Space Mono',monospace; font-size:0.75rem; font-weight:800; color:var(--accent-purple);">
-                    📡 TWITCH STREAMEREK ÁLLAPOTA (Kattintás nélküli élő puffereléssel és 1p offline visszakapcsolással):
+                    📡 TWITCH STREAMEREK ÁLLAPOTA (Kattintás nélküli háttér puffereléssel és 1 perc offline visszakapcsolással):
                 </span>
                 <label style="display:flex; align-items:center; gap:6px; font-size:0.72rem; color:var(--accent-green); font-family:'Space Mono',monospace; cursor:pointer;">
                     <input type="checkbox" id="chk-twitch-auto-switch" checked onchange="toggleTwitchAutoSwitch(this.checked)"> Auto-Átkapcsolás Aktív
@@ -708,12 +719,12 @@
     <div class="log-box" id="studio-log"></div>
 </div>
 
-<!-- 🪟 YOUTUBE VIDEÓ / MŰSOR IDŐZÍTŐ MODAL -->
+<!-- 🪟 YOUTUBE VIDEÓ / MŰSOR IDŐZÍTŐ MODAL (MÁSODPERC PONTOSSÁGGAL) -->
 <div class="modal-overlay" id="youtube-modal">
     <div class="modal-card">
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
             <div style="font-family:'Space Mono',monospace; font-size:0.85rem; font-weight:800; color:var(--accent-red);">
-                🎬 YOUTUBE VIDEÓ / MŰSOR IDŐZÍTÉSE AZ ADÁSLÁNCBA
+                🎬 YOUTUBE MŰSOR IDŐZÍTÉSE AZ ADÁSLÁNCBA
             </div>
             <button class="btn-del-sm" onclick="closeYouTubeModal()">✖ Bezárás</button>
         </div>
@@ -748,23 +759,27 @@
 
         <div style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); border-radius:10px; padding:12px; display:flex; flex-direction:column; gap:8px;">
             <div>
-                <label style="font-family:'Space Mono',monospace; font-size:0.68rem; color:var(--accent-red); font-weight:700;">⏱️ ADÁSKEZDET (Óra:Perc:Mp):</label>
+                <label style="font-family:'Space Mono',monospace; font-size:0.68rem; color:var(--accent-red); font-weight:700;">⏱️ ADÁSKEZDET PONTOSAN (Óra:Perc:Mp):</label>
                 <input type="text" id="modal-yt-start-time" value="20:00:00" oninput="updateYouTubeCalculatedEndTime()" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-family:'Space Mono',monospace; font-size:0.8rem; font-weight:700; outline:none;">
             </div>
 
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:6px;">
                 <div>
-                    <label style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted);">VIDEÓ HOSSZA (ÓRA):</label>
+                    <label style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted);">HOSSZ (ÓRA):</label>
                     <input type="number" id="inp-yt-dur-hours" value="0" min="0" max="23" oninput="updateYouTubeCalculatedEndTime()" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-family:'Space Mono',monospace; font-size:0.8rem; outline:none; font-weight:700;">
                 </div>
                 <div>
-                    <label style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted);">VIDEÓ HOSSZA (PERC):</label>
-                    <input type="number" id="inp-yt-dur-mins" value="45" min="1" max="59" oninput="updateYouTubeCalculatedEndTime()" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-family:'Space Mono',monospace; font-size:0.8rem; outline:none; font-weight:700;">
+                    <label style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted);">HOSSZ (PERC):</label>
+                    <input type="number" id="inp-yt-dur-mins" value="45" min="0" max="59" oninput="updateYouTubeCalculatedEndTime()" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-family:'Space Mono',monospace; font-size:0.8rem; outline:none; font-weight:700;">
+                </div>
+                <div>
+                    <label style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted);">HOSSZ (MP):</label>
+                    <input type="number" id="inp-yt-dur-secs" value="0" min="0" max="59" oninput="updateYouTubeCalculatedEndTime()" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-family:'Space Mono',monospace; font-size:0.8rem; outline:none; font-weight:700;">
                 </div>
             </div>
 
             <div style="font-family:'Space Mono',monospace; font-size:0.72rem; color:var(--text-muted); background:#060a12; padding:6px 10px; border-radius:6px;">
-                🏁 Adás vége: <strong id="yt-calculated-end-time" style="color:#facc15;">20:45:00</strong> ➔ Utána az adáslánc azonnal folytatja a klipeket!
+                🏁 Adás vége: <strong id="yt-calculated-end-time" style="color:#facc15;">20:45:00</strong> ➔ Pontban ekkor a lánc automatikusan átúsztat a klipekre!
             </div>
         </div>
 
@@ -859,7 +874,7 @@
     const WORKER_URL = "https://kepbenoszlop.androjid21.workers.dev";
     const R2_PUBLIC_URL = "https://pub-7af7418ac8c74dd88ba4c97fe4a00b7b.r2.dev/";
     const FIREBASE_URL = "https://hiroszlop-default-rtdb.europe-west1.firebasedatabase.app";
-    const VIDEO_CROSSFADE_SEC = 5;
+    const VIDEO_CROSSFADE_SEC = 4;
     const TWITCH_STABILIZATION_MINUTES = 6;
 
     let r2Library = [];
@@ -901,8 +916,8 @@
 
     let isNewsTickerManualEnabled = true;
     let cachedNewsItems = [
-        { title: "KÉPBEN! Master Studio – Folyamatos 24/7 zenei és hírsugárzás", source: "KÉPBEN!" },
-        { title: "Friss slágerek és HD videóklipek a nap 24 órájában", source: "KÉPBEN! MUSIC" }
+        { title: "KÉPBEN! Master Studio – Folyamatos 24/7 zenei és hírsugárzás", description: "Legfrissebb slágerek, HD klipek és valós idejű hírfolyam a nap 24 órájában.", source: "KÉPBEN!" },
+        { title: "KÉPBEN! MUSIC – HD zenei televízió", description: "A legújabb hazai és nemzetközi klipek prémium kép- és hangminőségben.", source: "KÉPBEN! MUSIC" }
     ];
 
     let audioCtx = null;
@@ -1122,7 +1137,7 @@
         return totalMinutes;
     }
 
-    // 📡 TWITCH HÁTTÉR PUFFERELŐ DOKK
+    // 📡 TWITCH HÁTTÉR PUFFERELŐ DOKK (AZONNALI, KATTINTÁSMENTES INDULÁSRA KÉSZÜLVE)
     function preloadTwitchStreamInBackground(channel) {
         if (typeof Twitch === 'undefined') return;
         bgStreamSlot.innerHTML = `<div id="bg-twitch-node" style="width:100%; height:100%;"></div>`;
@@ -1133,7 +1148,8 @@
                 width: "100%",
                 height: "100%",
                 autoplay: true,
-                muted: true
+                muted: true,
+                controls: false
             });
             bgTwitchPlayer.addEventListener(Twitch.Player.READY, () => {
                 bgTwitchPlayer.setMuted(true);
@@ -1222,11 +1238,14 @@
         hideLowerThirdImmediate();
         ageRatingContainer.style.display = 'none';
 
-        deckA.pause(); deckB.pause();
-        deckA.style.opacity = '0'; deckB.style.opacity = '0';
-        deckA.classList.remove('active'); deckB.classList.remove('active');
+        // LÁGY ÁTÚSZTATÁS A TWITCHRE
+        const activeDeck = activeDeckName === 'A' ? deckA : deckB;
+        fadeVolumeAndOpacity(activeDeck, 0, 1.2, () => {
+            deckA.pause(); deckB.pause();
+            deckA.style.opacity = '0'; deckB.style.opacity = '0';
+            deckA.classList.remove('active'); deckB.classList.remove('active');
+        });
 
-        // Ha van háttérben pörgő Twitch lejátszó, áthelyezzük és felhangosítjuk
         const bgNode = document.getElementById('bg-twitch-node');
         if (bgNode && bgTwitchPlayer) {
             embedSlot.innerHTML = "";
@@ -1245,7 +1264,8 @@
                     width: "100%",
                     height: "100%",
                     autoplay: true,
-                    muted: false
+                    muted: false,
+                    controls: false
                 });
                 activeTwitchPlayer.addEventListener(Twitch.Player.READY, () => {
                     activeTwitchPlayer.setMuted(false);
@@ -1291,12 +1311,13 @@
         syncBroadcastSettingsToCloud();
     }
 
-    // 🎬 YOUTUBE IDŐZÍTÉS & AZONNALI VISSZATÉRÉS
+    // 🎬 YOUTUBE IDŐZÍTÉS & MÁSODPERCRE PONTOS FINOM ÁTÚSZTATÁS
     function updateYouTubeCalculatedEndTime() {
         const timeInput = document.getElementById('modal-yt-start-time').value.trim();
         const hours = parseInt(document.getElementById('inp-yt-dur-hours').value) || 0;
         const mins = parseInt(document.getElementById('inp-yt-dur-mins').value) || 0;
-        const totalDurSec = (hours * 3600) + (mins * 60);
+        const secs = parseInt(document.getElementById('inp-yt-dur-secs').value) || 0;
+        const totalDurSec = (hours * 3600) + (mins * 60) + secs;
 
         const parts = timeInput.split(':').map(Number);
         const startSec = (parts[0] || 0) * 3600 + (parts[1] || 0) * 60 + (parts[2] || 0);
@@ -1322,13 +1343,14 @@
         const title = document.getElementById('inp-yt-title').value.trim() || "KÉPBEN! KÜLÖNKIADÁS";
         const hours = parseInt(document.getElementById('inp-yt-dur-hours').value) || 0;
         const mins = parseInt(document.getElementById('inp-yt-dur-mins').value) || 0;
-        const durationSec = (hours * 3600) + (mins * 60);
+        const secs = parseInt(document.getElementById('inp-yt-dur-secs').value) || 0;
+        const durationSec = (hours * 3600) + (mins * 60) + secs;
         const timeInput = document.getElementById('modal-yt-start-time').value.trim();
         const dayChoice = document.getElementById('modal-yt-day-select').value;
         const itemRating = document.getElementById('modal-yt-rating-select').value;
 
         if (!rawUrl) return alert("Kérlek add meg a YouTube linket!");
-        if (durationSec <= 0) return alert("A videó hossza legalább 1 perc kell legyen!");
+        if (durationSec <= 0) return alert("A videó hossza legalább 5 másodperc kell legyen!");
 
         const ytMatch = rawUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|live\/|shorts\/|watch\?v=|watch\?.+&v=))([\w-]{11})/i);
         if (!ytMatch || !ytMatch[1]) return alert("Érvénytelen YouTube videó link!");
@@ -1373,12 +1395,23 @@
         embedContainer.classList.add('active');
         embedContainer.style.opacity = '1';
 
+        // LÁGY VOLUMEN ÉS KÉP ÁTÚSZTATÁS A DECKRŐL
+        const currentDeck = activeDeckName === 'A' ? deckA : deckB;
+        fadeVolumeAndOpacity(currentDeck, 0, 1.5, () => {
+            currentDeck.pause();
+            currentDeck.style.opacity = '0';
+            currentDeck.classList.remove('active');
+        });
+
         if (typeof YT !== 'undefined' && YT.Player) {
             activeYouTubePlayer = new YT.Player('active-yt-player-node', {
                 videoId: videoId,
                 playerVars: {
                     autoplay: 1,
-                    controls: 1,
+                    controls: 0, // Teljesen elrejtett YouTube panel
+                    disablekb: 1, // Billentyűzet tiltása
+                    fs: 0, // Külső fullscreen tiltása
+                    modestbranding: 1,
                     playsinline: 1,
                     rel: 0,
                     start: Math.floor(offsetSec),
@@ -1392,14 +1425,13 @@
                         event.target.playVideo();
                     },
                     onStateChange: (event) => {
-                        // AMINT VÉGET ÉR A YOUTUBE VIDEÓ, AZONNAL VISSZAKAPCSOLUNK A KLIPEKRE!
                         if (event.data === YT.PlayerState.ENDED) {
-                            log("🎬 YouTube videó lejátszása véget ért. Azonnali visszatérés a klipekre!", 'success');
+                            log("🎬 YouTube műsor befejeződött. Azonnali átúsztatás a klipekre!", 'success');
                             executeVideoCrossfade(true);
                         }
                     },
                     onError: (event) => {
-                        log(`⚠️ YouTube beágyazási korlátozás (Hibakód: ${event.data}). Automatikus átlépés a következő klipre.`, 'warn');
+                        log(`⚠️ YouTube hiba (Hibakód: ${event.data}). Automatikus visszatérés a zenei műsorra.`, 'warn');
                         executeVideoCrossfade(true);
                     }
                 }
@@ -1407,7 +1439,7 @@
         } else {
             const cleanOrigin = encodeURIComponent(window.location.origin || "https://localhost");
             embedSlot.innerHTML = `
-                <iframe src="https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=0&controls=1&enablejsapi=1&playsinline=1&rel=0&origin=${cleanOrigin}" 
+                <iframe src="https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=0&controls=0&disablekb=1&enablejsapi=1&playsinline=1&rel=0&origin=${cleanOrigin}" 
                         allow="autoplay; fullscreen; encrypted-media; picture-in-picture" 
                         referrerpolicy="no-referrer" 
                         allowfullscreen style="width:100%; height:100%; border:none;">
@@ -1416,7 +1448,28 @@
         }
     }
 
-    // 🧮 24 ÓRÁS ADÁSLÁNC ÚJRATERVEZŐ
+    function fadeVolumeAndOpacity(element, targetVal, durationSec, callback) {
+        if (!element) return;
+        const steps = 20;
+        const interval = (durationSec * 1000) / steps;
+        let curStep = 0;
+        const initVol = element.volume !== undefined ? element.volume : 1;
+        const initOp = parseFloat(element.style.opacity || "1");
+
+        const t = setInterval(() => {
+            curStep++;
+            const progress = curStep / steps;
+            if (element.volume !== undefined) element.volume = Math.max(0, initVol * (1 - progress));
+            element.style.opacity = Math.max(0, initOp * (1 - progress)).toFixed(2);
+
+            if (curStep >= steps) {
+                clearInterval(t);
+                if (callback) callback();
+            }
+        }, interval);
+    }
+
+    // 🧮 24 ÓRÁS MÁSODPERC-PONTOS ADÁSLÁNC ÚJRATERVEZŐ
     function autoGenerateDaySchedule(dayOffset, forceRegenerate = false) {
         const pool = r2Library.length > 0 ? r2Library : defaultSampleClips;
         const dateKey = getSelectedDateKey(dayOffset);
@@ -1429,13 +1482,13 @@
         for (const stream of fixedStreams) {
             while (curTime < stream.startSec) {
                 const gap = stream.startSec - curTime;
-                if (gap <= 15) { curTime = stream.startSec; break; }
+                if (gap <= 5) { curTime = stream.startSec; break; }
 
                 const clip = getNextRotatedClip();
                 if (!clip) break;
 
                 let clipDur = clip.duration || 210;
-                if (clipDur > gap) clipDur = gap;
+                if (clipDur > gap) clipDur = gap; // Pontosan a megadott másodpercig tart a klip!
 
                 const curHour = Math.floor(curTime / 3600);
                 finalSchedule.push({
@@ -1462,7 +1515,7 @@
 
         while (curTime < 86400) {
             const gap = 86400 - curTime;
-            if (gap <= 15) break;
+            if (gap <= 5) break;
 
             const clip = getNextRotatedClip();
             if (!clip) break;
@@ -1509,7 +1562,7 @@
         return `${h}:${m}:${s}`;
     }
 
-    // 📺 ADÁSLEJÁTSZÁS
+    // 📺 ADÁSLEJÁTSZÁS & VALÓS IDEJŰ ELLENŐRZÉS
     function checkScheduleAndPlayback(currentSecToday, schedule) {
         if (!isTvBroadcasting || transitionLock || currentActiveTwitchStreamer) return;
         if (!schedule || schedule.length === 0) { showStandby(null); return; }
@@ -1538,7 +1591,6 @@
                 const offsetSec = Math.max(0, currentSecToday - clip.startSec);
                 playYouTubeVideoSafe(clip.videoId, offsetSec);
 
-                // YOUTUBE ALATT NINCS ÉLŐ FELIRAT ÉS NINCS KLIPFELIRAT
                 updateLiveBadgeUI(false, clip.streamType);
                 return;
             }
@@ -2288,7 +2340,7 @@
             if (res.ok) {
                 const data = await res.json();
                 if (data.news && Object.keys(data.news).length > 0) {
-                    cachedNewsItems = Object.values(data.news).slice(0, 8);
+                    cachedNewsItems = Object.values(data.news).slice(0, 10);
                 }
             }
         } catch(e) {}
@@ -2299,7 +2351,11 @@
         if (!tickerCrawlTrack) return;
         const separatorHtml = `<span class="crawl-separator"><svg class="kb-icon-mini" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg></span>`;
         tickerCrawlTrack.innerHTML = cachedNewsItems.map(n => `
-            <span class="crawl-news-item"><span class="crawl-news-tag">HÍREK · ${n.source || 'KÉPBEN!'}</span><span class="crawl-news-title">${cleanHtmlText(n.title)}</span></span>
+            <span class="crawl-news-item">
+                <span class="crawl-news-tag">HÍREK · ${n.source || 'KÉPBEN!'}</span>
+                <span class="crawl-news-title">${cleanHtmlText(n.title)}</span>
+                ${n.description ? `<span class="crawl-news-desc">— ${cleanHtmlText(n.description)}</span>` : ''}
+            </span>
         `).join(separatorHtml);
     }
 
@@ -2348,10 +2404,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>KÉPBEN! MUSIC TELEVISION · Élő Adás</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700;800&display=swap" rel="stylesheet">
-<!-- Twitch és YouTube Hivatalos API-k -->
+<!-- Twitch és YouTube API-k -->
 <script src="https://player.twitch.tv/js/embed/v1.js"></script>
 <script src="https://www.youtube.com/iframe_api"></script>
 
@@ -2431,7 +2486,7 @@
     }
     .tv-video-deck.active { opacity: 1; z-index: 2; }
 
-    /* 🌐 BEÁGYAZOTT STREAM RÉTEG */
+    /* 🌐 BEÁGYAZOTT STREAM RÉTEG ÉS PANEL ZÁROLÓ PAJZS */
     .tv-embed-container {
         position: absolute;
         top: 0; left: 0;
@@ -2439,10 +2494,9 @@
         border: none;
         z-index: 1;
         opacity: 0;
-        pointer-events: auto;
         display: none;
         background: #000;
-        transition: opacity 0.4s ease-in-out;
+        transition: opacity 0.6s ease-in-out;
     }
     .tv-embed-container.active {
         display: block;
@@ -2450,6 +2504,12 @@
         z-index: 4;
     }
     .tv-embed-container iframe, .tv-embed-container div { width: 100%; height: 100%; border: none; }
+
+    /* 🔒 KÜLSŐ PANEL ÉS BELETEKERÉS ZÁROLÁS */
+    .stream-shield-overlay {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        z-index: 5; background: transparent; cursor: default;
+    }
 
     .tv-video-deck.enhanced-mode {
         filter: contrast(1.04) saturate(1.06);
@@ -2719,7 +2779,7 @@
     .nmhh-number { font-family: 'Inter', sans-serif; font-weight: 900; font-size: 1.05rem; color: #ffffff !important; line-height: 1; }
     .nmhh-child-svg { width: 36px; height: 36px; fill: #22c55e; }
 
-    /* 📰 FIX HÍRSÁV */
+    /* 📰 FIX HÍRSÁV (NYUGODT TEMPÓ & RÉSZLETES LEÍRÁS) */
     .tv-news-ticker-bar {
         position: absolute;
         bottom: 0;
@@ -2770,12 +2830,15 @@
     .ticker-crawl-viewport { flex: 1; overflow: hidden; position: relative; display: flex; align-items: center; background: #090e1a; }
     .ticker-crawl-track {
         display: inline-flex; align-items: center; white-space: nowrap; padding-left: 100%;
-        animation-name: crawlAnim; animation-duration: 50s; animation-timing-function: linear; animation-iteration-count: infinite;
+        animation-name: crawlAnim; animation-duration: 110s; /* Kellemes, szemkímélő olvasási sebesség */
+        animation-timing-function: linear; animation-iteration-count: infinite;
         will-change: transform;
     }
-    .crawl-news-item { display: inline-flex; align-items: center; font-size: 0.82rem; color: #ffffff; gap: 6px; }
+    .crawl-news-item { display: inline-flex; align-items: center; font-size: 0.82rem; color: #ffffff; gap: 8px; }
     .crawl-news-tag { font-family: 'Space Mono', monospace; font-size: 0.60rem; font-weight: 900; color: var(--theme-primary); background: #1e293b; padding: 2px 6px; border-radius: 4px; }
-    .crawl-separator { display: inline-flex; align-items: center; margin: 0 20px; opacity: 0.8; }
+    .crawl-news-title { font-weight: 800; color: #ffffff; }
+    .crawl-news-desc { color: #cbd5e1; font-size: 0.78rem; font-weight: 400; opacity: 0.9; }
+    .crawl-separator { display: inline-flex; align-items: center; margin: 0 24px; opacity: 0.8; }
     .crawl-separator .kb-icon-mini { width: 15px; height: 15px; stroke: var(--theme-primary); }
 
     @keyframes crawlAnim { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
@@ -2831,9 +2894,11 @@
         <video id="tv-video-deck-a" class="tv-video-deck active" playsinline preload="auto" webkit-playsinline></video>
         <video id="tv-video-deck-b" class="tv-video-deck" playsinline preload="none" webkit-playsinline></video>
 
-        <!-- 🌐 YOUTUBE & TWITCH ÉLŐ LEJÁTSZÓ KONTÉNER -->
+        <!-- 🌐 YOUTUBE & TWITCH ÉLŐ LEJÁTSZÓ KONTÉNER + INTERAKCIÓ-VÉDELEM -->
         <div id="tv-embed-container" class="tv-embed-container">
             <div id="tv-embed-slot"></div>
+            <!-- 🔒 ÁTLÁTSZÓ PAJZS (MEGÁLLÍTJA A BELETEKERÉST ÉS AZ ILLETÉKTELEN KATTINTÁSOKAT) -->
+            <div class="stream-shield-overlay" id="stream-shield"></div>
         </div>
 
         <!-- 📺 PHILIPS MONOSZKÓP -->
@@ -2886,7 +2951,7 @@
                 </div>
             </div>
 
-            <!-- 📰 FIX ALSÓ HÍRSÁV -->
+            <!-- 📰 FIX ALSÓ HÍRSÁV (RÉSZLETES LEÍRÁSSAL, KELLEMES TEMPÓBAN) -->
             <div class="tv-news-ticker-bar" id="tv-news-ticker-bar">
                 <div class="ticker-weather-block" id="ticker-weather-block">
                     <div class="ticker-date-badge">
@@ -2904,7 +2969,7 @@
 
                 <div class="ticker-crawl-viewport">
                     <div class="ticker-crawl-track" id="ticker-crawl-track">
-                        <span class="crawl-news-item"><span class="crawl-news-tag">KÉPBEN! HÍREK</span><span class="crawl-news-title">Friss zenei és bulvár hírek betöltése folyamatban...</span></span>
+                        <span class="crawl-news-item"><span class="crawl-news-tag">KÉPBEN! HÍREK</span><span class="crawl-news-title">Friss zenei és közéleti hírek betöltése folyamatban...</span></span>
                     </div>
                 </div>
             </div>
@@ -2985,7 +3050,7 @@
 
     const WORKER_URL = "https://kepbenoszlop.androjid21.workers.dev";
     const FIREBASE_URL = "https://hiroszlop-default-rtdb.europe-west1.firebasedatabase.app";
-    const VIDEO_CROSSFADE_SEC = 5;
+    const VIDEO_CROSSFADE_SEC = 4;
 
     const BASE_SCREEN_WIDTH = 1000;
     let currentScaleRatio = 1;
@@ -3018,397 +3083,578 @@
     let bannerSequenceTimers = [];
 
     let cachedNewsItems = [
-        { title: "KÉPBEN! Élő Adás – Folyamatos 24/7 zenei műsorfolyam", source: "KÉPBEN!" },
-        { title: "KÉPBEN! MUSIC – HD videóklipek és slágerek megszakítás nélkül", source: "MUSIC TV" }
+        { title: "KÉPBEN! Élő Adás – Folyamatos 24/7 zenei műsorfolyam", description: "Legfrissebb slágerek, HD klipek és valós idejű hírfolyam a nap 24 órájában.", source: "KÉPBEN!" },
+        { title: "KÉPBEN! MUSIC – HD videóklipek és slágerek megszakítás nélkül", description: "A legújabb hazai és nemzetközi klipek prémium kép- és hangminőségben.", source: "MUSIC TV" }
     ];
 
     let audioCtx = null;
-    let is AudioInitialized = false;
+    let isAudioInitialized = false;
 
-const deckA = document.getElementById('tv-video-deck-a');
-const deckB = document.getElementById('tv-video-deck-b');
-const embedContainer = document.getElementById('tv-embed-container');
-const embedSlot = document.getElementById('tv-embed-slot');
+    const deckA = document.getElementById('tv-video-deck-a');
+    const deckB = document.getElementById('tv-video-deck-b');
+    const embedContainer = document.getElementById('tv-embed-container');
+    const embedSlot = document.getElementById('tv-embed-slot');
 
-const tvScreenContainer = document.getElementById('tv-screen-container');
-const monoscopeLayer = document.getElementById('tv-monoscope-layer');
-const standbyScreen = document.getElementById('tv-standby-screen');
-const standbyResumeTimeEl = document.getElementById('standby-resume-time');
-const watermarkWrap = document.getElementById('tv-watermark-wrap');
-const liveOnAirTag = document.getElementById('tv-live-on-air-tag');
-const morningClockEl = document.getElementById('tv-morning-clock');
-const incomingAlert = document.getElementById('tv-incoming-alert');
-const incomingAlertText = document.getElementById('tv-incoming-alert-text');
+    const tvScreenContainer = document.getElementById('tv-screen-container');
+    const monoscopeLayer = document.getElementById('tv-monoscope-layer');
+    const standbyScreen = document.getElementById('tv-standby-screen');
+    const standbyResumeTimeEl = document.getElementById('standby-resume-time');
+    const watermarkWrap = document.getElementById('tv-watermark-wrap');
+    const liveOnAirTag = document.getElementById('tv-live-on-air-tag');
+    const morningClockEl = document.getElementById('tv-morning-clock');
+    const incomingAlert = document.getElementById('tv-incoming-alert');
+    const incomingAlertText = document.getElementById('tv-incoming-alert-text');
+    
+    const lowerThirdBanner = document.getElementById('tv-lower-third-banner');
+    const ltShowTitle = document.getElementById('lt-show-title');
+    const ltStatusBadge = document.getElementById('lt-status-badge');
+    const ltArtistRow = document.getElementById('lt-artist-row');
+    const ltTrackRow = document.getElementById('lt-track-row');
 
-const lowerThirdBanner = document.getElementById('tv-lower-third-banner');
-const ltShowTitle = document.getElementById('lt-show-title');
-const ltStatusBadge = document.getElementById('lt-status-badge');
-const ltArtistRow = document.getElementById('lt-artist-row');
-const ltTrackRow = document.getElementById('lt-track-row');
+    const ageRatingContainer = document.getElementById('tv-age-rating-container');
+    const nmhhRingBox = document.getElementById('nmhh-ring-box');
 
-const ageRatingContainer = document.getElementById('tv-age-rating-container');
-const nmhhRingBox = document.getElementById('nmhh-ring-box');
+    const newsTickerBar = document.getElementById('tv-news-ticker-bar');
+    const tickerCrawlTrack = document.getElementById('ticker-crawl-track');
+    const tickerLiveDate = document.getElementById('ticker-live-date');
+    const tickerLiveDay = document.getElementById('ticker-live-day');
 
-const newsTickerBar = document.getElementById('tv-news-ticker-bar');
-const tickerCrawlTrack = document.getElementById('ticker-crawl-track');
-const tickerLiveDate = document.getElementById('ticker-live-date');
-const tickerLiveDay = document.getElementById('ticker-live-day');
+    const tvDaypartConfig = {
+        ejjel: { title: "🌙 KÉPBEN! Éjjel", primaryColor: "#818cf8", gradient: "linear-gradient(135deg, #050811 0%, #1e1b4b 100%)" },
+        reggel: { title: "🌅 Ébredj KÉPBEN!", primaryColor: "#f59e0b", gradient: "linear-gradient(135deg, #1b263b 0%, #78350f 100%)" },
+        delelott: { title: "☀️ KÉPBEN! Délelőtt", primaryColor: "#38bdf8", gradient: "linear-gradient(135deg, #0b1329 0%, #0369a1 100%)" },
+        delben: { title: "🍽️ KÉPBEN! Délben", primaryColor: "#10b981", gradient: "linear-gradient(135deg, #062419 0%, #047857 100%)" },
+        delutan: { title: "🌆 KÉPBEN! Délután", primaryColor: "#06b6d4", gradient: "linear-gradient(135deg, #0b1329 0%, #0e7490 100%)" },
+        este: { title: "🎉 KÉPBEN! Este", primaryColor: "#c084fc", gradient: "linear-gradient(135deg, #0b1329 0%, #6b21a8 100%)" },
+        kesoeste: { title: "🌃 KÉPBEN! Késő Este", primaryColor: "#6366f1", gradient: "linear-gradient(135deg, #0b1026 0%, #312e81 100%)" },
+        live: { title: "🔴 KÉPBEN! ÉLŐ KÖZVETÍTÉS", primaryColor: "#ef4444", gradient: "linear-gradient(135deg, #1e0b0b 0%, #7f1d1d 100%)" }
+    };
 
-const tvDaypartConfig = {
-    ejjel: { title: "🌙 KÉPBEN! Éjjel", primaryColor: "#818cf8", gradient: "linear-gradient(135deg, #050811 0%, #1e1b4b 100%)" },
-    reggel: { title: "🌅 Ébredj KÉPBEN!", primaryColor: "#f59e0b", gradient: "linear-gradient(135deg, #1b263b 0%, #78350f 100%)" },
-    delelott: { title: "☀️ KÉPBEN! Délelőtt", primaryColor: "#38bdf8", gradient: "linear-gradient(135deg, #0b1329 0%, #0369a1 100%)" },
-    delben: { title: "🍽️ KÉPBEN! Délben", primaryColor: "#10b981", gradient: "linear-gradient(135deg, #062419 0%, #047857 100%)" },
-    delutan: { title: "🌆 KÉPBEN! Délután", primaryColor: "#06b6d4", gradient: "linear-gradient(135deg, #0b1329 0%, #0e7490 100%)" },
-    este: { title: "🎉 KÉPBEN! Este", primaryColor: "#c084fc", gradient: "linear-gradient(135deg, #0b1329 0%, #6b21a8 100%)" },
-    kesoeste: { title: "🌃 KÉPBEN! Késő Este", primaryColor: "#6366f1", gradient: "linear-gradient(135deg, #0b1026 0%, #312e81 100%)" },
-    live: { title: "🔴 KÉPBEN! ÉLŐ KÖZVETÍTÉS", primaryColor: "#ef4444", gradient: "linear-gradient(135deg, #1e0b0b 0%, #7f1d1d 100%)" }
-};
-
-function getCleanParentDomains() {
-    let currentHost = window.location.hostname;
-    if (!currentHost || window.location.protocol === 'file:') currentHost = "localhost";
-    const parentDomains = new Set(["localhost", "127.0.0.1", "robszerko.github.io"]);
-    if (currentHost) parentDomains.add(currentHost);
-    return Array.from(parentDomains);
-}
-
-function getDaypartKeyForHour(hour) {
-    if (hour >= 0 && hour < 6) return 'ejjel';
-    if (hour >= 6 && hour < 10) return 'reggel';
-    if (hour >= 10 && hour < 12) return 'delelott';
-    if (hour >= 12 && hour < 13) return 'delben';
-    if (hour >= 13 && hour < 18) return 'delutan';
-    if (hour >= 18 && hour < 22) return 'este';
-    return 'kesoeste';
-}
-
-function getSelectedDateKey(dayOffset) {
-    const d = new Date(); d.setDate(d.getDate() + dayOffset);
-    return d.toLocaleDateString('sv-SE');
-}
-
-function cleanHtmlText(raw) {
-    if (!raw) return "";
-    return raw.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
-}
-
-function sanitizeMusicTitle(raw) {
-    if (!raw) return "";
-    let s = raw.replace(/\.(mp4|webm|mov|mkv|mp3|avi|flv)$/i, '').replace(/_/g, ' ');
-    s = s.replace(/^\s*\d{1,3}[\.\-\s_]+/i, '');
-    s = s.replace(/\s*[\[\(](official\s*(music\s*)?video|video|audio|lyrics|4k|60fps|hd|hq|clip\s*officiel|official\s*hd|hivatalos\s*(vide[oó]klip|klip))[\]\)]/gi, '');
-    s = s.replace(/\s*(official\s*(music\s*)?video|vide[oó]\s*clip|clip\s*officiel|official\s*audio|hivatalos\s*vide[oó]klip)\b/gi, '');
-    return s.replace(/\s+/g, ' ').trim();
-}
-
-function parseArtistAndTitle(rawTitle) {
-    if (!rawTitle) return { artist: "KÉPBEN! MUSIC", title: "-" };
-    let cleaned = sanitizeMusicTitle(rawTitle);
-    let parts = [];
-    if (cleaned.includes(' - ')) parts = cleaned.split(' - ');
-    else if (cleaned.includes(' – ')) parts = cleaned.split(' – ');
-    else if (cleaned.includes(' · ')) parts = cleaned.split(' · ');
-
-    if (parts.length >= 2) {
-        return { artist: parts[0].trim() || "KÉPBEN! MUSIC", title: parts.slice(1).join(' - ').trim() || cleaned };
-    }
-    return { artist: "KÉPBEN! SLÁGER", title: cleaned };
-}
-
-function updateLiveBadgeUI(isStreamActive = false, streamType = 'clips') {
-    let showLive = false;
-    if (liveBadgeMode === 'on') showLive = true;
-    else if (liveBadgeMode === 'off') showLive = false;
-    else {
-        showLive = (Boolean(currentActiveTwitchStreamer) || (isStreamActive && streamType === 'twitch'));
+    function getCleanParentDomains() {
+        let currentHost = window.location.hostname;
+        if (!currentHost || window.location.protocol === 'file:') currentHost = "localhost";
+        const parentDomains = new Set(["localhost", "127.0.0.1", "robszerko.github.io"]);
+        if (currentHost) parentDomains.add(currentHost);
+        return Array.from(parentDomains);
     }
 
-    if (showLive && isViewerPlaying && isTvBroadcasting) {
-        liveOnAirTag.classList.add('active');
-    } else {
-        liveOnAirTag.classList.remove('active');
+    function getDaypartKeyForHour(hour) {
+        if (hour >= 0 && hour < 6) return 'ejjel';
+        if (hour >= 6 && hour < 10) return 'reggel';
+        if (hour >= 10 && hour < 12) return 'delelott';
+        if (hour >= 12 && hour < 13) return 'delben';
+        if (hour >= 13 && hour < 18) return 'delutan';
+        if (hour >= 18 && hour < 22) return 'este';
+        return 'kesoeste';
     }
 
-    if (isStreamActive || currentActiveTwitchStreamer) {
-        newsTickerBar.style.display = 'none';
-    } else {
-        newsTickerBar.style.display = 'flex';
+    function getSelectedDateKey(dayOffset) {
+        const d = new Date(); d.setDate(d.getDate() + dayOffset);
+        return d.toLocaleDateString('sv-SE');
     }
-}
 
-function updateResponsiveScaling() {
-    const currentWidth = tvScreenContainer.clientWidth;
-    currentScaleRatio = Math.max(0.35, currentWidth / BASE_SCREEN_WIDTH);
-    applyCloudPositions();
-}
-
-const resizeObserver = new ResizeObserver(() => updateResponsiveScaling());
-resizeObserver.observe(tvScreenContainer);
-
-function applyCloudPositions() {
-    const b = parseFloat(cloudPositions?.rating_pos_b || 48);
-    const r = parseFloat(cloudPositions?.rating_pos_r || 28);
-    const s = parseFloat(cloudPositions?.rating_pos_s || 36);
-
-    const lt = parseFloat(cloudPositions?.logo_pos_t || 26);
-    const lr = parseFloat(cloudPositions?.logo_pos_r || 32);
-    const ls = parseFloat(cloudPositions?.logo_scale || 100);
-
-    ageRatingContainer.style.bottom = `${b * currentScaleRatio}px`;
-    ageRatingContainer.style.right = `${r * currentScaleRatio}px`;
-    ageRatingContainer.style.transform = `scale(${currentScaleRatio})`;
-
-    nmhhRingBox.style.width = `${s}px`;
-    nmhhRingBox.style.height = `${s}px`;
-    const numEl = nmhhRingBox.querySelector('.nmhh-number');
-    if (numEl) numEl.style.fontSize = `${s * 0.46}px`;
-
-    watermarkWrap.style.top = `${lt * currentScaleRatio}px`;
-    watermarkWrap.style.right = `${lr * currentScaleRatio}px`;
-    watermarkWrap.style.transform = `scale(${currentScaleRatio * (ls / 100)})`;
-}
-
-function setupAudioNodes() {
-    if (isAudioInitialized) return;
-    try {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        isAudioInitialized = true;
-    } catch(e) {}
-}
-
-function setTvVolume(val) {
-    masterVolume = parseFloat(val);
-    if (isMuted && masterVolume > 0) isMuted = false;
-    deckA.volume = isMuted ? 0 : masterVolume;
-    deckB.volume = isMuted ? 0 : masterVolume;
-    if (activeTwitchPlayer && activeTwitchPlayer.setVolume) activeTwitchPlayer.setVolume(isMuted ? 0 : masterVolume);
-    if (activeYouTubePlayer && activeYouTubePlayer.setVolume) activeYouTubePlayer.setVolume(isMuted ? 0 : Math.round(masterVolume * 100));
-}
-
-function toggleMute() {
-    isMuted = !isMuted;
-    deckA.volume = isMuted ? 0 : masterVolume;
-    deckB.volume = isMuted ? 0 : masterVolume;
-    if (activeTwitchPlayer && activeTwitchPlayer.setMuted) activeTwitchPlayer.setMuted(isMuted);
-    if (activeYouTubePlayer) {
-        if (isMuted) activeYouTubePlayer.mute();
-        else activeYouTubePlayer.unMute();
+    function cleanHtmlText(raw) {
+        if (!raw) return "";
+        return raw.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
     }
-    document.getElementById('vol-slider').value = isMuted ? 0 : masterVolume;
-}
 
-function playYouTubeVideoSafe(videoId, offsetSec = 0) {
-    hideLowerThirdImmediate();
-    embedSlot.innerHTML = `<div id="viewer-yt-player-node" style="width:100%; height:100%;"></div>`;
-    embedContainer.classList.add('active');
-    embedContainer.style.opacity = '1';
+    function sanitizeMusicTitle(raw) {
+        if (!raw) return "";
+        let s = raw.replace(/\.(mp4|webm|mov|mkv|mp3|avi|flv)$/i, '').replace(/_/g, ' ');
+        s = s.replace(/^\s*\d{1,3}[\.\-\s_]+/i, '');
+        s = s.replace(/\s*[\[\(](official\s*(music\s*)?video|video|audio|lyrics|4k|60fps|hd|hq|clip\s*officiel|official\s*hd|hivatalos\s*(vide[oó]klip|klip))[\]\)]/gi, '');
+        s = s.replace(/\s*(official\s*(music\s*)?video|vide[oó]\s*clip|clip\s*officiel|official\s*audio|hivatalos\s*vide[oó]klip)\b/gi, '');
+        return s.replace(/\s+/g, ' ').trim();
+    }
 
-    if (typeof YT !== 'undefined' && YT.Player) {
-        activeYouTubePlayer = new YT.Player('viewer-yt-player-node', {
-            videoId: videoId,
-            playerVars: {
-                autoplay: 1,
-                controls: 1,
-                playsinline: 1,
-                rel: 0,
-                start: Math.floor(offsetSec),
-                origin: window.location.origin || "https://localhost",
-                widget_referrer: window.location.href,
-                enablejsapi: 1
-            },
-            events: {
-                onReady: (event) => {
-                    if (isMuted) event.target.mute();
-                    else {
-                        event.target.unMute();
-                        event.target.setVolume(Math.round(masterVolume * 100));
-                    }
-                    event.target.playVideo();
+    function parseArtistAndTitle(rawTitle) {
+        if (!rawTitle) return { artist: "KÉPBEN! MUSIC", title: "-" };
+        let cleaned = sanitizeMusicTitle(rawTitle);
+        let parts = [];
+        if (cleaned.includes(' - ')) parts = cleaned.split(' - ');
+        else if (cleaned.includes(' – ')) parts = cleaned.split(' – ');
+        else if (cleaned.includes(' · ')) parts = cleaned.split(' · ');
+
+        if (parts.length >= 2) {
+            return { artist: parts[0].trim() || "KÉPBEN! MUSIC", title: parts.slice(1).join(' - ').trim() || cleaned };
+        }
+        return { artist: "KÉPBEN! SLÁGER", title: cleaned };
+    }
+
+    function updateLiveBadgeUI(isStreamActive = false, streamType = 'clips') {
+        let showLive = false;
+        if (liveBadgeMode === 'on') showLive = true;
+        else if (liveBadgeMode === 'off') showLive = false;
+        else {
+            showLive = (Boolean(currentActiveTwitchStreamer) || (isStreamActive && streamType === 'twitch'));
+        }
+
+        if (showLive && isViewerPlaying && isTvBroadcasting) {
+            liveOnAirTag.classList.add('active');
+        } else {
+            liveOnAirTag.classList.remove('active');
+        }
+
+        if (isStreamActive || currentActiveTwitchStreamer) {
+            newsTickerBar.style.display = 'none';
+        } else {
+            newsTickerBar.style.display = 'flex';
+        }
+    }
+
+    function updateResponsiveScaling() {
+        const currentWidth = tvScreenContainer.clientWidth;
+        currentScaleRatio = Math.max(0.35, currentWidth / BASE_SCREEN_WIDTH);
+        applyCloudPositions();
+    }
+
+    const resizeObserver = new ResizeObserver(() => updateResponsiveScaling());
+    resizeObserver.observe(tvScreenContainer);
+
+    function applyCloudPositions() {
+        const b = parseFloat(cloudPositions?.rating_pos_b || 48);
+        const r = parseFloat(cloudPositions?.rating_pos_r || 28);
+        const s = parseFloat(cloudPositions?.rating_pos_s || 36);
+
+        const lt = parseFloat(cloudPositions?.logo_pos_t || 26);
+        const lr = parseFloat(cloudPositions?.logo_pos_r || 32);
+        const ls = parseFloat(cloudPositions?.logo_scale || 100);
+
+        ageRatingContainer.style.bottom = `${b * currentScaleRatio}px`;
+        ageRatingContainer.style.right = `${r * currentScaleRatio}px`;
+        ageRatingContainer.style.transform = `scale(${currentScaleRatio})`;
+
+        nmhhRingBox.style.width = `${s}px`;
+        nmhhRingBox.style.height = `${s}px`;
+        const numEl = nmhhRingBox.querySelector('.nmhh-number');
+        if (numEl) numEl.style.fontSize = `${s * 0.46}px`;
+
+        watermarkWrap.style.top = `${lt * currentScaleRatio}px`;
+        watermarkWrap.style.right = `${lr * currentScaleRatio}px`;
+        watermarkWrap.style.transform = `scale(${currentScaleRatio * (ls / 100)})`;
+    }
+
+    function setupAudioNodes() {
+        if (isAudioInitialized) return;
+        try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            isAudioInitialized = true;
+        } catch(e) {}
+    }
+
+    function setTvVolume(val) {
+        masterVolume = parseFloat(val);
+        if (isMuted && masterVolume > 0) isMuted = false;
+        deckA.volume = isMuted ? 0 : masterVolume;
+        deckB.volume = isMuted ? 0 : masterVolume;
+        if (activeTwitchPlayer && activeTwitchPlayer.setVolume) activeTwitchPlayer.setVolume(isMuted ? 0 : masterVolume);
+        if (activeYouTubePlayer && activeYouTubePlayer.setVolume) activeYouTubePlayer.setVolume(isMuted ? 0 : Math.round(masterVolume * 100));
+    }
+
+    function toggleMute() {
+        isMuted = !isMuted;
+        deckA.volume = isMuted ? 0 : masterVolume;
+        deckB.volume = isMuted ? 0 : masterVolume;
+        if (activeTwitchPlayer && activeTwitchPlayer.setMuted) activeTwitchPlayer.setMuted(isMuted);
+        if (activeYouTubePlayer) {
+            if (isMuted) activeYouTubePlayer.mute();
+            else activeYouTubePlayer.unMute();
+        }
+        document.getElementById('vol-slider').value = isMuted ? 0 : masterVolume;
+    }
+
+    function playYouTubeVideoSafe(videoId, offsetSec = 0) {
+        hideLowerThirdImmediate();
+        embedSlot.innerHTML = `<div id="viewer-yt-player-node" style="width:100%; height:100%;"></div>`;
+        embedContainer.classList.add('active');
+        embedContainer.style.opacity = '1';
+
+        if (typeof YT !== 'undefined' && YT.Player) {
+            activeYouTubePlayer = new YT.Player('viewer-yt-player-node', {
+                videoId: videoId,
+                playerVars: {
+                    autoplay: 1,
+                    controls: 0,
+                    disablekb: 1,
+                    fs: 0,
+                    modestbranding: 1,
+                    playsinline: 1,
+                    rel: 0,
+                    start: Math.floor(offsetSec),
+                    origin: window.location.origin || "https://localhost",
+                    widget_referrer: window.location.href,
+                    enablejsapi: 1
                 },
-                onStateChange: (event) => {
-                    if (event.data === YT.PlayerState.ENDED) {
+                events: {
+                    onReady: (event) => {
+                        if (isMuted) event.target.mute();
+                        else {
+                            event.target.unMute();
+                            event.target.setVolume(Math.round(masterVolume * 100));
+                        }
+                        event.target.playVideo();
+                    },
+                    onStateChange: (event) => {
+                        if (event.data === YT.PlayerState.ENDED) {
+                            executeVideoCrossfade(true);
+                        }
+                    },
+                    onError: () => {
                         executeVideoCrossfade(true);
                     }
-                },
-                onError: () => {
-                    executeVideoCrossfade(true);
                 }
-            }
-        });
-    } else {
-        const cleanOrigin = encodeURIComponent(window.location.origin || "https://localhost");
-        embedSlot.innerHTML = `
-            <iframe src="https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=0&controls=1&enablejsapi=1&playsinline=1&rel=0&origin=${cleanOrigin}" 
-                    allow="autoplay; fullscreen; encrypted-media; picture-in-picture" 
-                    referrerpolicy="no-referrer" 
-                    allowfullscreen style="width:100%; height:100%; border:none;">
-            </iframe>
-        `;
-    }
-}
-
-function switchViewerToTwitchStream(channel) {
-    hideLowerThirdImmediate();
-    ageRatingContainer.style.display = 'none';
-    deckA.pause(); deckB.pause();
-    deckA.style.opacity = '0'; deckB.style.opacity = '0';
-    deckA.classList.remove('active'); deckB.classList.remove('active');
-
-    embedSlot.innerHTML = `<div id="viewer-twitch-embed-node" style="width:100%; height:100%;"></div>`;
-    embedContainer.classList.add('active');
-    embedContainer.style.opacity = '1';
-
-    try {
-        activeTwitchPlayer = new Twitch.Player("viewer-twitch-embed-node", {
-            channel: channel,
-            parent: getCleanParentDomains(),
-            width: "100%",
-            height: "100%",
-            autoplay: true,
-            muted: isMuted
-        });
-        activeTwitchPlayer.addEventListener(Twitch.Player.READY, () => {
-            activeTwitchPlayer.setMuted(isMuted);
-            activeTwitchPlayer.setVolume(isMuted ? 0 : masterVolume);
-            activeTwitchPlayer.play();
-        });
-    } catch(e){}
-
-    updateLiveBadgeUI(true, 'twitch');
-}
-
-function toggleViewerPlayback() {
-    setupAudioNodes();
-    isViewerPlaying = !isViewerPlaying;
-
-    const btn = document.getElementById('btn-toggle-play');
-    const icon = document.getElementById('play-icon');
-    const text = document.getElementById('play-text');
-
-    if (isViewerPlaying) {
-        btn.style.background = 'var(--accent-red)';
-        btn.style.color = '#fff';
-        icon.textContent = '⏹';
-        text.textContent = 'LEÁLLÍTÁS';
-
-        if (currentActiveTwitchStreamer) {
-            switchViewerToTwitchStream(currentActiveTwitchStreamer);
+            });
         } else {
-            const now = new Date();
-            const currentSecToday = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+            const cleanOrigin = encodeURIComponent(window.location.origin || "https://localhost");
+            embedSlot.innerHTML = `
+                <iframe src="https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=0&controls=0&disablekb=1&enablejsapi=1&playsinline=1&rel=0&origin=${cleanOrigin}" 
+                        allow="autoplay; fullscreen; encrypted-media; picture-in-picture" 
+                        referrerpolicy="no-referrer" 
+                        allowfullscreen style="width:100%; height:100%; border:none;">
+                </iframe>
+            `;
+        }
+    }
+
+    function switchViewerToTwitchStream(channel) {
+        hideLowerThirdImmediate();
+        ageRatingContainer.style.display = 'none';
+        deckA.pause(); deckB.pause();
+        deckA.style.opacity = '0'; deckB.style.opacity = '0';
+        deckA.classList.remove('active'); deckB.classList.remove('active');
+
+        embedSlot.innerHTML = `<div id="viewer-twitch-embed-node" style="width:100%; height:100%;"></div>`;
+        embedContainer.classList.add('active');
+        embedContainer.style.opacity = '1';
+
+        try {
+            activeTwitchPlayer = new Twitch.Player("viewer-twitch-embed-node", {
+                channel: channel,
+                parent: getCleanParentDomains(),
+                width: "100%",
+                height: "100%",
+                autoplay: true,
+                muted: isMuted,
+                controls: false
+            });
+            activeTwitchPlayer.addEventListener(Twitch.Player.READY, () => {
+                activeTwitchPlayer.setMuted(isMuted);
+                activeTwitchPlayer.setVolume(isMuted ? 0 : masterVolume);
+                activeTwitchPlayer.play();
+            });
+        } catch(e){}
+
+        updateLiveBadgeUI(true, 'twitch');
+    }
+
+    function toggleViewerPlayback() {
+        setupAudioNodes();
+        isViewerPlaying = !isViewerPlaying;
+
+        const btn = document.getElementById('btn-toggle-play');
+        const icon = document.getElementById('play-icon');
+        const text = document.getElementById('play-text');
+
+        if (isViewerPlaying) {
+            btn.style.background = 'var(--accent-red)';
+            btn.style.color = '#fff';
+            icon.textContent = '⏹';
+            text.textContent = 'LEÁLLÍTÁS';
+
+            if (currentActiveTwitchStreamer) {
+                switchViewerToTwitchStream(currentActiveTwitchStreamer);
+            } else {
+                const now = new Date();
+                const currentSecToday = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+                const todayKey = getSelectedDateKey(0);
+                checkScheduleAndPlayback(currentSecToday, weekSchedules[todayKey] || []);
+            }
+        } else {
+            btn.style.background = 'var(--accent-cyan)';
+            btn.style.color = '#030712';
+            icon.textContent = '▶';
+            text.textContent = 'ADÁS INDÍTÁSA';
+
+            deckA.pause(); deckB.pause();
+            deckA.src = ""; deckB.src = "";
+            deckA.style.opacity = '0'; deckB.style.opacity = '0';
+            embedContainer.classList.remove('active');
+            embedSlot.innerHTML = "";
+            activeTwitchPlayer = null;
+            activeYouTubePlayer = null;
+
+            hideMonoscope();
+            hideStandby();
+            hideLowerThirdImmediate();
+            incomingAlert.classList.remove('active');
+            currentlyPlayingId = null;
+            currentClipIndex = -1;
+            watermarkWrap.style.display = 'none';
+            ageRatingContainer.style.display = 'none';
+            updateLiveBadgeUI(false);
+        }
+    }
+
+    function updateClock() {
+        const now = new Date();
+        const y = now.getFullYear();
+        const mo = String(now.getMonth() + 1).padStart(2, '0');
+        const dt = String(now.getDate()).padStart(2, '0');
+        const h = String(now.getHours()).padStart(2, '0');
+        const m = String(now.getMinutes()).padStart(2, '0');
+        const s = String(now.getSeconds()).padStart(2, '0');
+
+        const dayNamesHu = ["VASÁRNAP", "HÉTFŐ", "KEDD", "SZERDA", "CSÜTÖRTÖK", "PÉNTEK", "SZOMBAT"];
+        if (tickerLiveDate) tickerLiveDate.textContent = `${y}.${mo}.${dt}.`;
+        if (tickerLiveDay) tickerLiveDay.textContent = dayNamesHu[now.getDay()];
+
+        const monoClock = document.getElementById('mono-live-clock');
+        if (monoClock) monoClock.textContent = `${h}:${m}:${s}`;
+
+        const currentSecToday = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+        const hourNum = now.getHours();
+
+        if (hourNum >= 6 && hourNum < 10) {
+            morningClockEl.textContent = `${h}:${m}`;
+            morningClockEl.classList.add('active');
+        } else {
+            morningClockEl.classList.remove('active');
+        }
+
+        const curCat = getDaypartKeyForHour(hourNum);
+        if (curCat !== currentActiveDaypartKey) {
+            currentActiveDaypartKey = curCat;
+            applyDaypartTheme(curCat);
+        }
+
+        evaluateAgeRatingVisibility();
+
+        if (isViewerPlaying && !currentlyPlayingId && !isVideoTransitioning && !transitionLock && !currentActiveTwitchStreamer) {
             const todayKey = getSelectedDateKey(0);
             checkScheduleAndPlayback(currentSecToday, weekSchedules[todayKey] || []);
         }
-    } else {
-        btn.style.background = 'var(--accent-cyan)';
-        btn.style.color = '#030712';
-        icon.textContent = '▶';
-        text.textContent = 'ADÁS INDÍTÁSA';
+    }
+    setInterval(updateClock, 1000);
 
+    function applyDaypartTheme(cat) {
+        const conf = tvDaypartConfig[cat] || tvDaypartConfig.delelott;
+        document.documentElement.style.setProperty('--theme-primary', conf.primaryColor);
+        document.documentElement.style.setProperty('--theme-gradient', conf.gradient);
+    }
+
+    function checkScheduleAndPlayback(currentSecToday, schedule) {
+        if (!isViewerPlaying || transitionLock || currentActiveTwitchStreamer) return;
+
+        if (!schedule || schedule.length === 0 || !isTvBroadcasting) {
+            showMonoscope();
+            return;
+        }
+
+        const foundIdx = schedule.findIndex(item => currentSecToday >= item.startSec && currentSecToday < item.endSec);
+
+        if (foundIdx !== -1) {
+            hideStandby();
+            hideMonoscope();
+
+            const clip = schedule[foundIdx];
+            if (currentlyPlayingId === clip.id) return;
+
+            currentClipIndex = foundIdx;
+            currentlyPlayingId = clip.id;
+            isEndSequenceRunning = false;
+            isIntroBannerRunning = false;
+            hideLowerThirdImmediate();
+
+            if (clip.isStream) {
+                deckA.pause(); deckB.pause();
+                deckA.classList.remove('active'); deckB.classList.remove('active');
+                deckA.style.opacity = '0'; deckB.style.opacity = '0';
+                ageRatingContainer.style.display = 'none';
+
+                const offsetSec = Math.max(0, currentSecToday - clip.startSec);
+                playYouTubeVideoSafe(clip.videoId, offsetSec);
+
+                updateLiveBadgeUI(false, clip.streamType);
+                applyVisuals();
+                return;
+            }
+
+            embedContainer.classList.remove('active');
+            embedContainer.style.opacity = '0';
+            embedSlot.innerHTML = "";
+            activeYouTubePlayer = null;
+
+            updateLiveBadgeUI(false, 'clips');
+            evaluateAgeRatingVisibility();
+
+            const activeDeck = activeDeckName === 'A' ? deckA : deckB;
+            const offsetSec = Math.max(0, currentSecToday - clip.startSec);
+
+            activeDeck.src = clip.url;
+            activeDeck.style.opacity = '1';
+            activeDeck.style.zIndex = '2';
+            activeDeck.classList.add('active');
+
+            activeDeck.onloadedmetadata = () => {
+                if (offsetSec > 0 && offsetSec < activeDeck.duration) activeDeck.currentTime = offsetSec;
+            };
+
+            activeDeck.volume = isMuted ? 0 : masterVolume;
+            activeDeck.play().catch(() => {});
+
+            if (offsetSec < 15) setTimeout(() => runTrackPresentationSequence(schedule, true), 500);
+
+            applyVisuals();
+            preloadNextDeckClip(schedule);
+        } else {
+            embedContainer.classList.remove('active');
+            embedSlot.innerHTML = "";
+            updateLiveBadgeUI(false, 'clips');
+            let nextClip = schedule.find(item => item.startSec > currentSecToday) || schedule[0];
+            showStandby(nextClip ? nextClip.startTimeStr : null);
+        }
+    }
+
+    function applyVisuals() {
+        watermarkWrap.style.display = (isViewerPlaying && isLogoVisible) ? 'flex' : 'none';
+        applyAgeRating(currentAgeRating);
+        applyCloudPositions();
+    }
+
+    function applyAgeRating(rating) {
+        currentAgeRating = rating;
+        if (rating === 'none' || !rating || !isViewerPlaying) {
+            ageRatingContainer.style.display = 'none';
+            return;
+        }
+
+        if (rating === '0') {
+            nmhhRingBox.className = 'nmhh-ring';
+            nmhhRingBox.style.border = 'none';
+            nmhhRingBox.innerHTML = `<svg class="nmhh-child-svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" stroke="#22c55e" stroke-width="8" fill="transparent"/><circle cx="36" cy="40" r="6.5" fill="#22c55e"/><circle cx="64" cy="40" r="6.5" fill="#22c55e"/><path d="M 32 60 Q 50 82 68 60" stroke="#22c55e" stroke-width="8" fill="transparent" stroke-linecap="round"/></svg>`;
+        } else if (rating === '18') {
+            nmhhRingBox.className = 'nmhh-ring ring-red';
+            nmhhRingBox.style.border = '4.5px solid #ef4444';
+            nmhhRingBox.innerHTML = `<span class="nmhh-number">18</span>`;
+        } else {
+            nmhhRingBox.className = 'nmhh-ring ring-yellow';
+            nmhhRingBox.style.border = '4.5px solid #facc15';
+            nmhhRingBox.innerHTML = `<span class="nmhh-number">${rating}</span>`;
+        }
+
+        evaluateAgeRatingVisibility();
+    }
+
+    function evaluateAgeRatingVisibility() {
+        if (!isViewerPlaying || currentAgeRating === 'none' || currentActiveTwitchStreamer || embedContainer.classList.contains('active')) {
+            ageRatingContainer.style.display = 'none';
+            return;
+        }
+        ageRatingContainer.style.display = 'flex';
+    }
+
+    function showStandby(resumeTimeStr) {
+        if (!isViewerPlaying) return;
         deckA.pause(); deckB.pause();
         deckA.src = ""; deckB.src = "";
-        deckA.style.opacity = '0'; deckB.style.opacity = '0';
         embedContainer.classList.remove('active');
         embedSlot.innerHTML = "";
-        activeTwitchPlayer = null;
-        activeYouTubePlayer = null;
-
-        hideMonoscope();
-        hideStandby();
         hideLowerThirdImmediate();
-        incomingAlert.classList.remove('active');
-        currentlyPlayingId = null;
-        currentClipIndex = -1;
-        watermarkWrap.style.display = 'none';
-        ageRatingContainer.style.display = 'none';
-        updateLiveBadgeUI(false);
-    }
-}
-
-function updateClock() {
-    const now = new Date();
-    const y = now.getFullYear();
-    const mo = String(now.getMonth() + 1).padStart(2, '0');
-    const dt = String(now.getDate()).padStart(2, '0');
-    const h = String(now.getHours()).padStart(2, '0');
-    const m = String(now.getMinutes()).padStart(2, '0');
-    const s = String(now.getSeconds()).padStart(2, '0');
-
-    const dayNamesHu = ["VASÁRNAP", "HÉTFŐ", "KEDD", "SZERDA", "CSÜTÖRTÖK", "PÉNTEK", "SZOMBAT"];
-    if (tickerLiveDate) tickerLiveDate.textContent = `${y}.${mo}.${dt}.`;
-    if (tickerLiveDay) tickerLiveDay.textContent = dayNamesHu[now.getDay()];
-
-    const monoClock = document.getElementById('mono-live-clock');
-    if (monoClock) monoClock.textContent = `${h}:${m}:${s}`;
-
-    const currentSecToday = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-    const hourNum = now.getHours();
-
-    if (hourNum >= 6 && hourNum < 10) {
-        morningClockEl.textContent = `${h}:${m}`;
-        morningClockEl.classList.add('active');
-    } else {
-        morningClockEl.classList.remove('active');
+        standbyScreen.classList.add('active');
+        standbyResumeTimeEl.textContent = resumeTimeStr ? `${resumeTimeStr}-kor` : "--:--:--";
     }
 
-    const curCat = getDaypartKeyForHour(hourNum);
-    if (curCat !== currentActiveDaypartKey) {
-        currentActiveDaypartKey = curCat;
-        applyDaypartTheme(curCat);
-    }
+    function hideStandby() { standbyScreen.classList.remove('active'); }
 
-    evaluateAgeRatingVisibility();
-
-    if (isViewerPlaying && !currentlyPlayingId && !isVideoTransitioning && !transitionLock && !currentActiveTwitchStreamer) {
-        const todayKey = getSelectedDateKey(0);
-        checkScheduleAndPlayback(currentSecToday, weekSchedules[todayKey] || []);
-    }
-}
-setInterval(updateClock, 1000);
-
-function applyDaypartTheme(cat) {
-    const conf = tvDaypartConfig[cat] || tvDaypartConfig.delelott;
-    document.documentElement.style.setProperty('--theme-primary', conf.primaryColor);
-    document.documentElement.style.setProperty('--theme-gradient', conf.gradient);
-}
-
-function checkScheduleAndPlayback(currentSecToday, schedule) {
-    if (!isViewerPlaying || transitionLock || currentActiveTwitchStreamer) return;
-
-    if (!schedule || schedule.length === 0 || !isTvBroadcasting) {
-        showMonoscope();
-        return;
-    }
-
-    const foundIdx = schedule.findIndex(item => currentSecToday >= item.startSec && currentSecToday < item.endSec);
-
-    if (foundIdx !== -1) {
-        hideStandby();
-        hideMonoscope();
-
-        const clip = schedule[foundIdx];
-        if (currentlyPlayingId === clip.id) return;
-
-        currentClipIndex = foundIdx;
-        currentlyPlayingId = clip.id;
-        isEndSequenceRunning = false;
-        isIntroBannerRunning = false;
-        hideLowerThirdImmediate();
-
-        if (clip.isStream) {
+    function showMonoscope() {
+        if (!isMonoscopeActive && isViewerPlaying) {
+            isMonoscopeActive = true;
+            currentlyPlayingId = null;
+            currentClipIndex = -1;
             deckA.pause(); deckB.pause();
-            deckA.classList.remove('active'); deckB.classList.remove('active');
-            deckA.style.opacity = '0'; deckB.style.opacity = '0';
+            deckA.src = ""; deckB.src = "";
+            embedContainer.classList.remove('active');
+            embedSlot.innerHTML = "";
+            hideLowerThirdImmediate();
+            monoscopeLayer.classList.add('active');
+        }
+    }
+
+    function hideMonoscope() {
+        if (!isMonoscopeActive) return;
+        isMonoscopeActive = false;
+        monoscopeLayer.classList.remove('active');
+    }
+
+    function attachVideoDeckListeners(deck, deckLetter) {
+        deck.ontimeupdate = () => {
+            if (activeDeckName !== deckLetter || !deck.duration || isMonoscopeActive || isVideoTransitioning || !isViewerPlaying || transitionLock) return;
+            const curTime = deck.currentTime;
+            const remaining = deck.duration - curTime;
+            const todayKey = getSelectedDateKey(0);
+            const schedule = weekSchedules[todayKey] || [];
+
+            if (remaining <= 26 && remaining > 6 && !isEndSequenceRunning) {
+                runTrackPresentationSequence(schedule, false);
+            }
+
+            if (remaining <= VIDEO_CROSSFADE_SEC && remaining > 0.3 && schedule.length > 1) {
+                executeVideoCrossfade();
+            }
+        };
+
+        deck.onended = () => {
+            if (activeDeckName === deckLetter && !isVideoTransitioning && !transitionLock) {
+                executeVideoCrossfade(true);
+            }
+        };
+    }
+    attachVideoDeckListeners(deckA, 'A');
+    attachVideoDeckListeners(deckB, 'B');
+
+    function preloadNextDeckClip(schedule) {
+        if (schedule.length === 0) return;
+        const nextClip = schedule[(currentClipIndex + 1) % schedule.length];
+        if (nextClip && nextClip.isStream) return;
+        const inactiveDeck = activeDeckName === 'A' ? deckB : deckA;
+        if (inactiveDeck && nextClip) {
+            inactiveDeck.src = nextClip.url;
+            inactiveDeck.currentTime = 0;
+            inactiveDeck.volume = 0;
+            inactiveDeck.style.opacity = '0';
+            inactiveDeck.load();
+        }
+    }
+
+    function executeVideoCrossfade(forceImmediate = false) {
+        const todayKey = getSelectedDateKey(0);
+        const schedule = weekSchedules[todayKey] || [];
+        if (isVideoTransitioning || transitionLock || schedule.length === 0) return;
+
+        isVideoTransitioning = true;
+        transitionLock = true;
+        hideLowerThirdImmediate();
+
+        const currentDeck = activeDeckName === 'A' ? deckA : deckB;
+        const nextDeck = activeDeckName === 'A' ? deckB : deckA;
+        const nextDeckName = activeDeckName === 'A' ? 'B' : 'A';
+
+        currentClipIndex = (currentClipIndex + 1) % schedule.length;
+        const newClip = schedule[currentClipIndex];
+        currentlyPlayingId = newClip.id;
+
+        if (newClip.isStream) {
+            currentDeck.pause();
+            currentDeck.style.opacity = '0';
+            currentDeck.classList.remove('active');
             ageRatingContainer.style.display = 'none';
 
-            const offsetSec = Math.max(0, currentSecToday - clip.startSec);
-            playYouTubeVideoSafe(clip.videoId, offsetSec);
+            playYouTubeVideoSafe(newClip.videoId, 0);
 
-            // YOUTUBE ALATT NINCS ÉLŐ FELIRAT ÉS NINCS KLIPFELIRAT
-            updateLiveBadgeUI(false, clip.streamType);
-            applyVisuals();
+            updateLiveBadgeUI(false, newClip.streamType);
+            isVideoTransitioning = false;
+            transitionLock = false;
             return;
         }
 
@@ -3420,451 +3666,277 @@ function checkScheduleAndPlayback(currentSecToday, schedule) {
         updateLiveBadgeUI(false, 'clips');
         evaluateAgeRatingVisibility();
 
-        const activeDeck = activeDeckName === 'A' ? deckA : deckB;
-        const offsetSec = Math.max(0, currentSecToday - clip.startSec);
+        if (!nextDeck.src || nextDeck.src === '') nextDeck.src = newClip.url;
 
-        activeDeck.src = clip.url;
-        activeDeck.style.opacity = '1';
-        activeDeck.style.zIndex = '2';
-        activeDeck.classList.add('active');
+        nextDeck.currentTime = 0;
+        nextDeck.volume = (forceImmediate || isMuted) ? (isMuted ? 0 : masterVolume) : 0;
+        nextDeck.style.opacity = forceImmediate ? '1' : '0';
+        nextDeck.classList.add('active');
+        nextDeck.play().catch(() => {});
 
-        activeDeck.onloadedmetadata = () => {
-            if (offsetSec > 0 && offsetSec < activeDeck.duration) activeDeck.currentTime = offsetSec;
-        };
-
-        activeDeck.volume = isMuted ? 0 : masterVolume;
-        activeDeck.play().catch(() => {});
-
-        if (offsetSec < 15) setTimeout(() => runTrackPresentationSequence(schedule, true), 500);
-
-        applyVisuals();
-        preloadNextDeckClip(schedule);
-    } else {
-        embedContainer.classList.remove('active');
-        embedSlot.innerHTML = "";
-        updateLiveBadgeUI(false, 'clips');
-        let nextClip = schedule.find(item => item.startSec > currentSecToday) || schedule[0];
-        showStandby(nextClip ? nextClip.startTimeStr : null);
-    }
-}
-
-function applyVisuals() {
-    watermarkWrap.style.display = (isViewerPlaying && isLogoVisible) ? 'flex' : 'none';
-    applyAgeRating(currentAgeRating);
-    applyCloudPositions();
-}
-
-function applyAgeRating(rating) {
-    currentAgeRating = rating;
-    if (rating === 'none' || !rating || !isViewerPlaying) {
-        ageRatingContainer.style.display = 'none';
-        return;
-    }
-
-    if (rating === '0') {
-        nmhhRingBox.className = 'nmhh-ring';
-        nmhhRingBox.style.border = 'none';
-        nmhhRingBox.innerHTML = `<svg class="nmhh-child-svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" stroke="#22c55e" stroke-width="8" fill="transparent"/><circle cx="36" cy="40" r="6.5" fill="#22c55e"/><circle cx="64" cy="40" r="6.5" fill="#22c55e"/><path d="M 32 60 Q 50 82 68 60" stroke="#22c55e" stroke-width="8" fill="transparent" stroke-linecap="round"/></svg>`;
-    } else if (rating === '18') {
-        nmhhRingBox.className = 'nmhh-ring ring-red';
-        nmhhRingBox.style.border = '4.5px solid #ef4444';
-        nmhhRingBox.innerHTML = `<span class="nmhh-number">18</span>`;
-    } else {
-        nmhhRingBox.className = 'nmhh-ring ring-yellow';
-        nmhhRingBox.style.border = '4.5px solid #facc15';
-        nmhhRingBox.innerHTML = `<span class="nmhh-number">${rating}</span>`;
-    }
-
-    evaluateAgeRatingVisibility();
-}
-
-function evaluateAgeRatingVisibility() {
-    if (!isViewerPlaying || currentAgeRating === 'none' || currentActiveTwitchStreamer || embedContainer.classList.contains('active')) {
-        ageRatingContainer.style.display = 'none';
-        return;
-    }
-    ageRatingContainer.style.display = 'flex';
-}
-
-function showStandby(resumeTimeStr) {
-    if (!isViewerPlaying) return;
-    deckA.pause(); deckB.pause();
-    deckA.src = ""; deckB.src = "";
-    embedContainer.classList.remove('active');
-    embedSlot.innerHTML = "";
-    hideLowerThirdImmediate();
-    standbyScreen.classList.add('active');
-    standbyResumeTimeEl.textContent = resumeTimeStr ? `${resumeTimeStr}-kor` : "--:--:--";
-}
-
-function hideStandby() { standbyScreen.classList.remove('active'); }
-
-function showMonoscope() {
-    if (!isMonoscopeActive && isViewerPlaying) {
-        isMonoscopeActive = true;
-        currentlyPlayingId = null;
-        currentClipIndex = -1;
-        deckA.pause(); deckB.pause();
-        deckA.src = ""; deckB.src = "";
-        embedContainer.classList.remove('active');
-        embedSlot.innerHTML = "";
-        hideLowerThirdImmediate();
-        monoscopeLayer.classList.add('active');
-    }
-}
-
-function hideMonoscope() {
-    if (!isMonoscopeActive) return;
-    isMonoscopeActive = false;
-    monoscopeLayer.classList.remove('active');
-}
-
-function attachVideoDeckListeners(deck, deckLetter) {
-    deck.ontimeupdate = () => {
-        if (activeDeckName !== deckLetter || !deck.duration || isMonoscopeActive || isVideoTransitioning || !isViewerPlaying || transitionLock) return;
-        const curTime = deck.currentTime;
-        const remaining = deck.duration - curTime;
-        const todayKey = getSelectedDateKey(0);
-        const schedule = weekSchedules[todayKey] || [];
-
-        if (remaining <= 26 && remaining > 6 && !isEndSequenceRunning) {
-            runTrackPresentationSequence(schedule, false);
-        }
-
-        if (remaining <= VIDEO_CROSSFADE_SEC && remaining > 0.3 && schedule.length > 1) {
-            executeVideoCrossfade();
-        }
-    };
-
-    deck.onended = () => {
-        if (activeDeckName === deckLetter && !isVideoTransitioning && !transitionLock) {
-            executeVideoCrossfade(true);
-        }
-    };
-}
-attachVideoDeckListeners(deckA, 'A');
-attachVideoDeckListeners(deckB, 'B');
-
-function preloadNextDeckClip(schedule) {
-    if (schedule.length === 0) return;
-    const nextClip = schedule[(currentClipIndex + 1) % schedule.length];
-    if (nextClip && nextClip.isStream) return;
-    const inactiveDeck = activeDeckName === 'A' ? deckB : deckA;
-    if (inactiveDeck && nextClip) {
-        inactiveDeck.src = nextClip.url;
-        inactiveDeck.currentTime = 0;
-        inactiveDeck.volume = 0;
-        inactiveDeck.style.opacity = '0';
-        inactiveDeck.load();
-    }
-}
-
-function executeVideoCrossfade(forceImmediate = false) {
-    const todayKey = getSelectedDateKey(0);
-    const schedule = weekSchedules[todayKey] || [];
-    if (isVideoTransitioning || transitionLock || schedule.length === 0) return;
-
-    isVideoTransitioning = true;
-    transitionLock = true;
-    hideLowerThirdImmediate();
-
-    const currentDeck = activeDeckName === 'A' ? deckA : deckB;
-    const nextDeck = activeDeckName === 'A' ? deckB : deckA;
-    const nextDeckName = activeDeckName === 'A' ? 'B' : 'A';
-
-    currentClipIndex = (currentClipIndex + 1) % schedule.length;
-    const newClip = schedule[currentClipIndex];
-    currentlyPlayingId = newClip.id;
-
-    if (newClip.isStream) {
-        currentDeck.pause();
-        currentDeck.style.opacity = '0';
-        currentDeck.classList.remove('active');
-        ageRatingContainer.style.display = 'none';
-
-        playYouTubeVideoSafe(newClip.videoId, 0);
-
-        updateLiveBadgeUI(false, newClip.streamType);
-        isVideoTransitioning = false;
-        transitionLock = false;
-        return;
-    }
-
-    embedContainer.classList.remove('active');
-    embedContainer.style.opacity = '0';
-    embedSlot.innerHTML = "";
-    activeYouTubePlayer = null;
-
-    updateLiveBadgeUI(false, 'clips');
-    evaluateAgeRatingVisibility();
-
-    if (!nextDeck.src || nextDeck.src === '') nextDeck.src = newClip.url;
-
-    nextDeck.currentTime = 0;
-    nextDeck.volume = (forceImmediate || isMuted) ? (isMuted ? 0 : masterVolume) : 0;
-    nextDeck.style.opacity = forceImmediate ? '1' : '0';
-    nextDeck.classList.add('active');
-    nextDeck.play().catch(() => {});
-
-    if (forceImmediate) {
-        currentDeck.classList.remove('active');
-        currentDeck.pause();
-        currentDeck.src = "";
-        currentDeck.style.opacity = '0';
-        activeDeckName = nextDeckName;
-        isVideoTransitioning = false;
-        setTimeout(() => { transitionLock = false; runTrackPresentationSequence(schedule, true); }, 600);
-        preloadNextDeckClip(schedule);
-        return;
-    }
-
-    const fadeSteps = 40;
-    const fadeStepTime = (VIDEO_CROSSFADE_SEC * 1000) / fadeSteps;
-    let step = 0;
-
-    const fadeTimer = setInterval(() => {
-        step++;
-        const progress = step / fadeSteps;
-        if (!isMuted) {
-            currentDeck.volume = Math.max(0, masterVolume * (1 - progress));
-            nextDeck.volume = Math.min(masterVolume, masterVolume * progress);
-        }
-        currentDeck.style.opacity = (1 - progress).toFixed(3);
-        nextDeck.style.opacity = progress.toFixed(3);
-
-        if (step >= fadeSteps) {
-            clearInterval(fadeTimer);
+        if (forceImmediate) {
+            currentDeck.classList.remove('active');
             currentDeck.pause();
             currentDeck.src = "";
-            currentDeck.classList.remove('active');
             currentDeck.style.opacity = '0';
-            nextDeck.classList.add('active');
-            nextDeck.style.opacity = '1';
-            if (!isMuted) nextDeck.volume = masterVolume;
-
             activeDeckName = nextDeckName;
             isVideoTransitioning = false;
             setTimeout(() => { transitionLock = false; runTrackPresentationSequence(schedule, true); }, 600);
             preloadNextDeckClip(schedule);
+            return;
         }
-    }, fadeStepTime);
-}
 
-function triggerLowerThirdBanner(type, rawTrackTitle, showCat) {
-    if (!isViewerPlaying || !isLogoVisible || currentActiveTwitchStreamer || embedContainer.classList.contains('active')) return;
-    const showConfig = tvDaypartConfig[showCat] || tvDaypartConfig.delelott;
-    applyDaypartTheme(showCat);
+        const fadeSteps = 40;
+        const fadeStepTime = (VIDEO_CROSSFADE_SEC * 1000) / fadeSteps;
+        let step = 0;
 
-    const parsed = parseArtistAndTitle(rawTrackTitle);
-    ltShowTitle.textContent = showConfig.title;
-    ltStatusBadge.className = `lt-status-badge badge-${type.toLowerCase()}`;
-    ltStatusBadge.textContent = type;
-    ltArtistRow.textContent = parsed.artist;
-    ltTrackRow.textContent = parsed.title;
+        const fadeTimer = setInterval(() => {
+            step++;
+            const progress = step / fadeSteps;
+            if (!isMuted) {
+                currentDeck.volume = Math.max(0, masterVolume * (1 - progress));
+                nextDeck.volume = Math.min(masterVolume, masterVolume * progress);
+            }
+            currentDeck.style.opacity = (1 - progress).toFixed(3);
+            nextDeck.style.opacity = progress.toFixed(3);
 
-    if (parsed.title.length > 40 || parsed.artist.length > 30) ltTrackRow.classList.add('font-shrink');
-    else ltTrackRow.classList.remove('font-shrink');
+            if (step >= fadeSteps) {
+                clearInterval(fadeTimer);
+                currentDeck.pause();
+                currentDeck.src = "";
+                currentDeck.classList.remove('active');
+                currentDeck.style.opacity = '0';
+                nextDeck.classList.add('active');
+                nextDeck.style.opacity = '1';
+                if (!isMuted) nextDeck.volume = masterVolume;
 
-    lowerThirdBanner.classList.add('banner-show');
-}
+                activeDeckName = nextDeckName;
+                isVideoTransitioning = false;
+                setTimeout(() => { transitionLock = false; runTrackPresentationSequence(schedule, true); }, 600);
+                preloadNextDeckClip(schedule);
+            }
+        }, fadeStepTime);
+    }
 
-function hideLowerThirdImmediate() {
-    clearTimeout(bannerHideTimeout);
-    bannerSequenceTimers.forEach(t => clearTimeout(t));
-    bannerSequenceTimers = [];
-    isIntroBannerRunning = false;
-    isEndSequenceRunning = false;
-    lowerThirdBanner.classList.remove('banner-show');
-}
+    function triggerLowerThirdBanner(type, rawTrackTitle, showCat) {
+        if (!isViewerPlaying || !isLogoVisible || currentActiveTwitchStreamer || embedContainer.classList.contains('active')) return;
+        const showConfig = tvDaypartConfig[showCat] || tvDaypartConfig.delelott;
+        applyDaypartTheme(showCat);
 
-function runTrackPresentationSequence(schedule, isIntro = true) {
-    if (!isViewerPlaying || !isLogoVisible || currentActiveTwitchStreamer || embedContainer.classList.contains('active')) return;
-    clearTimeout(bannerHideTimeout);
-    bannerSequenceTimers.forEach(t => clearTimeout(t));
-    bannerSequenceTimers = [];
+        const parsed = parseArtistAndTitle(rawTrackTitle);
+        ltShowTitle.textContent = showConfig.title;
+        ltStatusBadge.className = `lt-status-badge badge-${type.toLowerCase()}`;
+        ltStatusBadge.textContent = type;
+        ltArtistRow.textContent = parsed.artist;
+        ltTrackRow.textContent = parsed.title;
 
-    if (isIntro) isIntroBannerRunning = true;
-    else isEndSequenceRunning = true;
+        if (parsed.title.length > 40 || parsed.artist.length > 30) ltTrackRow.classList.add('font-shrink');
+        else ltTrackRow.classList.remove('font-shrink');
 
-    const curClip = schedule[currentClipIndex];
-    if (!curClip || curClip.isStream) return;
+        lowerThirdBanner.classList.add('banner-show');
+    }
 
-    const curCat = curClip?.cat || getDaypartKeyForHour(new Date().getHours());
-    const nextClip = schedule[(currentClipIndex + 1) % schedule.length];
-    const laterClip = schedule[(currentClipIndex + 2) % schedule.length];
-
-    triggerLowerThirdBanner("MOST", curClip.title, curCat);
-
-    bannerSequenceTimers.push(setTimeout(() => {
-        if (nextClip && isViewerPlaying && !nextClip.isStream) triggerLowerThirdBanner("KÖVETKEZIK", nextClip.title, curCat);
-    }, 5000));
-
-    bannerSequenceTimers.push(setTimeout(() => {
-        if (laterClip && isViewerPlaying && !laterClip.isStream) triggerLowerThirdBanner("KÉSŐBB", laterClip.title, curCat);
-    }, 10000));
-
-    bannerSequenceTimers.push(setTimeout(() => {
-        lowerThirdBanner.classList.remove('banner-show');
+    function hideLowerThirdImmediate() {
+        clearTimeout(bannerHideTimeout);
+        bannerSequenceTimers.forEach(t => clearTimeout(t));
+        bannerSequenceTimers = [];
         isIntroBannerRunning = false;
-        if (!isIntro) isEndSequenceRunning = false;
-    }, 15000));
-}
+        isEndSequenceRunning = false;
+        lowerThirdBanner.classList.remove('banner-show');
+    }
 
-async function fetchLiveNews() {
-    try {
-        const res = await fetch(`${WORKER_URL}?_t=${Date.now()}`);
-        if (res.ok) {
-            const data = await res.json();
-            if (data.news && Object.keys(data.news).length > 0) {
-                cachedNewsItems = Object.values(data.news).slice(0, 8);
+    function runTrackPresentationSequence(schedule, isIntro = true) {
+        if (!isViewerPlaying || !isLogoVisible || currentActiveTwitchStreamer || embedContainer.classList.contains('active')) return;
+        clearTimeout(bannerHideTimeout);
+        bannerSequenceTimers.forEach(t => clearTimeout(t));
+        bannerSequenceTimers = [];
+
+        if (isIntro) isIntroBannerRunning = true;
+        else isEndSequenceRunning = true;
+
+        const curClip = schedule[currentClipIndex];
+        if (!curClip || curClip.isStream) return;
+
+        const curCat = curClip?.cat || getDaypartKeyForHour(new Date().getHours());
+        const nextClip = schedule[(currentClipIndex + 1) % schedule.length];
+        const laterClip = schedule[(currentClipIndex + 2) % schedule.length];
+
+        triggerLowerThirdBanner("MOST", curClip.title, curCat);
+
+        bannerSequenceTimers.push(setTimeout(() => {
+            if (nextClip && isViewerPlaying && !nextClip.isStream) triggerLowerThirdBanner("KÖVETKEZIK", nextClip.title, curCat);
+        }, 5000));
+
+        bannerSequenceTimers.push(setTimeout(() => {
+            if (laterClip && isViewerPlaying && !laterClip.isStream) triggerLowerThirdBanner("KÉSŐBB", laterClip.title, curCat);
+        }, 10000));
+
+        bannerSequenceTimers.push(setTimeout(() => {
+            lowerThirdBanner.classList.remove('banner-show');
+            isIntroBannerRunning = false;
+            if (!isIntro) isEndSequenceRunning = false;
+        }, 15000));
+    }
+
+    async function fetchLiveNews() {
+        try {
+            const res = await fetch(`${WORKER_URL}?_t=${Date.now()}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.news && Object.keys(data.news).length > 0) {
+                    cachedNewsItems = Object.values(data.news).slice(0, 10);
+                }
+            }
+        } catch(e) {}
+        rebuildNewsTickerContent();
+    }
+
+    function rebuildNewsTickerContent() {
+        if (!tickerCrawlTrack) return;
+        const separatorHtml = `<span class="crawl-separator"><svg class="kb-icon-mini" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg></span>`;
+        tickerCrawlTrack.innerHTML = cachedNewsItems.map(n => `
+            <span class="crawl-news-item">
+                <span class="crawl-news-tag">HÍREK · ${n.source || 'KÉPBEN!'}</span>
+                <span class="crawl-news-title">${cleanHtmlText(n.title)}</span>
+                ${n.description ? `<span class="crawl-news-desc">— ${cleanHtmlText(n.description)}</span>` : ''}
+            </span>
+        `).join(separatorHtml);
+    }
+
+    // ⚡ REALTIME FIREBASE SZINKRONIZÁCIÓ
+    function applyBroadcastSettingsState(s) {
+        if (!s || typeof s !== 'object') return;
+        if (s.isBroadcasting !== undefined) isTvBroadcasting = s.isBroadcasting;
+        if (s.logo_visible !== undefined) isLogoVisible = s.logo_visible;
+        if (s.rating !== undefined) currentAgeRating = s.rating;
+        if (s.live_badge_mode !== undefined) liveBadgeMode = s.live_badge_mode;
+
+        if (s.active_twitch_streamer) {
+            if (currentActiveTwitchStreamer !== s.active_twitch_streamer) {
+                currentActiveTwitchStreamer = s.active_twitch_streamer;
+                if (isViewerPlaying) switchViewerToTwitchStream(currentActiveTwitchStreamer);
+            }
+        } else if (currentActiveTwitchStreamer && !s.active_twitch_streamer) {
+            currentActiveTwitchStreamer = null;
+            embedContainer.classList.remove('active');
+            embedContainer.style.opacity = '0';
+            embedSlot.innerHTML = "";
+            activeTwitchPlayer = null;
+            activeYouTubePlayer = null;
+            updateLiveBadgeUI(false, 'clips');
+            evaluateAgeRatingVisibility();
+
+            if (isViewerPlaying) {
+                const now = new Date();
+                const curSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+                checkScheduleAndPlayback(curSec, weekSchedules[getSelectedDateKey(0)] || []);
             }
         }
-    } catch(e) {}
-    rebuildNewsTickerContent();
-}
 
-function rebuildNewsTickerContent() {
-    if (!tickerCrawlTrack) return;
-    const separatorHtml = `<span class="crawl-separator"><svg class="kb-icon-mini" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg></span>`;
-    tickerCrawlTrack.innerHTML = cachedNewsItems.map(n => `
-        <span class="crawl-news-item"><span class="crawl-news-tag">HÍREK · ${n.source || 'KÉPBEN!'}</span><span class="crawl-news-title">${cleanHtmlText(n.title)}</span></span>
-    `).join(separatorHtml);
-}
-
-// ⚡ REALTIME FIREBASE SZINKRONIZÁCIÓ
-function applyBroadcastSettingsState(s) {
-    if (!s || typeof s !== 'object') return;
-    if (s.isBroadcasting !== undefined) isTvBroadcasting = s.isBroadcasting;
-    if (s.logo_visible !== undefined) isLogoVisible = s.logo_visible;
-    if (s.rating !== undefined) currentAgeRating = s.rating;
-    if (s.live_badge_mode !== undefined) liveBadgeMode = s.live_badge_mode;
-
-    if (s.active_twitch_streamer) {
-        if (currentActiveTwitchStreamer !== s.active_twitch_streamer) {
-            currentActiveTwitchStreamer = s.active_twitch_streamer;
-            if (isViewerPlaying) switchViewerToTwitchStream(currentActiveTwitchStreamer);
+        if (s.pending_streamer) {
+            incomingAlertText.textContent = `HAMAROSAN ÉLŐBEN: ${s.pending_streamer.toUpperCase()} közvetítése a klip után...`;
+            incomingAlert.classList.add('active');
+        } else {
+            incomingAlert.classList.remove('active');
         }
-    } else if (currentActiveTwitchStreamer && !s.active_twitch_streamer) {
-        currentActiveTwitchStreamer = null;
-        embedContainer.classList.remove('active');
-        embedContainer.style.opacity = '0';
-        embedSlot.innerHTML = "";
-        activeTwitchPlayer = null;
-        activeYouTubePlayer = null;
-        updateLiveBadgeUI(false, 'clips');
-        evaluateAgeRatingVisibility();
+
+        if (s.video_enhanced !== undefined) {
+            isVideoEnhanced = s.video_enhanced;
+            if (isVideoEnhanced) {
+                deckA.classList.add('enhanced-mode'); deckB.classList.add('enhanced-mode');
+            } else {
+                deckA.classList.remove('enhanced-mode'); deckB.classList.remove('enhanced-mode');
+            }
+        }
+
+        cloudPositions = s;
+
+        const badge = document.getElementById('live-status-badge');
+        const text = document.getElementById('live-status-text');
+        if (isTvBroadcasting) {
+            badge.classList.add('online'); text.textContent = 'ÉLŐ ADÁS';
+        } else {
+            badge.classList.remove('online'); text.textContent = 'OFFLINE';
+        }
 
         if (isViewerPlaying) {
-            const now = new Date();
-            const curSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-            checkScheduleAndPlayback(curSec, weekSchedules[getSelectedDateKey(0)] || []);
+            applyVisuals();
+            if (!isTvBroadcasting) showMonoscope();
+            else if (isMonoscopeActive) {
+                const now = new Date();
+                const currentSecToday = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+                checkScheduleAndPlayback(currentSecToday, weekSchedules[getSelectedDateKey(0)] || []);
+            }
         }
     }
 
-    if (s.pending_streamer) {
-        incomingAlertText.textContent = `HAMAROSAN ÉLŐBEN: ${s.pending_streamer.toUpperCase()} közvetítése a klip után...`;
-        incomingAlert.classList.add('active');
-    } else {
-        incomingAlert.classList.remove('active');
-    }
-
-    if (s.video_enhanced !== undefined) {
-        isVideoEnhanced = s.video_enhanced;
-        if (isVideoEnhanced) {
-            deckA.classList.add('enhanced-mode'); deckB.classList.add('enhanced-mode');
-        } else {
-            deckA.classList.remove('enhanced-mode'); deckB.classList.remove('enhanced-mode');
-        }
-    }
-
-    cloudPositions = s;
-
-    const badge = document.getElementById('live-status-badge');
-    const text = document.getElementById('live-status-text');
-    if (isTvBroadcasting) {
-        badge.classList.add('online'); text.textContent = 'ÉLŐ ADÁS';
-    } else {
-        badge.classList.remove('online'); text.textContent = 'OFFLINE';
-    }
-
-    if (isViewerPlaying) {
-        applyVisuals();
-        if (!isTvBroadcasting) showMonoscope();
-        else if (isMonoscopeActive) {
+    function applyScheduleState(data) {
+        if (!data || typeof data !== 'object') return;
+        weekSchedules = data;
+        if (isViewerPlaying && isTvBroadcasting && !currentActiveTwitchStreamer) {
             const now = new Date();
             const currentSecToday = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-            checkScheduleAndPlayback(currentSecToday, weekSchedules[getSelectedDateKey(0)] || []);
+            const todaySched = weekSchedules[getSelectedDateKey(0)] || [];
+            const currentScheduledItem = todaySched.find(item => currentSecToday >= item.startSec && currentSecToday < item.endSec);
+
+            if (!currentScheduledItem || currentScheduledItem.id !== currentlyPlayingId) {
+                checkScheduleAndPlayback(currentSecToday, todaySched);
+            }
         }
     }
-}
 
-function applyScheduleState(data) {
-    if (!data || typeof data !== 'object') return;
-    weekSchedules = data;
-    if (isViewerPlaying && isTvBroadcasting && !currentActiveTwitchStreamer) {
-        const now = new Date();
-        const currentSecToday = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-        const todaySched = weekSchedules[getSelectedDateKey(0)] || [];
-        const currentScheduledItem = todaySched.find(item => currentSecToday >= item.startSec && currentSecToday < item.endSec);
-
-        if (!currentScheduledItem || currentScheduledItem.id !== currentlyPlayingId) {
-            checkScheduleAndPlayback(currentSecToday, todaySched);
-        }
-    }
-}
-
-async function initRealtimeBroadcastSync() {
-    try {
-        const [setRes, schRes] = await Promise.all([
-            fetch(`${FIREBASE_URL}/tv_broadcast_settings.json?_t=${Date.now()}`),
-            fetch(`${FIREBASE_URL}/tv_week_schedules.json?_t=${Date.now()}`)
-        ]);
-        if (setRes.ok) applyBroadcastSettingsState(await setRes.json());
-        if (schRes.ok) applyScheduleState(await schRes.json());
-    } catch(e) {}
-
-    try {
-        const settingsSource = new EventSource(`${FIREBASE_URL}/tv_broadcast_settings.json`);
-        settingsSource.addEventListener('put', e => {
-            try {
-                const payload = JSON.parse(e.data);
-                applyBroadcastSettingsState((payload.path === "/") ? payload.data : payload);
-            } catch(err) {}
-        });
-
-        const schedulesSource = new EventSource(`${FIREBASE_URL}/tv_week_schedules.json`);
-        schedulesSource.addEventListener('put', e => {
-            try {
-                const payload = JSON.parse(e.data);
-                applyScheduleState((payload.path === "/") ? payload.data : payload);
-            } catch(err) {}
-        });
-    } catch(err) {}
-
-    setInterval(async () => {
+    async function initRealtimeBroadcastSync() {
         try {
-            const res = await fetch(`${FIREBASE_URL}/tv_broadcast_settings.json?_t=${Date.now()}`);
-            if (res.ok) applyBroadcastSettingsState(await res.json());
+            const [setRes, schRes] = await Promise.all([
+                fetch(`${FIREBASE_URL}/tv_broadcast_settings.json?_t=${Date.now()}`),
+                fetch(`${FIREBASE_URL}/tv_week_schedules.json?_t=${Date.now()}`)
+            ]);
+            if (setRes.ok) applyBroadcastSettingsState(await setRes.json());
+            if (schRes.ok) applyScheduleState(await schRes.json());
         } catch(e) {}
-    }, 1500);
-}
 
-function toggleFullscreen() {
-    if (!document.fullscreenElement) tvScreenContainer.requestFullscreen();
-    else document.exitFullscreen();
-}
+        try {
+            const settingsSource = new EventSource(`${FIREBASE_URL}/tv_broadcast_settings.json`);
+            settingsSource.addEventListener('put', e => {
+                try {
+                    const payload = JSON.parse(e.data);
+                    applyBroadcastSettingsState((payload.path === "/") ? payload.data : payload);
+                } catch(err) {}
+            });
 
-function togglePiP() {
-    const activeDeck = activeDeckName === 'A' ? deckA : deckB;
-    if (document.pictureInPictureElement) document.exitPictureInPicture();
-    else if (activeDeck.requestPictureInPicture) activeDeck.requestPictureInPicture();
-}
+            const schedulesSource = new EventSource(`${FIREBASE_URL}/tv_week_schedules.json`);
+            schedulesSource.addEventListener('put', e => {
+                try {
+                    const payload = JSON.parse(e.data);
+                    applyScheduleState((payload.path === "/") ? payload.data : payload);
+                } catch(err) {}
+            });
+        } catch(err) {}
 
-window.addEventListener('DOMContentLoaded', async () => {
-    updateResponsiveScaling();
-    initRealtimeBroadcastSync();
-    fetchLiveNews();
-});
+        setInterval(async () => {
+            try {
+                const res = await fetch(`${FIREBASE_URL}/tv_broadcast_settings.json?_t=${Date.now()}`);
+                if (res.ok) applyBroadcastSettingsState(await res.json());
+            } catch(e) {}
+        }, 1500);
+    }
+
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) tvScreenContainer.requestFullscreen();
+        else document.exitFullscreen();
+    }
+
+    function togglePiP() {
+        const activeDeck = activeDeckName === 'A' ? deckA : deckB;
+        if (document.pictureInPictureElement) document.exitPictureInPicture();
+        else if (activeDeck.requestPictureInPicture) activeDeck.requestPictureInPicture();
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        updateResponsiveScaling();
+        initRealtimeBroadcastSync();
+        fetchLiveNews();
+    });
 </script>
 </body>
 </html>
