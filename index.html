@@ -8,8 +8,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700;800&display=swap" rel="stylesheet">
-<!-- YouTube IFrame Player Broadcast API -->
-<script src="https://www.youtube.com/iframe_api"></script>
 <style>
     :root {
         --bg-dark: #050811;
@@ -211,12 +209,12 @@
         border: none;
         z-index: 1;
         opacity: 0;
-        pointer-events: none !important; /* Felugró sávok és egér-hover letiltva */
+        pointer-events: none !important;
         display: none;
         background: #000;
-        transform: scale(1.045); /* YouTube vízjelek és szegélyek láthatatlan maszkolása */
+        transform: scale(1.045);
         transform-origin: center center;
-        transition: opacity 0.6s ease-in-out;
+        transition: opacity 0.4s ease-in-out;
     }
     .tv-embed-deck.active {
         display: block;
@@ -1232,7 +1230,7 @@
     <div class="log-box" id="studio-log"></div>
 </div>
 
-<!-- 🪟 YOUTUBE DIRECT 1080P HOZZÁADÓ MODAL -->
+<!-- 🪟 YOUTUBE KLIP HOZZÁADÓ MODAL (PONTOS HOSSZ BEÁLLÍTÁSSAL) -->
 <div class="modal-overlay" id="yt-direct-modal">
     <div class="modal-card">
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
@@ -1252,8 +1250,19 @@
             <input type="text" id="inp-yt-direct-title" placeholder="Pl. Dua Lipa - Levitating" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-family:'Space Mono',monospace; font-size:0.82rem; outline:none; font-weight:700;">
         </div>
 
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+            <div>
+                <label style="font-family:'Space Mono',monospace; font-size:0.68rem; color:var(--accent-cyan); font-weight:700;">⏱️ KLIP HOSSZA (PERC):</label>
+                <input type="number" id="inp-yt-dur-min" value="3" min="0" max="59" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-family:'Space Mono',monospace; font-size:0.8rem; font-weight:700; outline:none;">
+            </div>
+            <div>
+                <label style="font-family:'Space Mono',monospace; font-size:0.68rem; color:var(--accent-cyan); font-weight:700;">(MÁSODPERC):</label>
+                <input type="number" id="inp-yt-dur-sec" value="30" min="0" max="59" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-family:'Space Mono',monospace; font-size:0.8rem; font-weight:700; outline:none;">
+            </div>
+        </div>
+
         <div style="background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.25); border-radius:10px; padding:10px; font-size:0.72rem; color:var(--text-muted);">
-            ⚡ <strong>Hogyan működik?</strong> A klip automatikusan a videótáradba kerül, és a stúdió a legmagasabb minőségben (akár 1080p), reklámmentesen indítja el az adásban a zeneszám kártyákkal és a stúdió grafikával együtt!
+            ⚡ <strong>Hogyan működik?</strong> A klip automatikusan a videótáradba kerül. A stúdióóra pontosan a dal vége előtt elindítja a zenei kártyákat és az átúsztatást, így <strong>a YouTube ajánlók garantáltan sosem jelennek meg</strong>!
         </div>
 
         <button class="btn-act" style="background:var(--accent-cyan); color:#000; font-size:0.85rem; padding:10px; border:none; font-weight:800;" onclick="confirmAddYouTubeDirectClip()">
@@ -1341,12 +1350,12 @@
     </div>
 </div>
 
-<!-- 🪟 GYORS CÍM-, KORHATÁR- ÉS ELŐADÓ SZERKESZTŐ MODAL -->
+<!-- 🪟 GYORS CÍM-, KORHATÁR-, HOSSZ- ÉS ELŐADÓ SZERKESZTŐ MODAL -->
 <div class="modal-overlay" id="edit-track-modal">
     <div class="modal-card">
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
             <div style="font-family:'Space Mono',monospace; font-size:0.85rem; font-weight:800; color:var(--accent-cyan);">
-                ✏️ MŰSOR / DAL ÉS KORHATÁR MÓDOSÍTÁSA
+                ✏️ MŰSOR / DAL, HOSSZ ÉS KORHATÁR MÓDOSÍTÁSA
             </div>
             <button class="btn-del-sm" onclick="closeEditTrackModal()">✖ Bezárás</button>
         </div>
@@ -1359,6 +1368,17 @@
         <div>
             <label style="font-family:'Space Mono',monospace; font-size:0.7rem; color:var(--text-muted); display:block; margin-bottom:4px;">DAL CÍME / ADÁS CÍM:</label>
             <input type="text" id="inp-edit-title" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-family:'Space Mono',monospace; font-size:0.85rem; outline:none; font-weight:700;">
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+            <div>
+                <label style="font-family:'Space Mono',monospace; font-size:0.68rem; color:var(--accent-cyan); font-weight:700;">⏱️ HOSSZ (PERC):</label>
+                <input type="number" id="inp-edit-dur-min" min="0" max="59" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-family:'Space Mono',monospace; font-size:0.8rem; font-weight:700; outline:none;">
+            </div>
+            <div>
+                <label style="font-family:'Space Mono',monospace; font-size:0.68rem; color:var(--accent-cyan); font-weight:700;">(MÁSODPERC):</label>
+                <input type="number" id="inp-edit-dur-sec" min="0" max="59" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-family:'Space Mono',monospace; font-size:0.8rem; font-weight:700; outline:none;">
+            </div>
         </div>
 
         <div>
@@ -1491,7 +1511,7 @@
                 <select id="modal-assign-rating-select" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:8px; font-family:'Space Mono',monospace; font-size:0.78rem; outline:none;">
                     <option value="default">🌐 Alapértelmezett</option>
                     <option value="none">🚫 Nincs</option>
-                    <option value="0">🟢 0 (Gyermekbarát)</option>
+                    <option value="0">🟢 0 (Gyerekbarát)</option>
                     <option value="6">🟡 6</option>
                     <option value="12" selected>🟡 12</option>
                     <option value="16">🟡 16</option>
@@ -1561,11 +1581,6 @@
     let isVideoTransitioning = false;
     let masterVolume = 0.9;
     let transitionLock = false;
-
-    // 📺 YOUTUBE IFRAME API VEZÉRLŐK
-    let ytPlayer = null;
-    let isYtApiReady = false;
-    let ytTimeWatchdogInterval = null;
 
     // TWITCH DETEKTOR
     let monitoredTwitchChannels = JSON.parse(localStorage.getItem('kb_twitch_monitors') || '["thevr"]');
@@ -1659,43 +1674,6 @@
     const upcomingDrawer = document.getElementById('tv-upcoming-drawer');
     const drawerUpcomingList = document.getElementById('drawer-upcoming-list');
     const drawerShowBlockTitle = document.getElementById('drawer-show-block-title');
-
-    // YouTube Iframe API inicializálás
-    window.onYouTubeIframeAPIReady = function() {
-        isYtApiReady = true;
-        try {
-            ytPlayer = new YT.Player('tv-embed-deck', {
-                events: {
-                    'onStateChange': onYouTubePlayerStateChange
-                }
-            });
-        } catch(e){}
-    };
-
-    function onYouTubePlayerStateChange(event) {
-        if (!isTvBroadcasting) return;
-
-        // Ha a YouTube videó elindul
-        if (event.data === YT.PlayerState.PLAYING) {
-            const curDur = ytPlayer.getDuration();
-            const curKey = getSelectedDateKey(0);
-            const schedule = weekSchedules[curKey] || [];
-            const curClip = schedule[currentClipIndex];
-
-            // Pontos videóhossz frissítése a valós YouTube adatok alapján
-            if (curClip && curDur > 10 && Math.abs(curClip.duration - curDur) > 3) {
-                curClip.duration = Math.round(curDur);
-                recalculateScheduleTimes(schedule);
-                saveWeekSchedules();
-            }
-        }
-
-        // Ha a YouTube videó a végére ér, AZONNAL lezárjuk és átlépünk, 0 ajánlóképernyővel!
-        if (event.data === YT.PlayerState.ENDED) {
-            clearInterval(ytTimeWatchdogInterval);
-            executeVideoCrossfade(true);
-        }
-    }
 
     const tvDaypartConfig = {
         ejjel: { title: "🌙 KÉPBEN! Éjjel", primaryColor: "#818cf8", gradient: "linear-gradient(135deg, #050811 0%, #1e1b4b 100%)" },
@@ -1801,6 +1779,8 @@
     function openAddYouTubeDirectModal() {
         document.getElementById('inp-yt-direct-url').value = '';
         document.getElementById('inp-yt-direct-title').value = '';
+        document.getElementById('inp-yt-dur-min').value = '3';
+        document.getElementById('inp-yt-dur-sec').value = '30';
         document.getElementById('yt-direct-modal').classList.add('active');
     }
 
@@ -1812,6 +1792,9 @@
         const url = document.getElementById('inp-yt-direct-url').value.trim();
         let title = document.getElementById('inp-yt-direct-title').value.trim();
         const vId = extractYouTubeVideoId(url);
+        const mins = parseInt(document.getElementById('inp-yt-dur-min').value) || 0;
+        const secs = parseInt(document.getElementById('inp-yt-dur-sec').value) || 0;
+        const calculatedDur = Math.max(30, (mins * 60) + secs);
 
         if (!vId) return alert("Kérlek érvényes YouTube videó linket adj meg!");
         if (!title) title = `YouTube Track (${vId})`;
@@ -1823,7 +1806,7 @@
             url: `https://www.youtube.com/embed/${vId}?autoplay=1&controls=0&iv_load_policy=3&cc_load_policy=0&disablekb=1&modestbranding=1&playsinline=1&rel=0&enablejsapi=1&origin=${encodeURIComponent(hostOrigin)}`,
             rawUrl: url,
             youtubeId: vId,
-            duration: 210,
+            duration: calculatedDur,
             size: "1080p HD (YouTube)",
             isYouTubeClip: true
         };
@@ -1838,7 +1821,7 @@
 
         loadR2Library();
         closeAddYouTubeDirectModal();
-        log(`🔴 [YOUTUBE KLIP HOZZÁADVA] ${title} (1080p Stúdió Kész)`, 'success');
+        log(`🔴 [YOUTUBE KLIP HOZZÁADVA] ${title} (${mins}:${secs < 10 ? '0' : ''}${secs})`, 'success');
     }
 
     function getCombinedClipsPool() {
@@ -2224,7 +2207,6 @@
             currentlyPlayingId = clip.id;
             isEndSequenceRunning = false;
             isIntroBannerRunning = true;
-            clearInterval(ytTimeWatchdogInterval);
 
             if (clip.rating && clip.rating !== 'default') {
                 applyAgeRating(clip.rating);
@@ -2241,15 +2223,9 @@
                 deckA.style.opacity = '0'; deckB.style.opacity = '0';
 
                 const targetYtId = clip.youtubeId || extractYouTubeVideoId(clip.rawUrl || clip.url);
+                const hostOrigin = window.location.origin || 'http://localhost';
 
-                if (targetYtId && isYtApiReady && ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
-                    ytPlayer.loadVideoById({
-                        videoId: targetYtId,
-                        startSeconds: Math.floor(offsetSec)
-                    });
-                    ytPlayer.playVideo();
-                } else if (targetYtId) {
-                    const hostOrigin = window.location.origin || 'http://localhost';
+                if (targetYtId) {
                     embedDeck.src = `https://www.youtube.com/embed/${targetYtId}?autoplay=1&controls=0&iv_load_policy=3&cc_load_policy=0&disablekb=1&modestbranding=1&playsinline=1&rel=0&enablejsapi=1&origin=${encodeURIComponent(hostOrigin)}&start=${Math.floor(offsetSec)}`;
                 } else {
                     embedDeck.src = clip.url;
@@ -2262,31 +2238,6 @@
                 setTimeout(() => {
                     runTrackPresentationSequence(schedule, true);
                 }, 500);
-
-                // Intelligens 250ms-os időzítő: a videó vége ELŐTT 4 másodperccel lágyan kifakítja a YouTube réteget!
-                ytTimeWatchdogInterval = setInterval(() => {
-                    if (!isTvBroadcasting || currentlyPlayingId !== clip.id) {
-                        clearInterval(ytTimeWatchdogInterval);
-                        return;
-                    }
-
-                    if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function' && typeof ytPlayer.getDuration === 'function') {
-                        const curTime = ytPlayer.getCurrentTime();
-                        const dur = ytPlayer.getDuration();
-                        const remaining = dur - curTime;
-
-                        // Outro zenei kártyák indítása 24 mp-cel a vége előtt
-                        if (remaining <= 24 && remaining > 6 && !isEndSequenceRunning) {
-                            runTrackPresentationSequence(schedule, false);
-                        }
-
-                        // 4 másodperccel a vége előtt átúsztatunk, így a néző SOHA NEM LÁT YouTube ajánlót!
-                        if (remaining <= 4 && !isVideoTransitioning && !transitionLock) {
-                            clearInterval(ytTimeWatchdogInterval);
-                            executeVideoCrossfade(false);
-                        }
-                    }
-                }, 250);
 
                 return;
             }
@@ -2346,7 +2297,6 @@
         hideLowerThirdImmediate();
         currentlyPlayingId = null;
         currentClipIndex = -1;
-        clearInterval(ytTimeWatchdogInterval);
 
         updateLiveBadgeUI(false);
         standbyScreen.classList.add('active');
@@ -2364,7 +2314,6 @@
             isMonoscopeActive = true;
             currentlyPlayingId = null;
             currentClipIndex = -1;
-            clearInterval(ytTimeWatchdogInterval);
             deckA.pause(); deckB.pause();
             deckA.src = ""; deckB.src = "";
             deckA.style.opacity = '0'; deckB.style.opacity = '0';
@@ -2442,7 +2391,6 @@
             currentlyPlayingId = null;
             currentActiveTwitchStreamer = null;
             clearTimeout(stallWatchdogTimer);
-            clearInterval(ytTimeWatchdogInterval);
 
             watermarkWrap.style.display = 'none';
             ageRatingContainer.style.display = 'none';
@@ -2548,7 +2496,6 @@
         transitionLock = true;
         isIntroBannerRunning = true;
         clearTimeout(stallWatchdogTimer);
-        clearInterval(ytTimeWatchdogInterval);
         hideLowerThirdImmediate();
 
         const currentDeck = activeDeckName === 'A' ? deckA : deckB;
@@ -2572,12 +2519,9 @@
             currentDeck.classList.remove('active');
 
             const targetYtId = newClip.youtubeId || extractYouTubeVideoId(newClip.rawUrl || newClip.url);
+            const hostOrigin = window.location.origin || 'http://localhost';
 
-            if (targetYtId && isYtApiReady && ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
-                ytPlayer.loadVideoById({ videoId: targetYtId, startSeconds: 0 });
-                ytPlayer.playVideo();
-            } else if (targetYtId) {
-                const hostOrigin = window.location.origin || 'http://localhost';
+            if (targetYtId) {
                 embedDeck.src = `https://www.youtube.com/embed/${targetYtId}?autoplay=1&controls=0&iv_load_policy=3&cc_load_policy=0&disablekb=1&modestbranding=1&playsinline=1&rel=0&enablejsapi=1&origin=${encodeURIComponent(hostOrigin)}`;
             } else {
                 embedDeck.src = newClip.url;
@@ -2594,40 +2538,17 @@
                 runTrackPresentationSequence(schedule, true);
             }, 500);
 
-            // Folyamatos időfigyelő az ajánlók eltüntetéséhez
-            ytTimeWatchdogInterval = setInterval(() => {
-                if (!isTvBroadcasting || currentlyPlayingId !== newClip.id) {
-                    clearInterval(ytTimeWatchdogInterval);
-                    return;
-                }
-
-                if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function' && typeof ytPlayer.getDuration === 'function') {
-                    const curTime = ytPlayer.getCurrentTime();
-                    const dur = ytPlayer.getDuration();
-                    const remaining = dur - curTime;
-
-                    if (remaining <= 24 && remaining > 6 && !isEndSequenceRunning) {
-                        runTrackPresentationSequence(schedule, false);
-                    }
-
-                    if (remaining <= 4 && !isVideoTransitioning && !transitionLock) {
-                        clearInterval(ytTimeWatchdogInterval);
-                        executeVideoCrossfade(false);
-                    }
-                }
-            }, 250);
-
             return;
         }
 
-        // 🎬 2. Átlépés Saját MP4 videóra (YouTube réteg azonnali, lágy lezárása)
+        // 🎬 2. Átlépés Saját MP4 videóra (YouTube réteg azonnali, lágy levétele)
         embedDeck.style.opacity = '0';
         setTimeout(() => {
             if (embedDeck.style.opacity === '0') {
                 embedDeck.classList.remove('active');
                 embedDeck.src = "about:blank";
             }
-        }, 600);
+        }, 500);
 
         log(`🎚️ [ÁTÚSZÁS] Új dal: ${newClip.title}`, 'warn');
 
@@ -2795,7 +2716,6 @@
             embedDeck.src = "about:blank";
             currentlyPlayingId = null;
             currentClipIndex = -1;
-            clearInterval(ytTimeWatchdogInterval);
             showStandby(null);
         }
     }
@@ -2830,6 +2750,7 @@
         } catch(e) {}
     }
 
+    // ⏰ MASTER STÚDIÓ ÓRA & KILÓGÁSMENTES 100% AUTOMATA LÉPTETŐ MOTOR
     function updateClock() {
         const now = new Date();
         const y = now.getFullYear();
@@ -2876,8 +2797,30 @@
             highlightCurrentOnAirRow(currentSecToday, todaySchedule);
         }
 
-        if (isTvBroadcasting && !currentlyPlayingId && !isVideoTransitioning && !transitionLock && !currentActiveTwitchStreamer) {
-            checkScheduleAndPlayback(currentSecToday, todaySchedule);
+        // 🛡️ AUTOMATA MCR ADÁSMENET FELÜGYELET (AJÁNLÓK TÖRLÉSE & GARANTÁLT LÉPTETÉS)
+        if (isTvBroadcasting && !isVideoTransitioning && !transitionLock && !currentActiveTwitchStreamer) {
+            if (todaySchedule.length > 0) {
+                // Ha épp fut egy klip, ellenőrizzük az adásidejét
+                if (currentClipIndex >= 0 && currentClipIndex < todaySchedule.length) {
+                    const curClip = todaySchedule[currentClipIndex];
+                    const remainingInClip = curClip.endSec - currentSecToday;
+
+                    // 🏁 Outro zenei kártyák indítása 24 mp-cel a klip vége előtt
+                    if (remainingInClip <= 24 && remainingInClip > 6 && !isEndSequenceRunning) {
+                        runTrackPresentationSequence(todaySchedule, false);
+                    }
+
+                    // 🚫 4 másodperccel a vége előtt (vagy ha lejárt) azonnal átúsztatunk, így a YouTube SOHA NEM AD AJÁNLÓKAT!
+                    if (remainingInClip <= 4 || currentSecToday >= curClip.endSec) {
+                        log(`⏱️ Adásidő vége: ${curClip.title} ➔ Automata átúsztatás a következőre!`, 'info');
+                        executeVideoCrossfade(false);
+                        return;
+                    }
+                } else {
+                    // Ha nincs lejátszás vagy elcsúszott az adás, szinkronizálunk
+                    checkScheduleAndPlayback(currentSecToday, todaySchedule);
+                }
+            }
         }
     }
     setInterval(updateClock, 1000);
@@ -3179,9 +3122,12 @@
 
         editingClipRef = { clipId, dateKey, clip };
         const parsed = parseArtistAndTitle(clip.title);
+        const durTotal = clip.duration || 210;
 
         document.getElementById('inp-edit-artist').value = parsed.artist;
         document.getElementById('inp-edit-title').value = parsed.title;
+        document.getElementById('inp-edit-dur-min').value = Math.floor(durTotal / 60);
+        document.getElementById('inp-edit-dur-sec').value = durTotal % 60;
         document.getElementById('inp-edit-rating').value = clip.rating || "12";
         document.getElementById('edit-track-modal').classList.add('active');
     }
@@ -3196,12 +3142,19 @@
         const artist = document.getElementById('inp-edit-artist').value.trim();
         const title = document.getElementById('inp-edit-title').value.trim();
         const rating = document.getElementById('inp-edit-rating').value;
+        const mins = parseInt(document.getElementById('inp-edit-dur-min').value) || 0;
+        const secs = parseInt(document.getElementById('inp-edit-dur-sec').value) || 0;
+        const newDur = Math.max(30, (mins * 60) + secs);
 
         if (!artist || !title) return alert("Az előadó és dalcím nem lehet üres!");
 
         const newFormattedTitle = `${artist} - ${title}`;
         editingClipRef.clip.title = newFormattedTitle;
         editingClipRef.clip.rating = rating;
+        editingClipRef.clip.duration = newDur;
+
+        const sched = weekSchedules[editingClipRef.dateKey];
+        if (sched) recalculateScheduleTimes(sched);
 
         saveWeekSchedules();
         renderRundownTable();
