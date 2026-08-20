@@ -1232,7 +1232,7 @@
     <div class="log-box" id="studio-log"></div>
 </div>
 
-<!-- 🪟 YOUTUBE KLIP HOZZÁADÓ MODAL (PONTOS HOSSZ BEÁLLÍTÁSSAL) -->
+<!-- 🪟 YOUTUBE KLIP HOZZÁADÓ MODAL -->
 <div class="modal-overlay" id="yt-direct-modal">
     <div class="modal-card">
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
@@ -1379,7 +1379,7 @@
             </div>
             <div>
                 <label style="font-family:'Space Mono',monospace; font-size:0.68rem; color:var(--accent-cyan); font-weight:700;">(MÁSODPERC):</label>
-                <input type="number" id="inp-edit-dur-sec" min="0" max="59" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-family:'Space Mono',monospace; font-size:0.8rem; outline:none; font-weight:700;">
+                <input type="number" id="inp-edit-dur-sec" min="0" max="59" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-family:'Space Mono',monospace; font-size:0.8rem; font-weight:700; outline:none;">
             </div>
         </div>
 
@@ -1513,7 +1513,7 @@
                 <select id="modal-assign-rating-select" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:8px; font-family:'Space Mono',monospace; font-size:0.78rem; outline:none;">
                     <option value="default">🌐 Alapértelmezett</option>
                     <option value="none">🚫 Nincs</option>
-                    <option value="0">🟢 0 (Gyermekbarát)</option>
+                    <option value="0">🟢 0 (Gyerekbarát)</option>
                     <option value="6">🟡 6</option>
                     <option value="12" selected>🟡 12</option>
                     <option value="16">🟡 16</option>
@@ -1611,6 +1611,7 @@
     let isNewsTickerManualEnabled = true;
     let activeNewsQueue = [];
     let pendingNewsQueue = null;
+    let isFreshUpdatePending = false;
     let currentNewsItemIndex = 0;
     let newsRotationTimer = null;
     let isShowingPromoCard = false;
@@ -3675,8 +3676,8 @@
         document.getElementById('tv-vol-text').textContent = Math.round(val * 100) + '%';
     }
 
-    // 📰 2026-OS INTELLIGENS HÍRLETÖLTŐ ÉS 10 PERCES UPDATE SZEKVENCIA
-    async function fetchLiveNews() {
+    // 📰 2026-OS DETERMINISZTIKUS HÍRLETÖLTŐ ÉS 10 PERCES UPDATE SZEKVENCIA
+    async function fetchLiveNews(isInitial = false) {
         try {
             const res = await fetch(`${WORKER_URL}?_t=${Date.now()}`);
             if (res.ok) {
@@ -3730,14 +3731,17 @@
                     processed.sort((a, b) => b.timeMs - a.timeMs);
 
                     if (processed.length > 0) {
-                        if (activeNewsQueue.length === 0) {
+                        if (isInitial || activeNewsQueue.length === 0) {
                             activeNewsQueue = processed;
                             currentNewsItemIndex = 0;
+                            isFreshUpdatePending = false;
                             displayNextNewsCard();
                             log(`📰 [HÍREK BETÖLTVE] ${processed.length} hír azonnal adásba adva.`, 'success');
                         } else {
+                            // 10 perces háttér frissítés: a következő hírkártya után azonnal lefut a promó és az új hírek!
                             pendingNewsQueue = processed;
-                            log(`📰 [HÁTTÉR FRISSÍTÉS KÉSZ] ${processed.length} friss hír készenlétben (a kör végén promóval váltunk).`, 'info');
+                            isFreshUpdatePending = true;
+                            log(`📰 [10 PERCES FRISSÍTÉS MEGÉRKEZETT] ${processed.length} friss hír készenlétben (a jelenlegi kártya után promóval indulnak elölről).`, 'info');
                         }
                     }
                 }
@@ -3766,22 +3770,24 @@
         return Math.max(9000, Math.min(20000, calculatedMs));
     }
 
-    // 📺 STATIKUS HÍR KÁRTYA MEGJELENÍTŐ (FOLYAMATOS FORGÁS + PROMÓ ÁTTŰNÉS ÚJ HÍREK ELŐTT)
+    // 📺 STATIKUS HÍR KÁRTYA MEGJELENÍTŐ (10 PERCES AZONNALI PROMÓ ÉS MEGÚJULÁS)
     function displayNextNewsCard() {
         clearTimeout(newsRotationTimer);
 
-        if (currentNewsItemIndex >= activeNewsQueue.length) {
-            if (pendingNewsQueue && pendingNewsQueue.length > 0) {
-                showPromoCardBeforeFreshNews();
-                return;
-            } else {
-                currentNewsItemIndex = 0;
-            }
+        // Ha van új 10 perces frissítés, a jelenlegi hír után AZONNAL beadja a promó kártyát és elölről indítja az új híreket!
+        if (isFreshUpdatePending && pendingNewsQueue && pendingNewsQueue.length > 0) {
+            showPromoCardBeforeFreshNews();
+            return;
         }
 
         if (activeNewsQueue.length === 0) {
             showPromoCardBeforeFreshNews();
             return;
+        }
+
+        // Körforgásos index kezelés
+        if (currentNewsItemIndex >= activeNewsQueue.length) {
+            currentNewsItemIndex = 0;
         }
 
         const item = activeNewsQueue[currentNewsItemIndex];
@@ -3821,7 +3827,8 @@
                 if (pendingNewsQueue && pendingNewsQueue.length > 0) {
                     activeNewsQueue = pendingNewsQueue;
                     pendingNewsQueue = null;
-                    log(`⚡ [ÚJ HÍRLÁNC AKTIVÁLVA] ${activeNewsQueue.length} friss hír elindítva időrendben!`, 'success');
+                    isFreshUpdatePending = false;
+                    log(`⚡ [ÚJ HÍRLÁNC AKTIVÁLVA] ${activeNewsQueue.length} friss hír elindítva elölről időrendben!`, 'success');
                 }
                 currentNewsItemIndex = 0;
                 isShowingPromoCard = false;
@@ -3945,11 +3952,11 @@
 
         await loadR2Library();
 
-        // 📰 Hírek és Időjárás indítása és a 10 perces intelligens háttér-ciklus
-        fetchLiveNews();
+        // 📰 Hírek és Időjárás indítása és 10 perces determinisztikus háttér-frissítés
+        fetchLiveNews(true);
         fetchLiveWeather();
         startWeatherCityRotator();
-        setInterval(fetchLiveNews, 10 * 60 * 1000);
+        setInterval(() => fetchLiveNews(false), 10 * 60 * 1000);
         setInterval(fetchLiveWeather, 10 * 60 * 1000);
 
         // Twitch Streamer automata ellenőrző 30 másodpercenként
