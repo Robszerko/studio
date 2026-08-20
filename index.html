@@ -201,7 +201,7 @@
         z-index: 2;
     }
 
-    /* 🌐 BEÁGYAZOTT 1080P CHROMELESS STREAM & YOUTUBE RÉTEG */
+    /* 🌐 BEÁGYAZOTT 1080P CHROMELESS & CLEAN MASZKOLT YOUTUBE RÉTEG */
     .tv-embed-deck {
         position: absolute;
         top: 0; left: 0;
@@ -209,10 +209,12 @@
         border: none;
         z-index: 1;
         opacity: 0;
-        pointer-events: auto;
+        pointer-events: none !important; /* Felugró sávok és egér-hover tiltása */
         display: none;
         background: #000;
         transition: opacity 0.5s linear;
+        transform: scale(1.045); /* YouTube vízjelek és szegélyek láthatatlan maszkolása */
+        transform-origin: center center;
     }
     .tv-embed-deck.active {
         display: block;
@@ -1779,7 +1781,7 @@
         const newClip = {
             filename: `yt_${vId}.mp4`,
             title: title,
-            url: `https://www.youtube.com/embed/${vId}?autoplay=1&enablejsapi=1&origin=${encodeURIComponent(hostOrigin)}&playsinline=1&rel=0&iv_load_policy=3`,
+            url: `https://www.youtube.com/embed/${vId}?autoplay=1&controls=0&iv_load_policy=3&cc_load_policy=0&disablekb=1&modestbranding=1&playsinline=1&rel=0&enablejsapi=1&origin=${encodeURIComponent(hostOrigin)}`,
             rawUrl: url,
             youtubeId: vId,
             duration: 210,
@@ -1827,7 +1829,7 @@
             return {
                 type: 'youtube',
                 id: videoId,
-                embedUrl: `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1&origin=${encodeURIComponent(hostOrigin)}&playsinline=1&rel=0`
+                embedUrl: `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&iv_load_policy=3&cc_load_policy=0&disablekb=1&modestbranding=1&playsinline=1&rel=0&enablejsapi=1&origin=${encodeURIComponent(hostOrigin)}`
             };
         }
 
@@ -2161,7 +2163,7 @@
         }
     }
 
-    // 📺 HIBRID MASTER ADÁS & STREAM LEJÁTSZÓ (100% FEKETE KÉP MENTES)
+    // 📺 HIBRID MASTER ADÁS & STREAM LEJÁTSZÓ (TISZTA 1080P CHROMELESS ÉS MASZKOLT)
     function checkScheduleAndPlayback(currentSecToday, schedule) {
         if (!isTvBroadcasting || transitionLock || currentActiveTwitchStreamer) return;
 
@@ -2195,7 +2197,7 @@
             const offsetSec = Math.max(0, currentSecToday - clip.startSec);
             const remainingSec = Math.max(1, clip.duration - offsetSec);
 
-            // 🌐 A) YOUTUBE KLIP VAGY ÉLŐ STREAM LEJÁTSZÁSA (1080P CHROMELESS, 153-AS HIBA MENTES)
+            // 🌐 A) YOUTUBE KLIP VAGY ÉLŐ STREAM LEJÁTSZÁSA (1080P CHROMELESS, REKLÁM- ÉS SÁVMENTES)
             if (clip.youtubeId || clip.isYouTubeClip || clip.isStream) {
                 deckA.pause(); deckB.pause();
                 deckA.classList.remove('active'); deckB.classList.remove('active');
@@ -2205,7 +2207,7 @@
                 const hostOrigin = window.location.origin || 'http://localhost';
 
                 if (targetYtId) {
-                    embedDeck.src = `https://www.youtube.com/embed/${targetYtId}?autoplay=1&enablejsapi=1&origin=${encodeURIComponent(hostOrigin)}&playsinline=1&rel=0&iv_load_policy=3&start=${Math.floor(offsetSec)}`;
+                    embedDeck.src = `https://www.youtube.com/embed/${targetYtId}?autoplay=1&controls=0&iv_load_policy=3&cc_load_policy=0&disablekb=1&modestbranding=1&playsinline=1&rel=0&enablejsapi=1&origin=${encodeURIComponent(hostOrigin)}&start=${Math.floor(offsetSec)}`;
                 } else {
                     embedDeck.src = clip.url;
                 }
@@ -2516,7 +2518,7 @@
             const hostOrigin = window.location.origin || 'http://localhost';
 
             if (targetYtId) {
-                embedDeck.src = `https://www.youtube.com/embed/${targetYtId}?autoplay=1&enablejsapi=1&origin=${encodeURIComponent(hostOrigin)}&playsinline=1&rel=0&iv_load_policy=3`;
+                embedDeck.src = `https://www.youtube.com/embed/${targetYtId}?autoplay=1&controls=0&iv_load_policy=3&cc_load_policy=0&disablekb=1&modestbranding=1&playsinline=1&rel=0&enablejsapi=1&origin=${encodeURIComponent(hostOrigin)}`;
             } else {
                 embedDeck.src = newClip.url;
             }
