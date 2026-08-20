@@ -196,7 +196,7 @@
         backface-visibility: hidden;
         -webkit-backface-visibility: hidden;
         will-change: opacity;
-        transition: opacity 0.5s linear;
+        transition: opacity 0.4s linear;
     }
     .tv-video-deck.active {
         opacity: 1;
@@ -1842,7 +1842,7 @@
         return combined.length > 0 ? combined : defaultSampleClips;
     }
 
-    // 🌐 BIZTONSÁGOS STREAM URL ELEMZŐ (ÉLŐ ADÁSOKHOZ)
+    // 🌐 BIZTONSÁGOS STREAM URL ELEMZŐ
     function parseStreamUrl(url) {
         if (!url) return null;
         url = url.trim();
