@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+<!-- YouTube IFrame Player Broadcast API -->
+<script src="https://www.youtube.com/iframe_api"></script>
 <style>
     :root {
         --bg-dark: #050811;
@@ -1377,7 +1379,7 @@
             </div>
             <div>
                 <label style="font-family:'Space Mono',monospace; font-size:0.68rem; color:var(--accent-cyan); font-weight:700;">(MÁSODPERC):</label>
-                <input type="number" id="inp-edit-dur-sec" min="0" max="59" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-family:'Space Mono',monospace; font-size:0.8rem; font-weight:700; outline:none;">
+                <input type="number" id="inp-edit-dur-sec" min="0" max="59" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-family:'Space Mono',monospace; font-size:0.8rem; outline:none; font-weight:700;">
             </div>
         </div>
 
@@ -1511,7 +1513,7 @@
                 <select id="modal-assign-rating-select" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:8px; font-family:'Space Mono',monospace; font-size:0.78rem; outline:none;">
                     <option value="default">🌐 Alapértelmezett</option>
                     <option value="none">🚫 Nincs</option>
-                    <option value="0">🟢 0 (Gyerekbarát)</option>
+                    <option value="0">🟢 0 (Gyermekbarát)</option>
                     <option value="6">🟡 6</option>
                     <option value="12" selected>🟡 12</option>
                     <option value="16">🟡 16</option>
@@ -2066,7 +2068,7 @@
 
         log(`⚡ ${dateKey} műsorrend összeállítva (${schedule.length} tétel, ${pool.length} db-os zenei tárból)`, 'success');
 
-        if (dayOffset === 0 && isTvBroadcasting && !currentlyPlayingId) {
+        if (dayOffset === 0 && isTvBroadcasting) {
             const now = new Date();
             const currentSecToday = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
             checkScheduleAndPlayback(currentSecToday, schedule);
@@ -2185,7 +2187,7 @@
         }
     }
 
-    // 📺 HIBRID MASTER ADÁS LEJÁTSZÓ (GARANTÁLTAN AJÁNLÓ- ÉS SÁVMENTES)
+    // 📺 HIBRID MASTER ADÁS LEJÁTSZÓ (TŰPONTOS VALÓS IDEJŰ INDÍTÁS ÉS SEEKING)
     function checkScheduleAndPlayback(currentSecToday, schedule) {
         if (!isTvBroadcasting || transitionLock || currentActiveTwitchStreamer) return;
 
@@ -2194,6 +2196,7 @@
             return;
         }
 
+        // Tűpontosan megkeressük azt a dalt, amelyik ebben a pillanatban érvényes
         const foundIdx = schedule.findIndex(item => currentSecToday >= item.startSec && currentSecToday < item.endSec);
 
         if (foundIdx !== -1) {
@@ -2201,7 +2204,7 @@
             hideMonoscope();
             
             const clip = schedule[foundIdx];
-            if (currentlyPlayingId === clip.id) return;
+            const offsetSec = Math.max(0, currentSecToday - clip.startSec);
 
             currentClipIndex = foundIdx;
             currentlyPlayingId = clip.id;
@@ -2213,8 +2216,6 @@
             }
 
             updateLiveBadgeUI(Boolean(clip.isStream));
-
-            const offsetSec = Math.max(0, currentSecToday - clip.startSec);
 
             // 🌐 A) YOUTUBE KLIP VAGY ÉLŐ STREAM LEJÁTSZÁSA
             if (clip.youtubeId || clip.isYouTubeClip || clip.isStream) {
@@ -2233,11 +2234,15 @@
 
                 embedDeck.classList.add('active');
                 embedDeck.style.opacity = '1';
-                log(`▶️ YouTube TV adás: ${clip.title}`, 'success');
+                log(`▶️ YouTube TV adás: ${clip.title} (+${Math.round(offsetSec)} mp seek)`, 'success');
 
-                setTimeout(() => {
-                    runTrackPresentationSequence(schedule, true);
-                }, 500);
+                if (offsetSec < 15) {
+                    setTimeout(() => {
+                        runTrackPresentationSequence(schedule, true);
+                    }, 500);
+                } else {
+                    isIntroBannerRunning = false;
+                }
 
                 return;
             }
@@ -2249,7 +2254,7 @@
 
             const activeDeck = activeDeckName === 'A' ? deckA : deckB;
 
-            log(`▶️ Saját MP4 TV adás: ${clip.title} (+${Math.round(offsetSec)} mp)`, 'success');
+            log(`▶️ Saját MP4 TV adás: ${clip.title} (+${Math.round(offsetSec)} mp seek)`, 'success');
             
             setupAudioNodes();
             activeDeck.src = clip.url;
@@ -2717,6 +2722,7 @@
             currentlyPlayingId = null;
             currentClipIndex = -1;
             showStandby(null);
+            log("🗑️ Műsorterv ürítve, adás leállítva.", 'info');
         }
     }
 
@@ -2797,28 +2803,38 @@
             highlightCurrentOnAirRow(currentSecToday, todaySchedule);
         }
 
-        // 🛡️ AUTOMATA MCR ADÁSMENET FELÜGYELET (AJÁNLÓK TÖRLÉSE & GARANTÁLT LÉPTETÉS)
+        // 🛡️ MCR AUTOMATA ADÁSMENET FELÜGYELET (TŰPONTOS VALÓS IDEJŰ SZINKRON)
         if (isTvBroadcasting && !isVideoTransitioning && !transitionLock && !currentActiveTwitchStreamer) {
-            if (todaySchedule.length > 0) {
-                // Ha épp fut egy klip, ellenőrizzük az adásidejét
-                if (currentClipIndex >= 0 && currentClipIndex < todaySchedule.length) {
+            if (todaySchedule.length === 0) {
+                if (currentlyPlayingId !== null) {
+                    showStandby(null);
+                }
+            } else {
+                // Megkeressük a pontos másodperchez tartozó dalt
+                const expectedIdx = todaySchedule.findIndex(item => currentSecToday >= item.startSec && currentSecToday < item.endSec);
+
+                if (expectedIdx === -1) {
+                    // Ha a jelenlegi másodpercben nincs dal
+                    let nextClip = todaySchedule.find(item => item.startSec > currentSecToday) || todaySchedule[0];
+                    showStandby(nextClip ? nextClip.startTimeStr : null);
+                } else if (expectedIdx !== currentClipIndex || currentlyPlayingId !== todaySchedule[expectedIdx].id) {
+                    // Ha nem a jó dal szól, azonnal a megfelelő dalhoz és másodperchez ugrunk!
+                    checkScheduleAndPlayback(currentSecToday, todaySchedule);
+                } else {
+                    // A helyes dal szól: ellenőrizzük az adásidő végét
                     const curClip = todaySchedule[currentClipIndex];
                     const remainingInClip = curClip.endSec - currentSecToday;
 
-                    // 🏁 Outro zenei kártyák indítása 24 mp-cel a klip vége előtt
-                    if (remainingInClip <= 24 && remainingInClip > 6 && !isEndSequenceRunning) {
+                    // Outro kártyák 24 mp-cel a vége előtt
+                    if (remainingInClip <= 24 && remainingInClip > 5 && !isEndSequenceRunning) {
                         runTrackPresentationSequence(todaySchedule, false);
                     }
 
-                    // 🚫 4 másodperccel a vége előtt (vagy ha lejárt) azonnal átúsztatunk, így a YouTube SOHA NEM AD AJÁNLÓKAT!
-                    if (remainingInClip <= 4 || currentSecToday >= curClip.endSec) {
-                        log(`⏱️ Adásidő vége: ${curClip.title} ➔ Automata átúsztatás a következőre!`, 'info');
+                    // 4 másodperccel a vége előtt átúsztatunk, így a YouTube SOHA NEM AD AJÁNLÓT!
+                    if (remainingInClip <= 4 && remainingInClip >= 0) {
+                        log(`⏱️ Klip vége: ${curClip.title} ➔ Átúsztatás a következőre...`, 'info');
                         executeVideoCrossfade(false);
-                        return;
                     }
-                } else {
-                    // Ha nincs lejátszás vagy elcsúszott az adás, szinkronizálunk
-                    checkScheduleAndPlayback(currentSecToday, todaySchedule);
                 }
             }
         }
