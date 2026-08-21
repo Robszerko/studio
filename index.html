@@ -188,7 +188,7 @@
         position: absolute;
         top: 0; left: 0;
         width: 100%; height: 100%;
-        object-fit: contain; /* Eredeti 16:9 vagy 4:3 megtartása torzítás nélkül */
+        object-fit: contain;
         background: #000;
         z-index: 1;
         opacity: 0;
@@ -212,7 +212,7 @@
         opacity: 0;
         pointer-events: none !important;
         background: #000;
-        transform: none; /* Természetes 16:9 és 4:3 képarány */
+        transform: none;
         transition: opacity 0.3s ease;
         will-change: opacity;
     }
@@ -530,7 +530,7 @@
     }
     .lt-track-row.font-shrink { font-size: 0.78rem; }
 
-    /* 🟡🔴 KORHATÁR KARIKA (22:00-06:00 KÖZÖTT AUTOMATIKUSAN 18) */
+    /* 🟡🔴 KORHATÁR KARIKA */
     .tv-age-rating-container {
         position: absolute;
         bottom: 18px; right: 28px;
@@ -556,7 +556,7 @@
         position: absolute;
         bottom: 16px;
         left: 20px;
-        right: 76px; /* Kinyúlik egészen a korhatárkarikáig */
+        right: 76px;
         z-index: 34;
         display: flex;
         align-items: center;
@@ -569,7 +569,7 @@
         display: flex;
         align-items: center;
         gap: 8px;
-        background: rgba(5, 10, 22, 0.38); /* Sokkal halványabb diszkrét layer */
+        background: rgba(5, 10, 22, 0.38);
         backdrop-filter: blur(10px) saturate(140%);
         -webkit-backdrop-filter: blur(10px) saturate(140%);
         border: 1px solid rgba(255, 255, 255, 0.12);
@@ -577,7 +577,7 @@
         padding: 6px 10px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         flex-shrink: 0;
-        width: 175px; /* RÖGZÍTETT FIX SZÉLESSÉG - Nincs több ugrálás/pattogás */
+        width: 175px;
         height: 52px;
         overflow: hidden;
     }
@@ -591,7 +591,7 @@
         flex-direction: column;
         justify-content: center;
         gap: 2px;
-        background: rgba(5, 10, 22, 0.38); /* Sokkal halványabb diszkrét layer */
+        background: rgba(5, 10, 22, 0.38);
         backdrop-filter: blur(12px) saturate(150%);
         -webkit-backdrop-filter: blur(12px) saturate(150%);
         border: 1px solid rgba(255, 255, 255, 0.14);
@@ -599,7 +599,7 @@
         border-radius: 12px;
         padding: 6px 14px;
         height: 52px;
-        flex: 1; /* Teljes hosszt kihasználja a korhatárkarikáig */
+        flex: 1;
         min-width: 0;
         box-shadow: 0 4px 18px rgba(0,0,0,0.4);
         opacity: 0;
@@ -1551,24 +1551,23 @@
         { name: "Split", lat: 43.5147, lon: 16.4435 }
     ];
 
-    // 🌙 22:00-06:00 KITERJESZTETT ÉJSZAKAI YOUTUBE DISCOVERY POOL (MAX 4:30)
+    // 🌙 22:00-06:00 100%-BAN ÉLŐ, BEÁGYAZHATÓ ÉJSZAKAI YOUTUBE DISCOVERY POOL (MAX 4:30)
     const NIGHT_DISCOVERY_POOL = [
-        { title: "Rammstein - Deutschland", youtubeId: "NeQM1c-XCDc", duration: 270, isYouTubeClip: true },
-        { title: "The Prodigy - Breathe", youtubeId: "rmHDhAohLkQ", duration: 235, isYouTubeClip: true },
-        { title: "Purple Disco Machine - Hypnotized", youtubeId: "0bB_8EwW_6M", duration: 202, isYouTubeClip: true },
-        { title: "Meduza, Becky Hill - Lose Control", youtubeId: "k2qgadSvNyU", duration: 172, isYouTubeClip: true },
+        { title: "The Prodigy - Breathe", youtubeId: "6_PAHbqq-o4", duration: 240, isYouTubeClip: true },
+        { title: "Linkin Park - In the End", youtubeId: "eVTXPUF4Oz4", duration: 216, isYouTubeClip: true },
+        { title: "The Prodigy - Firestarter", youtubeId: "wmin5W4FAC8", duration: 225, isYouTubeClip: true },
+        { title: "Rammstein - Du Hast", youtubeId: "W3q8Od5qJio", duration: 235, isYouTubeClip: true },
+        { title: "Linkin Park - Numb", youtubeId: "kXYiU_JCYtU", duration: 186, isYouTubeClip: true },
+        { title: "Daft Punk - One More Time", youtubeId: "FGBhQbmMxH8", duration: 235, isYouTubeClip: true },
+        { title: "David Guetta ft. Sia - Titanium", youtubeId: "JRfuAukYTKg", duration: 245, isYouTubeClip: true },
         { title: "Tiësto - The Business", youtubeId: "1_4ELAxKrDc", duration: 164, isYouTubeClip: true },
-        { title: "Regard - Ride It", youtubeId: "c_sS1fA-hFk", duration: 159, isYouTubeClip: true },
-        { title: "Sophie and the Giants - In the Dark", youtubeId: "F1c7aR9jF5U", duration: 185, isYouTubeClip: true },
-        { title: "Alok, Ilkay Sencan - Don't Say Goodbye", youtubeId: "V5d7T5G7jG8", duration: 190, isYouTubeClip: true },
-        { title: "Kungs - Never Going Home", youtubeId: "2vjPBrBU-TM", duration: 170, isYouTubeClip: true },
+        { title: "Swedish House Mafia - Don't You Worry Child", youtubeId: "1y6smkh6c-0", duration: 215, isYouTubeClip: true },
+        { title: "Avicii - Wake Me Up", youtubeId: "IcrbM1l_BoI", duration: 270, isYouTubeClip: true },
         { title: "Robin Schulz - Sugar", youtubeId: "bvC_0foemLY", duration: 220, isYouTubeClip: true },
-        { title: "Acraze - Do It To It", youtubeId: "eUvC2Jt_E0I", duration: 158, isYouTubeClip: true },
-        { title: "Jax Jones - You Don't Know Me", youtubeId: "PKB4cioKsfg", duration: 215, isYouTubeClip: true },
-        { title: "Lost Frequencies - Where Are You Now", youtubeId: "PoP2Sa7WWac", duration: 150, isYouTubeClip: true },
-        { title: "Ofenbach - Wasted Love", youtubeId: "tV1vjP0N_9E", duration: 140, isYouTubeClip: true },
-        { title: "David Guetta & Bebe Rexha - I'm Good (Blue)", youtubeId: "NNdVX7FQG6s", duration: 175, isYouTubeClip: true },
-        { title: "Swedish House Mafia - Don't You Worry Child", youtubeId: "1y6smkh6c-0", duration: 212, isYouTubeClip: true }
+        { title: "Dua Lipa - Levitating", youtubeId: "TUVcZfQe-Kw", duration: 204, isYouTubeClip: true },
+        { title: "The Weeknd - Blinding Lights", youtubeId: "4NRXx6U8ABQ", duration: 200, isYouTubeClip: true },
+        { title: "Calvin Harris - Summer", youtubeId: "ebXbLfLACGM", duration: 215, isYouTubeClip: true },
+        { title: "Dua Lipa - Don't Start Now", youtubeId: "oygrmJFKYZY", duration: 185, isYouTubeClip: true }
     ];
 
     const EMERGENCY_BACKUP_CLIP = {
@@ -1696,11 +1695,9 @@
 
     const defaultSampleClips = [
         { title: "Dua Lipa - Levitating", filename: "yt_TUVcZfQe-Kw.mp4", youtubeId: "TUVcZfQe-Kw", duration: 204, isYouTubeClip: true },
-        { title: "Krisz Rudi - Keresem a szót", filename: "yt_kr_01.mp4", youtubeId: "TUVcZfQe-Kw", duration: 215, isYouTubeClip: true },
         { title: "The Weeknd - Blinding Lights", filename: "yt_4NRXx6U8ABQ.mp4", youtubeId: "4NRXx6U8ABQ", duration: 200, isYouTubeClip: true },
         { title: "Calvin Harris - Summer", filename: "yt_ebXbLfLACGM.mp4", youtubeId: "ebXbLfLACGM", duration: 215, isYouTubeClip: true },
-        { title: "Dua Lipa - Don't Start Now", filename: "yt_oygrmJFKYZY.mp4", youtubeId: "oygrmJFKYZY", duration: 185, isYouTubeClip: true },
-        { title: "Krisz Rudi - Homokba zárt víz", filename: "yt_kr_02.mp4", youtubeId: "4NRXx6U8ABQ", duration: 198, isYouTubeClip: true }
+        { title: "Dua Lipa - Don't Start Now", filename: "yt_oygrmJFKYZY.mp4", youtubeId: "oygrmJFKYZY", duration: 185, isYouTubeClip: true }
     ];
 
     // 🌐 DUAL YOUTUBE PLAYER INITIALIZATION (100% FELIRAT ÉS AJÁNLÓMENTES)
@@ -3331,13 +3328,11 @@
                 log("🌌 [MŰSORVÁLTÁS] 21:59:30 - 30 másodperces éjszakai felvezető képernyő aktív!", "warn");
             }
         } else if (h === 22 && m === 0 && s === 0 && nightBumperScreen.classList.contains('active')) {
-            // Pontosan 22:00:00-kor átúsztatunk az éjszakai Discovery sávra
             nightBumperScreen.classList.remove('active');
             applyAgeRating('18');
             log("🌌 [22:00:00] Átfeedelés a KÉPBEN! ÉJJEL Discovery DJ sávra (🔴 18+ aktív)!", "success");
             executeVideoCrossfade(true);
         } else if (h === 6 && m === 0 && s === 0) {
-            // Pontosan 06:00:00-kor visszaállunk a nappali üzemmódra
             applyAgeRating('12');
             log("🌅 [06:00:00] Átfeedelés a nappali adásra (🟡 12+ aktív)!", "success");
             executeVideoCrossfade(true);
