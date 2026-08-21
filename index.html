@@ -867,7 +867,7 @@
         <div class="tv-watermark-wrap" id="tv-watermark-wrap">
             <div class="tv-watermark-clean">
                 <svg class="kb-icon-mini" viewBox="0 0 24 24">
-                    <path d="M3 8V5a2 2 0 0 1 2-2h3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 1-2 2h-3"/>
+                    <path d="M3 8V5a2 2 0 0 1 2-2h3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M21 16v3a2 2 0 0 1-2 2h-3"/>
                     <circle cx="12" cy="12" r="3"/>
                     <circle cx="12" cy="12" r="8" opacity="0.5"/>
                 </svg>
@@ -1251,7 +1251,7 @@
         </div>
         <div>
             <label style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted); display:flex; justify-content:space-between;">
-                <span>ALULRŐL (Bottom):</span> <strong id="lbl-pos-bottom" style="color:#fff;">74 px</strong>
+                <span>ALULRÓL (Bottom):</span> <strong id="lbl-pos-bottom" style="color:#fff;">74 px</strong>
             </label>
             <input type="range" min="20" max="150" value="74" id="rng-pos-bottom" style="width:100%; accent-color:var(--accent-cyan);" oninput="updatePositionsUI()">
         </div>
@@ -1353,8 +1353,8 @@
     let currentClipIndex = -1;
     let currentlyPlayingId = null;
     let selectedAssignFilename = null;
-    let activeDeckName = 'A'; // 'A' or 'B'
-    let activeYtDeck = 'A';   // 'A' or 'B'
+    let activeDeckName = 'A'; // 'A' or 'B' for HTML5 Video
+    let activeYtDeck = 'A';   // 'A' or 'B' for YouTube
     let isVideoTransitioning = false;
     let masterVolume = 0.9;
     let transitionLock = false;
@@ -1430,6 +1430,7 @@
 
     const newsCardBox = document.getElementById('news-card-box');
     const newsSourceBadge = document.getElementById('news-source-badge');
+    const newsTimeStamp = document.getElementById('news-time-stamp');
     const newsHeadlineText = document.getElementById('news-headline-text');
     const newsSummaryText = document.getElementById('news-summary-text');
 
@@ -1842,8 +1843,8 @@
             const dur = activePlayer.getDuration();
             const remaining = dur - curTime;
 
-            // Dal vége előtt 24 mp-cel: Outro kártyák
-            if (remaining <= 24 && remaining > (VIDEO_CROSSFADE_SEC + 1) && !isEndSequenceRunning) {
+            // Dal vége előtt 26 mp-cel: Outro kártyák (MOST -> KÖVETKEZIK -> KÉSŐBB)
+            if (remaining <= 26 && remaining > (VIDEO_CROSSFADE_SEC + 1) && !isEndSequenceRunning) {
                 const todayKey = getSelectedDateKey(0);
                 runTrackPresentationSequence(weekSchedules[todayKey] || [], false);
             }
@@ -1904,6 +1905,7 @@
                 step++;
                 const p = step / steps;
 
+                // Egyenletes Equal-Power hang és látvány átúsztatás
                 const inVolCurve = Math.sin(p * Math.PI / 2);
                 const outVolCurve = Math.cos(p * Math.PI / 2);
 
@@ -2027,6 +2029,7 @@
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
 
+            // Broadcast Dynamics Compressor
             compressorNode = audioCtx.createDynamicsCompressor();
             compressorNode.threshold.setValueAtTime(-24, audioCtx.currentTime);
             compressorNode.knee.setValueAtTime(30, audioCtx.currentTime);
@@ -2065,9 +2068,12 @@
             for (let i = 0; i < dataArr.length; i++) sum += dataArr[i];
             let avg = sum / dataArr.length;
 
+            // Automatikus hangerő-kiegyenlítés (Normalizálás)
             if (avg > 0 && avg < 30) {
+                // Halk tartalom: felerősítés
                 autoGainNode.gain.linearRampToValueAtTime(1.4, audioCtx.currentTime + 0.4);
             } else if (avg > 90) {
+                // Túl hangos tartalom: visszaszabályozás
                 autoGainNode.gain.linearRampToValueAtTime(0.7, audioCtx.currentTime + 0.4);
             } else {
                 autoGainNode.gain.linearRampToValueAtTime(1.0, audioCtx.currentTime + 0.4);
@@ -2136,20 +2142,24 @@
             const nextClip = schedule[(currentClipIndex + 1) % schedule.length];
             const laterClip = schedule[(currentClipIndex + 2) % schedule.length];
 
+            // 1. Lépés (0s - 6s): MOST
             if (curClip) triggerLowerThirdBanner("MOST", curClip.title, curCat);
 
+            // 2. Lépés (6s - 12s): KÖVETKEZIK
             bannerSequenceTimers.push(setTimeout(() => {
                 if (nextClip && isTvBroadcasting) triggerLowerThirdBanner("KÖVETKEZIK", nextClip.title, curCat);
-            }, 5000));
+            }, 6000));
 
+            // 3. Lépés (12s - 18s): KÉSŐBB
             bannerSequenceTimers.push(setTimeout(() => {
                 if (laterClip && isTvBroadcasting) triggerLowerThirdBanner("KÉSŐBB", laterClip.title, curCat);
-            }, 10000));
+            }, 12000));
 
+            // 4. Lépés (18s): Leveszi a grafikát, pontosan a 8 mp-es crossfade előtt!
             bannerSequenceTimers.push(setTimeout(() => {
                 lowerThirdBanner.classList.remove('banner-show');
                 isEndSequenceRunning = false;
-            }, 15000));
+            }, 18000));
         }
     }
 
@@ -2547,7 +2557,7 @@
         }, 320);
     }
 
-    // ⛅ IDŐJÁRÁS (85 VÁROS, WMO KÓDOLÁS ÉS 10 PERCES LEKÉRDEZÉS)
+    // ⛅ IDŐJÁRÁS (85 VÁROS, VALÓS WMO KÓDOKKAL ÉS 10 PERCES LEKÉRDEZÉSSEL)
     function decodeWmoWeather(code, isDay = 1) {
         const isNight = (isDay === 0);
         if (code === 0) return isNight ? { icon: "🌙", text: "Tiszta csillagos ég" } : { icon: "☀️", text: "Tiszta, napos idő" };
@@ -2660,6 +2670,19 @@
             const expectedIdx = schedule.findIndex(item => curSec >= item.startSec && curSec < item.endSec);
             if (expectedIdx !== -1 && expectedIdx !== currentClipIndex) {
                 syncToCurrentWallClockTime();
+            } else if (expectedIdx !== -1) {
+                // Outro és Átúsztatás ellenőrzése falióra szerint MP4 és YouTube esetén is
+                const curClip = schedule[expectedIdx];
+                const remainingSec = curClip.endSec - curSec;
+
+                if (remainingSec <= 26 && remainingSec > (VIDEO_CROSSFADE_SEC + 1) && !isEndSequenceRunning) {
+                    runTrackPresentationSequence(schedule, false);
+                }
+
+                if (remainingSec <= VIDEO_CROSSFADE_SEC && remainingSec >= 0) {
+                    log(`⏱️ Klip vége elérve (${remainingSec} mp) ➔ Keresztátúsztatás indítása!`, 'info');
+                    executeVideoCrossfade(false);
+                }
             }
         }
     }
@@ -2928,7 +2951,6 @@
         fetchLiveWeather();
         startWeatherCityRotator();
 
-        // 10 perces láthatatlan háttér-frissítés
         setInterval(fetchLiveNews, 10 * 60 * 1000);
         setInterval(fetchLiveWeather, 10 * 60 * 1000);
     });
