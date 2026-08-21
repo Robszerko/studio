@@ -26,7 +26,7 @@
 
         /* Dinamikus Napszaki Színek */
         --theme-primary: #38bdf8;
-        --theme-gradient: linear-gradient(135deg, rgba(11, 19, 41, 0.85) 0%, rgba(30, 58, 138, 0.85) 100%);
+        --theme-gradient: linear-gradient(135deg, rgba(11, 19, 41, 0.88) 0%, rgba(30, 58, 138, 0.88) 100%);
     }
 
     * { margin:0; padding:0; box-sizing:border-box; }
@@ -45,7 +45,7 @@
 
     .studio-container {
         width: 100%;
-        max-width: 1020px;
+        max-width: 1040px;
         display: flex;
         flex-direction: column;
         gap: 18px;
@@ -211,7 +211,7 @@
         pointer-events: none !important;
         display: none;
         background: #000;
-        transform: scale(1.04);
+        transform: scale(1.045);
         transform-origin: center center;
         transition: opacity 0.5s ease-in-out;
     }
@@ -657,6 +657,13 @@
     .btn-add-sm { background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); color: var(--accent-cyan); padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; cursor: pointer; }
     .btn-del-sm { background: none; border: none; color: var(--accent-red); cursor: pointer; }
 
+    .position-floating-panel {
+        position: fixed; bottom: 24px; left: 24px; right: auto; width: 390px; max-width: calc(100vw - 48px);
+        background: #0f172a; border: 1.5px solid var(--accent-cyan); border-radius: 18px; padding: 16px 18px;
+        display: none; flex-direction: column; gap: 12px; box-shadow: 0 16px 40px rgba(0,0,0,0.85); z-index: 99999; max-height: 85vh; overflow-y: auto;
+    }
+    .position-floating-panel.active { display: flex; }
+
     .modal-overlay {
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.8);
         display: none; align-items: center; justify-content: center; z-index: 9999; padding: 20px;
@@ -716,12 +723,60 @@
             <div id="yt-player-target" style="width:100%; height:100%;"></div>
         </div>
 
-        <!-- 📺 MONOSZKÓP -->
+        <!-- 📺 PHILIPS PM5544 STÚDIÓ MONOSZKÓP -->
         <div class="tv-monoscope-layer" id="tv-monoscope-layer">
             <svg class="monoscope-svg" viewBox="0 0 1000 562.5" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <clipPath id="circleClip">
+                        <circle cx="500" cy="281.25" r="225"/>
+                    </clipPath>
+                    <pattern id="gridPattern" width="40" height="40" patternUnits="userSpaceOnUse">
+                        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.9"/>
+                    </pattern>
+                </defs>
                 <rect width="1000" height="562.5" fill="#004b93"/>
-                <circle cx="500" cy="281.25" r="225" fill="#111111" stroke="#ffffff" stroke-width="4"/>
-                <text x="500" y="290" font-family="'Space Mono', monospace" font-size="22" font-weight="800" fill="#38bdf8" text-anchor="middle">KÉPBEN! MUSIC TELEVISION</text>
+                <rect x="100" y="31.25" width="800" height="500" fill="url(#gridPattern)"/>
+                <g opacity="0.95">
+                    <rect x="140" y="71.25" width="40" height="105" fill="#808080"/>
+                    <rect x="140" y="176.25" width="40" height="105" fill="#808080"/>
+                    <rect x="140" y="281.25" width="40" height="105" fill="#d9534f"/>
+                    <rect x="140" y="386.25" width="40" height="105" fill="#d9534f"/>
+                    <rect x="180" y="386.25" width="40" height="50" fill="#f0ad4e"/>
+                    <rect x="820" y="71.25" width="40" height="105" fill="#808080"/>
+                    <rect x="820" y="176.25" width="40" height="105" fill="#f0ad4e"/>
+                    <rect x="820" y="281.25" width="40" height="105" fill="#f0ad4e"/>
+                    <rect x="820" y="386.25" width="40" height="105" fill="#808080"/>
+                    <rect x="780" y="386.25" width="40" height="50" fill="#f0ad4e"/>
+                </g>
+                <g clip-path="url(#circleClip)">
+                    <rect x="250" y="50" width="500" height="462.5" fill="#f5f5f5"/>
+                    <rect x="250" y="415" width="500" height="100" fill="#ffd700"/>
+                    <g transform="translate(275, 145)">
+                        <rect x="0" width="64.28" height="75" fill="#ffd700"/>
+                        <rect x="64.28" width="64.28" height="75" fill="#00d4cf"/>
+                        <rect x="128.56" width="64.28" height="75" fill="#00cf00"/>
+                        <rect x="192.84" width="64.28" height="75" fill="#d400d4"/>
+                        <rect x="257.12" width="64.28" height="75" fill="#cf0000"/>
+                        <rect x="321.4" width="64.28" height="75" fill="#0000cf"/>
+                        <rect x="385.68" width="64.32" height="75" fill="#111111"/>
+                    </g>
+                    <rect x="275" y="220" width="450" height="125" fill="#111111"/>
+                    <g transform="translate(275, 345)">
+                        <rect x="0" width="75" height="35" fill="#000000"/>
+                        <rect x="75" width="75" height="35" fill="#333333"/>
+                        <rect x="150" width="75" height="35" fill="#666666"/>
+                        <rect x="225" width="75" height="35" fill="#999999"/>
+                        <rect x="300" width="75" height="35" fill="#cccccc"/>
+                        <rect x="375" width="75" height="35" fill="#ffffff"/>
+                    </g>
+                    <rect x="475" y="415" width="50" height="100" fill="#dc2626"/>
+                    <line x1="275" y1="281.25" x2="725" y2="281.25" stroke="#ffffff" stroke-width="2"/>
+                    <line x1="500" y1="220" x2="500" y2="345" stroke="#ffffff" stroke-width="2"/>
+                </g>
+                <circle cx="500" cy="281.25" r="225" fill="none" stroke="#ffffff" stroke-width="4"/>
+                <rect x="300" y="80" width="400" height="48" rx="6" fill="#050811" stroke="#ffffff" stroke-width="2.5"/>
+                <text x="320" y="111" font-family="'Space Mono', monospace" font-size="18" font-weight="800" fill="#ffffff" letter-spacing="1">KÉPBEN! MUSIC</text>
+                <text x="680" y="111" id="mono-live-clock" font-family="'Space Mono', monospace" font-size="18" font-weight="800" fill="#38bdf8" letter-spacing="1" text-anchor="end">--:--:--</text>
             </svg>
         </div>
 
@@ -813,6 +868,7 @@
             <button class="btn-act active-toggle" id="btn-ticker-toggle" onclick="toggleTickerManual()">📰 Hírsáv: BE</button>
             <button class="btn-act" id="btn-enhance-toggle" onclick="toggleVideoEnhancer()">✨ Képjavító: KI</button>
             <button class="btn-act active-toggle" id="btn-agc-toggle" onclick="toggleAudioCompressor()">🎚️ Dinamikus AGC: BE</button>
+            <button class="btn-act" onclick="togglePositionModal()">📍 Pozíciók & Időzítő</button>
             <button class="btn-act" onclick="toggleCustomFullscreen()">⛶ Teljes Képernyő</button>
             <button class="btn-act" onclick="togglePiP()">🗔 PiP</button>
         </div>
@@ -821,6 +877,34 @@
             <span>🔊</span>
             <input type="range" style="width:90px; accent-color:var(--accent-cyan);" min="0" max="1" step="0.05" value="0.9" oninput="setTvVolume(this.value)">
             <span id="tv-vol-text" style="font-family:'Space Mono',monospace; font-size:0.7rem;">90%</span>
+        </div>
+    </div>
+
+    <!-- 🌐 KÜLSŐ LINK & AUTOMATA TWITCH STREAM FIGYELŐ PANEL -->
+    <div class="stream-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div style="font-family:'Space Mono',monospace; font-size:0.85rem; font-weight:800; color:var(--accent-red); display:flex; align-items:center; gap:6px;">
+                <span>🔗 KÜLSŐ ÉLŐ ADÁS (YouTube / Twitch) & AUTOMATA TWITCH DETEKTOR</span>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center;">
+                <button class="btn-act active-live" onclick="openExternalLinkModal()">➕ Új Időzített Élő Stream</button>
+            </div>
+        </div>
+
+        <div style="background:var(--card-sub); padding:12px; border-radius:12px; border:1px solid var(--border); display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                <span style="font-family:'Space Mono',monospace; font-size:0.75rem; font-weight:800; color:var(--accent-purple);">
+                    📡 TWITCH ÉLŐ DETEKTOR (Ha a streamer online lesz, automatikusan átkapcsolunk):
+                </span>
+                <label style="display:flex; align-items:center; gap:6px; font-size:0.72rem; color:var(--accent-green); font-family:'Space Mono',monospace; cursor:pointer;">
+                    <input type="checkbox" id="chk-twitch-auto-switch" checked onchange="toggleTwitchAutoSwitch(this.checked)"> Auto-Átkapcsolás Aktív
+                </label>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center;">
+                <input type="text" id="inp-twitch-channel-add" placeholder="Pl. thevr, feketeviktor, ninja..." style="background:#090d16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 10px; font-family:'Space Mono',monospace; font-size:0.78rem; outline:none; flex:1;">
+                <button class="btn-act" style="background:var(--accent-purple); color:#000; font-weight:800;" onclick="addTwitchMonitoredChannel()">➕ Hozzáadás</button>
+            </div>
+            <div id="twitch-monitored-list" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:4px;"></div>
         </div>
     </div>
 
@@ -872,6 +956,19 @@
                 <thead><tr><th>CÍM</th><th>TÍPUS</th><th>BESZÚRÁS / ADÁSBA HELYEZÉS</th><th>TÖRLÉS</th></tr></thead>
                 <tbody id="library-tbody"></tbody>
             </table>
+        </div>
+    </div>
+
+    <!-- 📤 MP4 VIDEÓFELTÖLTŐ -->
+    <div class="uploader-card">
+        <div style="font-family:'Space Mono',monospace; font-size:0.8rem; font-weight:700; color:var(--accent-cyan);">
+            ☁️ ÚJ VIDEÓKLIP FELTÖLTÉSE (MP4 / WebM) · Duplikáció-védelemmel
+        </div>
+        <div class="dropzone-box" onclick="document.getElementById('studio-video-input').click()">
+            <div style="font-size:1.6rem; margin-bottom:4px;">☁️ ➔ 🎬</div>
+            <div style="font-weight:700; font-size:0.85rem;">Húzd ide az MP4 videóklipeket a feltöltéshez!</div>
+            <div style="font-size:0.7rem; color:var(--text-muted); margin-top:3px;">A rendszer automatikusan kihagyja a már feltöltött fájlokat.</div>
+            <input type="file" id="studio-video-input" accept="video/mp4, video/webm" multiple style="display:none;" onchange="handleVideoUpload(this.files)">
         </div>
     </div>
 
@@ -950,6 +1047,221 @@
     </div>
 </div>
 
+<!-- 🪟 KÜLSŐ LINK (YOUTUBE / TWITCH LIVE) MODAL -->
+<div class="modal-overlay" id="external-link-modal">
+    <div class="modal-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
+            <div style="font-family:'Space Mono',monospace; font-size:0.85rem; font-weight:800; color:var(--accent-red);">
+                🔴 YOUTUBE / TWITCH ÉLŐ KÖZVETÍTÉS BEILLESZTÉSE
+            </div>
+            <button class="btn-del-sm" onclick="closeExternalLinkModal()">✖ Bezárás</button>
+        </div>
+
+        <div>
+            <label style="font-family:'Space Mono',monospace; font-size:0.7rem; color:var(--text-muted); display:block; margin-bottom:4px;">STREAM / VIDEÓ URL (YouTube vagy Twitch):</label>
+            <input type="text" id="inp-ext-url" placeholder="https://www.youtube.com/watch?v=... vagy https://twitch.tv/..." style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-family:'Space Mono',monospace; font-size:0.82rem; outline:none; font-weight:700;">
+        </div>
+
+        <div>
+            <label style="font-family:'Space Mono',monospace; font-size:0.7rem; color:var(--text-muted); display:block; margin-bottom:4px;">MŰSOR / STREAM CÍME:</label>
+            <input type="text" id="inp-ext-title" placeholder="Pl. KÉPBEN! ÉLŐ FESZTIVÁL KÖZVETÍTÉS" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-family:'Space Mono',monospace; font-size:0.82rem; outline:none; font-weight:700;">
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+            <div>
+                <label style="font-family:'Space Mono',monospace; font-size:0.7rem; color:var(--text-muted); display:block; margin-bottom:4px;">MELYIK NAPRA?</label>
+                <select id="modal-ext-day-select" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:8px; font-family:'Space Mono',monospace; font-size:0.75rem; outline:none;"></select>
+            </div>
+            <div>
+                <label style="font-family:'Space Mono',monospace; font-size:0.7rem; color:var(--text-muted); display:block; margin-bottom:4px;">MŰSORBLOKK:</label>
+                <select id="modal-ext-show-select" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:8px; font-family:'Space Mono',monospace; font-size:0.75rem; outline:none;">
+                    <option value="live">🔴 Élő Közvetítés (Live Special)</option>
+                    <option value="este">🎉 KÉPBEN! Este (18:00 – 22:00)</option>
+                    <option value="delutan">🌆 KÉPBEN! Délután (13:00 – 18:00)</option>
+                    <option value="delelott">☀️ KÉPBEN! Délelőtt (10:00 – 12:00)</option>
+                    <option value="reggel">🌅 Ébredj KÉPBEN! (06:00 – 10:00)</option>
+                    <option value="ejjel">🌙 KÉPBEN! Éjjel (00:00 – 06:00)</option>
+                </select>
+            </div>
+        </div>
+
+        <div style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); border-radius:10px; padding:12px; display:flex; flex-direction:column; gap:8px;">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+                <div>
+                    <label style="font-family:'Space Mono',monospace; font-size:0.68rem; color:var(--accent-red); font-weight:700;">⏱️ KEZDÉS (Óra:Perc:Mp):</label>
+                    <input type="text" id="modal-ext-start-time" value="20:00:00" oninput="updateExtCalculatedEndTime()" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-family:'Space Mono',monospace; font-size:0.8rem; font-weight:700; outline:none;">
+                </div>
+                <div>
+                    <label style="font-family:'Space Mono',monospace; font-size:0.68rem; color:var(--accent-cyan); font-weight:700;">KORHATÁR BESOROLÁS:</label>
+                    <select id="modal-ext-rating-select" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-family:'Space Mono',monospace; font-size:0.75rem; outline:none;">
+                        <option value="none">🚫 Nincs</option>
+                        <option value="0">🟢 0 (Gyermekbarát)</option>
+                        <option value="6">🟡 6</option>
+                        <option value="12" selected>🟡 12</option>
+                        <option value="16">🟡 16</option>
+                        <option value="18">🔴 18</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+                <div>
+                    <label style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted);">ÓRA:</label>
+                    <input type="number" id="inp-ext-dur-hours" value="1" min="0" max="23" oninput="updateExtCalculatedEndTime()" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-family:'Space Mono',monospace; font-size:0.8rem; outline:none; font-weight:700;">
+                </div>
+                <div>
+                    <label style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted);">PERC:</label>
+                    <input type="number" id="inp-ext-dur-mins" value="0" min="1" max="59" oninput="updateExtCalculatedEndTime()" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-family:'Space Mono',monospace; font-size:0.8rem; outline:none; font-weight:700;">
+                </div>
+            </div>
+
+            <div style="font-family:'Space Mono',monospace; font-size:0.72rem; color:var(--text-muted); background:#060a12; padding:6px 10px; border-radius:6px;">
+                🏁 Adás vége: <strong id="ext-calculated-end-time" style="color:#facc15;">21:00:00</strong>
+            </div>
+        </div>
+
+        <button class="btn-act" style="background:var(--accent-red); color:#fff; font-size:0.85rem; padding:10px; border:none; font-weight:800;" onclick="confirmExternalLinkAssignment()">
+            🔴 Élő Link Mentése & Adáslánc Újratervezése
+        </button>
+    </div>
+</div>
+
+<!-- 🪟 GYORS CÍM-, KORHATÁR-, HOSSZ- ÉS ELŐADÓ SZERKESZTŐ MODAL -->
+<div class="modal-overlay" id="edit-track-modal">
+    <div class="modal-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
+            <div style="font-family:'Space Mono',monospace; font-size:0.85rem; font-weight:800; color:var(--accent-cyan);">
+                ✏️ MŰSOR / DAL, HOSSZ ÉS KORHATÁR MÓDOSÍTÁSA
+            </div>
+            <button class="btn-del-sm" onclick="closeEditTrackModal()">✖ Bezárás</button>
+        </div>
+
+        <div>
+            <label style="font-family:'Space Mono',monospace; font-size:0.7rem; color:var(--text-muted); display:block; margin-bottom:4px;">ELŐADÓ / MŰSORVEZETŐ:</label>
+            <input type="text" id="inp-edit-artist" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-family:'Space Mono',monospace; font-size:0.85rem; outline:none; font-weight:700;">
+        </div>
+
+        <div>
+            <label style="font-family:'Space Mono',monospace; font-size:0.7rem; color:var(--text-muted); display:block; margin-bottom:4px;">DAL CÍME / ADÁS CÍM:</label>
+            <input type="text" id="inp-edit-title" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-family:'Space Mono',monospace; font-size:0.85rem; outline:none; font-weight:700;">
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+            <div>
+                <label style="font-family:'Space Mono',monospace; font-size:0.68rem; color:var(--accent-cyan); font-weight:700;">⏱️ HOSSZ (PERC):</label>
+                <input type="number" id="inp-edit-dur-min" min="0" max="59" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-family:'Space Mono',monospace; font-size:0.8rem; font-weight:700; outline:none;">
+            </div>
+            <div>
+                <label style="font-family:'Space Mono',monospace; font-size:0.68rem; color:var(--accent-cyan); font-weight:700;">(MÁSODPERC):</label>
+                <input type="number" id="inp-edit-dur-sec" min="0" max="59" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-family:'Space Mono',monospace; font-size:0.8rem; font-weight:700; outline:none;">
+            </div>
+        </div>
+
+        <div>
+            <label style="font-family:'Space Mono',monospace; font-size:0.7rem; color:var(--text-muted); display:block; margin-bottom:4px;">EGYEDI KORHATÁR BESOROLÁS:</label>
+            <select id="inp-edit-rating" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-family:'Space Mono',monospace; font-size:0.85rem; outline:none; font-weight:700;">
+                <option value="none">🚫 Nincs (Kikapcsolva)</option>
+                <option value="0">🟢 0 (Gyermekbarát)</option>
+                <option value="6">🟡 6</option>
+                <option value="12">🟡 12</option>
+                <option value="16">🟡 16</option>
+                <option value="18">🔴 18</option>
+            </select>
+        </div>
+
+        <button class="btn-act" style="background:var(--accent-cyan); color:#000; font-size:0.85rem; padding:10px; border:none; font-weight:800;" onclick="saveTrackEdit()">
+            💾 Mentés és Azonnali Felhő-Szinkronizálás
+        </button>
+    </div>
+</div>
+
+<!-- 🪟 LEBEGŐ ÉLŐ POZÍCIÓ & KORHATÁR IDŐZÍTŐ PANEL -->
+<div class="position-floating-panel" id="position-modal">
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
+        <div style="font-family:'Space Mono',monospace; font-size:0.8rem; font-weight:800; color:var(--accent-cyan); display:flex; align-items:center; gap:6px;">
+            <span>📍 GRAFIKAI & KORHATÁR VEZÉRLŐ</span>
+        </div>
+        <button class="btn-del-sm" onclick="togglePositionModal()" style="font-size:0.9rem;">✖</button>
+    </div>
+
+    <!-- 1. Logó pozicionálás -->
+    <div style="background:var(--card-sub); padding:10px 12px; border-radius:12px; border:1px solid var(--border); display:flex; flex-direction:column; gap:8px;">
+        <div style="font-family:'Space Mono',monospace; font-size:0.72rem; font-weight:800; color:var(--accent-cyan); display:flex; justify-content:space-between;">
+            <span>🏷️ 1. KÉPBEN! LOGÓ & VÍZJEL</span>
+        </div>
+        <div>
+            <label style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted); display:flex; justify-content:space-between;">
+                <span>FENTRŐL (Top):</span> <strong id="lbl-logo-top" style="color:#fff;">26 px</strong>
+            </label>
+            <input type="range" min="10" max="150" value="26" id="rng-logo-top" style="width:100%; accent-color:var(--accent-cyan);" oninput="updatePositionsUI()">
+        </div>
+        <div>
+            <label style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted); display:flex; justify-content:space-between;">
+                <span>JOBBRÓL (Right):</span> <strong id="lbl-logo-right" style="color:#fff;">32 px</strong>
+            </label>
+            <input type="range" min="10" max="150" value="32" id="rng-logo-right" style="width:100%; accent-color:var(--accent-cyan);" oninput="updatePositionsUI()">
+        </div>
+        <div>
+            <label style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted); display:flex; justify-content:space-between;">
+                <span>LOGÓ MÉRETE (Skála):</span> <strong id="lbl-logo-scale" style="color:#fff;">100%</strong>
+            </label>
+            <input type="range" min="70" max="140" value="100" id="rng-logo-scale" style="width:100%; accent-color:var(--accent-cyan);" oninput="updatePositionsUI()">
+        </div>
+    </div>
+
+    <!-- 2. Korhatár pozicionálás -->
+    <div style="background:var(--card-sub); padding:10px 12px; border-radius:12px; border:1px solid var(--border); display:flex; flex-direction:column; gap:8px;">
+        <div style="font-family:'Space Mono',monospace; font-size:0.72rem; font-weight:800; color:#facc15; display:flex; justify-content:space-between;">
+            <span>🟡🔴 2. KORHATÁR KARIKA POZÍCIÓ</span>
+        </div>
+        <div>
+            <label style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted); display:flex; justify-content:space-between;">
+                <span>ALULRÓL (Bottom):</span> <strong id="lbl-pos-bottom" style="color:#fff;">74 px</strong>
+            </label>
+            <input type="range" min="20" max="150" value="74" id="rng-pos-bottom" style="width:100%; accent-color:var(--accent-cyan);" oninput="updatePositionsUI()">
+        </div>
+        <div>
+            <label style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted); display:flex; justify-content:space-between;">
+                <span>JOBBRÓL (Right):</span> <strong id="lbl-pos-right" style="color:#fff;">28 px</strong>
+            </label>
+            <input type="range" min="10" max="150" value="28" id="rng-pos-right" style="width:100%; accent-color:var(--accent-cyan);" oninput="updatePositionsUI()">
+        </div>
+        <div>
+            <label style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted); display:flex; justify-content:space-between;">
+                <span>KARIKA MÉRETE:</span> <strong id="lbl-pos-size" style="color:#fff;">36 px</strong>
+            </label>
+            <input type="range" min="26" max="54" value="36" id="rng-pos-size" style="width:100%; accent-color:var(--accent-cyan);" oninput="updatePositionsUI()">
+        </div>
+    </div>
+
+    <!-- 3. NMHH Korhatár Időzítő -->
+    <div style="background:var(--card-sub); padding:10px 12px; border-radius:12px; border:1px solid var(--border); display:flex; flex-direction:column; gap:8px;">
+        <div style="font-family:'Space Mono',monospace; font-size:0.72rem; font-weight:800; color:#22c55e; display:flex; justify-content:space-between; align-items:center;">
+            <span>⏱️ 3. KORHATÁR IDŐZÍTŐ (NMHH)</span>
+            <label style="display:flex; align-items:center; gap:4px; font-size:0.65rem; cursor:pointer;">
+                <input type="checkbox" id="chk-rating-auto-timer" checked onchange="toggleRatingAutoTimer(this.checked)"> Aktív
+            </label>
+        </div>
+        <div style="font-size:0.64rem; color:var(--text-muted);">
+            A megadott idősávon kívül az általános korhatár karika lekerül.
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+            <div>
+                <label style="font-family:'Space Mono',monospace; font-size:0.62rem; color:var(--text-muted);">FELKERÜL (Óra:Perc):</label>
+                <input type="time" id="inp-rating-on-time" value="06:00" style="width:100%; background:#090d16; color:#fff; border:1px solid var(--border); border-radius:6px; padding:4px 8px; font-family:'Space Mono',monospace; font-size:0.75rem; outline:none; font-weight:700;">
+            </div>
+            <div>
+                <label style="font-family:'Space Mono',monospace; font-size:0.62rem; color:var(--text-muted);">LEKERÜL (Óra:Perc):</label>
+                <input type="time" id="inp-rating-off-time" value="21:00" style="width:100%; background:#090d16; color:#fff; border:1px solid var(--border); border-radius:6px; padding:4px 8px; font-family:'Space Mono',monospace; font-size:0.75rem; outline:none; font-weight:700;">
+            </div>
+        </div>
+    </div>
+
+    <button class="btn-act" style="background:var(--accent-cyan); color:#000; font-size:0.8rem; padding:10px; border:none; font-weight:800;" onclick="saveAllPositionsToCloud()">
+        💾 Mentés és Felhő-Szinkronizálás
+    </button>
+</div>
+
 <script>
     const WORKER_URL = "https://kepbenoszlop.androjid21.workers.dev";
     const FIREBASE_URL = "https://hiroszlop-default-rtdb.europe-west1.firebasedatabase.app";
@@ -1006,6 +1318,7 @@
     let currentClipIndex = -1;
     let currentlyPlayingId = null;
     let selectedAssignFilename = null;
+    let isMonoscopeActive = false;
     let activeDeckName = 'A';
     let isVideoTransitioning = false;
     let masterVolume = 0.9;
@@ -1026,11 +1339,23 @@
     let isAgcActive = true;
     let isAudioInitialized = false;
     let agcMonitorTimer = null;
+    let testToneOsc = null;
+    let testToneGain = null;
+
+    // TWITCH DETEKTOR
+    let monitoredTwitchChannels = JSON.parse(localStorage.getItem('kb_twitch_monitors') || '["thevr"]');
+    let isTwitchAutoSwitchEnabled = localStorage.getItem('kb_twitch_auto_switch') !== 'false';
+    let currentActiveTwitchStreamer = null;
+    let twitchCheckTimer = null;
 
     // ÁLLAPOTOK
     let isLogoVisible = localStorage.getItem('kb_tv_logo_visible') !== 'false';
     let isVideoEnhanced = localStorage.getItem('kb_video_enhanced') === 'true';
     let currentAgeRating = localStorage.getItem('kb_tv_rating') || "12";
+    let lastActiveRating = (currentAgeRating === "none") ? "12" : currentAgeRating;
+    let isRatingAutoTimerEnabled = localStorage.getItem('kb_rating_auto_timer') !== 'false';
+    let ratingTimerOnTime = localStorage.getItem('kb_rating_on_time') || "06:00";
+    let ratingTimerOffTime = localStorage.getItem('kb_rating_off_time') || "21:00";
     let liveBadgeMode = localStorage.getItem('kb_live_badge_mode') || 'auto';
     let currentActiveDaypartKey = 'delelott';
 
@@ -1046,7 +1371,9 @@
     const deckB = document.getElementById('tv-video-deck-b');
     const embedDeck = document.getElementById('tv-embed-deck');
     const tvScreenContainer = document.getElementById('tv-screen-container');
+    const monoscopeLayer = document.getElementById('tv-monoscope-layer');
     const standbyScreen = document.getElementById('tv-standby-screen');
+    const standbyResumeTimeEl = document.getElementById('standby-resume-time');
     const lowerThirdBanner = document.getElementById('tv-lower-third-banner');
     const ltArtistRow = document.getElementById('lt-artist-row');
     const ltTrackRow = document.getElementById('lt-track-row');
@@ -1054,6 +1381,7 @@
     const ltStatusBadge = document.getElementById('lt-status-badge');
     const liveOnAirTag = document.getElementById('tv-live-on-air-tag');
     const watermarkWrap = document.getElementById('tv-watermark-wrap');
+    const morningClockEl = document.getElementById('tv-morning-clock');
     const ageRatingContainer = document.getElementById('tv-age-rating-container');
     const nmhhRingBox = document.getElementById('nmhh-ring-box');
 
@@ -1173,7 +1501,6 @@
         if (!pool || pool.length === 0) return () => null;
         if (pool.length === 1) return () => pool[0];
 
-        // Seedelt random
         let seed = 0;
         for (let i = 0; i < dateKey.length; i++) seed = ((seed << 5) - seed) + dateKey.charCodeAt(i);
         function seededRand() {
@@ -1187,13 +1514,11 @@
 
         function generateFreshDeck() {
             let items = [...pool];
-            // Fisher-Yates
             for (let i = items.length - 1; i > 0; i--) {
                 const j = Math.floor(seededRand() * (i + 1));
                 [items[i], items[j]] = [items[j], items[i]];
             }
 
-            // Előadó-ütközések szétválasztása (Clustering Prevention)
             for (let i = 0; i < items.length - 1; i++) {
                 const curArtist = parseArtistAndTitle(items[i].title).artist.toLowerCase();
                 const nextArtist = parseArtistAndTitle(items[i+1].title).artist.toLowerCase();
@@ -1293,7 +1618,6 @@
             isStream: false
         };
 
-        // Adásmenet szétválasztása és csúsztatása (Ripple cascade)
         let newSchedule = [];
         let inserted = false;
 
@@ -1320,7 +1644,6 @@
             newSchedule.push(newItem);
         }
 
-        // 86400 feletti rész levágása
         newSchedule = newSchedule.filter(it => it.startSec < 86400);
 
         weekSchedules[dateKey] = newSchedule;
@@ -1459,7 +1782,6 @@
         updateLiveBadgeUI(Boolean(newClip.isStream));
         triggerLowerThird(newClip.title, newClip.cat);
 
-        // 1. Átlépés YouTube klipre
         if (newClip.youtubeId || newClip.isYouTubeClip) {
             currentDeck.style.opacity = '0';
             setTimeout(() => { currentDeck.pause(); currentDeck.classList.remove('active'); }, 500);
@@ -1472,7 +1794,6 @@
             return;
         }
 
-        // 2. Átlépés Saját MP4 videóra
         embedDeck.style.opacity = '0';
         setTimeout(() => {
             if (embedDeck.style.opacity === '0') {
@@ -1488,7 +1809,6 @@
         nextDeck.classList.add('active');
         nextDeck.play().catch(()=>{});
 
-        // 3 másodperces lágy keresztátúsztatás
         const steps = 30;
         const stepTime = 100;
         let step = 0;
@@ -1588,12 +1908,9 @@
             for (let i = 0; i < dataArr.length; i++) sum += dataArr[i];
             let avg = sum / dataArr.length;
 
-            // Automatikus kiegyenlítés
             if (avg > 0 && avg < 35) {
-                // Halk szám -> felerősítés
                 autoGainNode.gain.linearRampToValueAtTime(1.35, audioCtx.currentTime + 0.5);
             } else if (avg > 95) {
-                // Túl hangos -> visszaszabályozás
                 autoGainNode.gain.linearRampToValueAtTime(0.75, audioCtx.currentTime + 0.5);
             } else {
                 autoGainNode.gain.linearRampToValueAtTime(1.0, audioCtx.currentTime + 0.5);
@@ -1994,7 +2311,6 @@
         fetchLiveWeather();
         startWeatherCityRotator();
 
-        // 10 perces láthatatlan háttér-frissítés
         setInterval(fetchLiveNews, 10 * 60 * 1000);
         setInterval(fetchLiveWeather, 10 * 60 * 1000);
     });
