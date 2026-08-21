@@ -1432,8 +1432,8 @@
     let currentClipIndex = -1;
     let currentlyPlayingId = null;
     let selectedAssignFilename = null;
-    let activeDeckName = 'A'; // 'A' or 'B'
-    let activeYtDeck = 'A';   // 'A' or 'B'
+    let activeDeckName = 'A'; // 'A' or 'B' for HTML5 Video
+    let activeYtDeck = 'A';   // 'A' or 'B' for YouTube
     let isVideoTransitioning = false;
     let masterVolume = 0.9;
     let transitionLock = false;
@@ -2801,7 +2801,21 @@
 
     async function fetchLiveWeather() {
         try {
-            const chunks = [HUNGARY_CITIES.slice(0, 45), HUNGARY_CITIES.slice(45)];
+            // Először a Workerből kérjük le, ahol a Weather.com v3 API már lefutott
+            const resWorker = await fetch(`${WORKER_URL}?_t=${Date.now()}`);
+            if (resWorker.ok) {
+                const dataWorker = await resWorker.json();
+                if (dataWorker && Array.isArray(dataWorker.weather) && dataWorker.weather.length > 0) {
+                    cachedWeatherData = dataWorker.weather;
+                    renderCurrentWeatherCity();
+                    return;
+                }
+            }
+        } catch(e){}
+
+        // Fallback közvetlenül Open-Meteo-ra
+        try {
+            const chunks = [HUNGARY_CITIES.slice(0, 55), HUNGARY_CITIES.slice(55)];
             let items = [];
 
             for (const chunk of chunks) {
@@ -2970,6 +2984,9 @@
                     clip.youtubeId = data.data.youtubeId;
                     clip.isYouTubeClip = true;
                     clip.resolvedHd = true;
+                    if (data.data.artist && data.data.title) {
+                        clip.title = `${data.data.artist} - ${data.data.title}`;
+                    }
                     log(`✨ [1080p HD FELOLDVA] "${clip.title}" ➔ YouTube ID: ${clip.youtubeId}`, 'success');
                 }
             }
