@@ -240,69 +240,69 @@
     .tv-monoscope-layer.active { display: flex; }
     .monoscope-svg { width: 100%; height: 100%; object-fit: contain; }
 
-    /* 🌌 21:59:30 TELJES KÉPERNYŐS ÉJSZAKAI MŰSORÁTVEZETŐ ÉS VISSZASZÁMLÁLÓ */
-    .tv-night-bumper-screen {
+    /* 🌌 21:59:00 - 22:00:00 DISZKRÉT, ÁTTETSZŐ FELSŐ ÉJSZAKAI FIGYELMEZTETŐ BANNER (NEM TAKARJA KI A KLIPPET) */
+    .tv-night-warning-banner {
         position: absolute;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        z-index: 20;
+        top: 20px;
+        left: 20px;
+        right: 20px;
+        z-index: 25;
         display: none;
-        flex-direction: column;
         align-items: center;
-        justify-content: center;
-        background: radial-gradient(circle at 50% 40%, #1e1b4b 0%, #050811 85%);
+        justify-content: space-between;
+        background: rgba(15, 23, 42, 0.78);
+        backdrop-filter: blur(14px) saturate(160%);
+        -webkit-backdrop-filter: blur(14px) saturate(160%);
+        border: 1.5px solid rgba(192, 132, 252, 0.45);
+        border-left: 5px solid var(--accent-purple);
+        border-radius: 12px;
+        padding: 8px 16px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
         color: #fff;
-        padding: 30px;
-        text-align: center;
-        user-select: none;
         opacity: 0;
-        transition: opacity 0.6s ease-in-out;
+        transform: translateY(-15px);
+        transition: opacity 0.4s ease, transform 0.4s ease;
+        pointer-events: none;
     }
-    .tv-night-bumper-screen.active {
+    .tv-night-warning-banner.active {
         display: flex;
         opacity: 1;
+        transform: translateY(0);
     }
-    .night-bumper-card {
-        background: rgba(15, 23, 42, 0.85);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border: 1.5px solid rgba(192, 132, 252, 0.4);
-        border-radius: 20px;
-        padding: 24px 32px;
-        max-width: 680px;
-        box-shadow: 0 16px 45px rgba(0, 0, 0, 0.85);
+    .nw-left-col {
         display: flex;
         flex-direction: column;
-        align-items: center;
-        gap: 12px;
+        gap: 2px;
+        overflow: hidden;
     }
-    .night-bumper-title {
-        font-family: 'Space Mono', monospace;
-        font-weight: 900;
-        font-size: 1.35rem;
-        color: #c084fc;
-        letter-spacing: 0.5px;
+    .nw-title-row {
         display: flex;
         align-items: center;
         gap: 8px;
-    }
-    .night-bumper-desc {
-        font-size: 0.88rem;
-        font-weight: 500;
-        color: #e2e8f0;
-        line-height: 1.45;
-        text-shadow: 0 1px 2px #000;
-    }
-    .night-bumper-countdown {
         font-family: 'Space Mono', monospace;
-        font-size: 1.15rem;
+        font-weight: 900;
+        font-size: 0.82rem;
+        color: var(--accent-purple);
+    }
+    .nw-desc-row {
+        font-size: 0.72rem;
+        color: #e2e8f0;
+        font-weight: 500;
+        text-shadow: 0 1px 2px #000;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .nw-countdown-badge {
+        font-family: 'Space Mono', monospace;
+        font-size: 0.85rem;
         font-weight: 800;
-        color: #38bdf8;
-        background: rgba(8, 15, 30, 0.8);
-        border: 1px solid rgba(56, 189, 248, 0.4);
-        padding: 6px 18px;
-        border-radius: 10px;
-        margin-top: 4px;
+        color: #facc15;
+        background: rgba(250, 204, 21, 0.15);
+        border: 1px solid rgba(250, 204, 21, 0.4);
+        padding: 4px 10px;
+        border-radius: 8px;
+        flex-shrink: 0;
     }
 
     /* ⏳ VÁRAKOZÓ / SZÜNET KÉPERNYŐ */
@@ -530,7 +530,7 @@
     }
     .lt-track-row.font-shrink { font-size: 0.78rem; }
 
-    /* 🟡🔴 KORHATÁR KARIKA (22:00-06:00 KÖZÖTT AUTOMATIKUSAN 18) */
+    /* 🟡🔴 100%-BAN ÁTLÁTSZÓ BELSEJŰ NMHH KORHATÁR KARIKA */
     .tv-age-rating-container {
         position: absolute;
         bottom: 18px; right: 28px;
@@ -539,19 +539,19 @@
         align-items: center;
         justify-content: center;
         pointer-events: none;
-        opacity: 0.95;
+        opacity: 0.98;
         transition: all 0.2s ease;
     }
     .nmhh-ring {
         width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-        background: rgba(0,0,0,0.4);
+        background: transparent !important; /* TELJESEN ÁTLÁTSZÓ BELSEJŰ */
     }
     .nmhh-ring.ring-yellow { border: 4.5px solid #facc15; }
     .nmhh-ring.ring-red { border: 4.5px solid #ef4444; }
-    .nmhh-number { font-family: 'Inter', sans-serif; font-weight: 900; font-size: 1.1rem; color: #ffffff; line-height: 1; text-shadow: 0 1px 2px #000; }
+    .nmhh-number { font-family: 'Inter', sans-serif; font-weight: 900; font-size: 1.15rem; color: #ffffff; line-height: 1; text-shadow: 0 2px 4px #000; }
     .nmhh-child-svg { width: 38px; height: 38px; fill: #22c55e; }
 
-    /* 📰 ÚJ: HALVÁNY, HOSSZÚ LEBEGŐ HÍRKÁRTYA + FIX SZÉLESSÉGŰ IDŐJÁRÁS DOBOZ */
+    /* 📰 HALVÁNY, HOSSZÚ LEBEGŐ HÍRKÁRTYA + FIX IDŐJÁRÁS DOBOZ */
     .tv-news-glass-container {
         position: absolute;
         bottom: 16px;
@@ -578,7 +578,7 @@
         padding: 6px 10px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         flex-shrink: 0;
-        width: 175px;
+        width: 175px; /* FIX MÉRET - NEM PATTOG */
         height: 52px;
         overflow: hidden;
     }
@@ -773,6 +773,37 @@
     .btn-del-sm { background: none; border: none; color: var(--accent-red); cursor: pointer; opacity: 0.75; }
     .btn-del-sm:hover { opacity: 1; }
 
+    /* ⚠️ DUPLIKÁCIÓ FIGYELMEZTETŐ SÁV */
+    .duplicate-alert-badge {
+        font-family: 'Space Mono', monospace;
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: #facc15;
+        background: rgba(250, 204, 21, 0.15);
+        border: 1px solid rgba(250, 204, 21, 0.4);
+        padding: 2px 6px;
+        border-radius: 4px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .btn-del-r2-dup {
+        background: rgba(239, 68, 68, 0.2);
+        border: 1px solid rgba(239, 68, 68, 0.5);
+        color: #f87171;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.65rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .btn-del-r2-dup:hover {
+        background: #ef4444;
+        color: #fff;
+    }
+
     .position-floating-panel {
         position: fixed; bottom: 24px; left: 24px; right: auto; width: 390px; max-width: calc(100vw - 48px);
         background: #0f172a; border: 1.5px solid var(--accent-cyan); border-radius: 18px; padding: 16px 18px;
@@ -905,21 +936,19 @@
             </svg>
         </div>
 
-        <!-- 🌌 21:59:30 TELJES KÉPERNYŐS ÉJSZAKAI MŰSORÁTVEZETŐ ÉS VISSZASZÁMLÁLÓ -->
-        <div class="tv-night-bumper-screen" id="tv-night-bumper-screen">
-            <div class="night-bumper-card">
-                <div class="night-bumper-title">
-                    <span>🌌 MŰSORVÁLTÁS · KÉPBEN! ÉJJEL</span>
+        <!-- 🌌 21:59:00 - 22:00:00 DISZKRÉT, ÁTTETSZŐ FELSŐ ÉJSZAKAI FIGYELMEZTETŐ BANNER -->
+        <div class="tv-night-warning-banner" id="tv-night-warning-banner">
+            <div class="nw-left-col">
+                <div class="nw-title-row">
+                    <span>🌌 MŰSORAJÁNLÓ · KÉPBEN! ÉJJEL</span>
+                    <span style="color:#facc15; font-size:0.75rem;">(22:00 – 06:00)</span>
                 </div>
-                <div style="font-family:'Space Mono',monospace; font-size:0.85rem; font-weight:800; color:#facc15;">
-                    NIGHT DISCOVERY DJ BLOKK (22:00 – 06:00)
+                <div class="nw-desc-row">
+                    A futó dal után indul az éjszakai kísérleti Discovery DJ blokk (véletlenszerű YouTube válogatás · 18+).
                 </div>
-                <div class="night-bumper-desc">
-                    Hamarosan kezdetét veszi éjszakai kísérleti Discovery DJ műsorsávunk. A következő órákban a rendszer automatikusan és teljesen véletlenszerűen szemezget ritka, energikus és különleges zenei videóklipeket a YouTube világából. A kiszámíthatatlan és változatos zenei felhozatal miatt a műsorsáv megtekintése 18 éven aluliak számára nem ajánlott.
-                </div>
-                <div class="night-bumper-countdown" id="night-bumper-countdown-text">
-                    Indul: 00:30
-                </div>
+            </div>
+            <div class="nw-countdown-badge" id="nw-countdown-badge">
+                22:00-kor
             </div>
         </div>
 
@@ -989,7 +1018,7 @@
             <div class="tv-logo-sub-clock" id="tv-logo-sub-clock">--:--:--</div>
         </div>
 
-        <!-- 🟡🔴 KORHATÁR KARIKA (22:00-06:00 KÖZÖTT AUTOMATIKUSAN 18) -->
+        <!-- 🟡🔴 100%-BAN ÁTLÁTSZÓ BELSEJŰ NMHH KORHATÁR KARIKA -->
         <div class="tv-age-rating-container" id="tv-age-rating-container">
             <div class="nmhh-ring ring-yellow" id="nmhh-ring-box">
                 <span class="nmhh-number" id="nmhh-number-text">12</span>
@@ -1104,7 +1133,7 @@
         </div>
     </div>
 
-    <!-- 📂 VIDEÓTÁR -->
+    <!-- 📂 VIDEÓTÁR (AUTOMATIKUS DUPLIKÁCIÓ-DETEKTORRAL ÉS R2 FELHŐ TÖRLŐ GOMBBAL) -->
     <div class="library-panel">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
             <div style="font-family:'Space Mono',monospace; font-size:0.85rem; font-weight:700; color:var(--accent-green);">
@@ -1115,9 +1144,9 @@
                 <button class="btn-act" onclick="loadR2Library()">🔄 Frissítés</button>
             </div>
         </div>
-        <div style="max-height:220px; overflow-y:auto;">
+        <div style="max-height:240px; overflow-y:auto;">
             <table class="rundown-table">
-                <thead><tr><th style="width:auto;">CÍM</th><th style="width:200px;">TÍPUS / MINŐSÉG</th><th style="width:170px;">BESZÚRÁS</th><th style="width:45px; text-align:center;">TÖRLÉS</th></tr></thead>
+                <thead><tr><th style="width:auto;">CÍM</th><th style="width:230px;">TÍPUS / MINŐSÉG & DUPLIKÁCIÓ</th><th style="width:140px;">BESZÚRÁS</th><th style="width:45px; text-align:center;">TÖRLÉS</th></tr></thead>
                 <tbody id="library-tbody"></tbody>
             </table>
         </div>
@@ -1552,7 +1581,7 @@
         { name: "Split", lat: 43.5147, lon: 16.4435 }
     ];
 
-    // 🌙 22:00-06:00 100%-BAN ÉLŐ, BEÁGYAZHATÓ ÉJSZAKAI YOUTUBE DISCOVERY POOL (MAX 4:30)
+    // 🌙 22:00-06:00 GARANTÁLTAN ÉLŐ, MOZGÓKÉPES, HIVATALOS KLIPEK (MAX 4:30)
     const NIGHT_DISCOVERY_POOL = [
         { title: "The Prodigy - Breathe", youtubeId: "6_PAHbqq-o4", duration: 240, isYouTubeClip: true },
         { title: "Linkin Park - In the End", youtubeId: "eVTXPUF4Oz4", duration: 216, isYouTubeClip: true },
@@ -1569,19 +1598,28 @@
         { title: "The Weeknd - Blinding Lights", youtubeId: "4NRXx6U8ABQ", duration: 200, isYouTubeClip: true },
         { title: "Calvin Harris - Summer", youtubeId: "ebXbLfLACGM", duration: 215, isYouTubeClip: true },
         { title: "Dua Lipa - Don't Start Now", youtubeId: "oygrmJFKYZY", duration: 185, isYouTubeClip: true },
-        { title: "Tankcsapda - Mennyország tourist", youtubeId: "1.1.1", duration: 245, isYouTubeClip: true },
         { title: "Nirvana - Smells Like Teen Spirit", youtubeId: "hTWKbfoikeg", duration: 270, isYouTubeClip: true },
         { title: "Metallica - Enter Sandman", youtubeId: "1unkFBuysdI", duration: 270, isYouTubeClip: true },
         { title: "Queen - Don't Stop Me Now", youtubeId: "aJez0ljzSQw", duration: 215, isYouTubeClip: true },
         { title: "Valmar ft. Szikora Robi - Úristen", youtubeId: "Kp26l2FYjkY", duration: 200, isYouTubeClip: true },
         { title: "Azahriah x Desh - Mind1", youtubeId: "Mfy0OweIo3w", duration: 185, isYouTubeClip: true },
-        { title: "Halott Pénz - Valami van a levegőben", youtubeId: "LEZPCdc2oho", duration: 213, isYouTubeClip: true }
+        { title: "Halott Pénz - Valami van a levegőben", youtubeId: "LEZPCdc2oho", duration: 213, isYouTubeClip: true },
+        { title: "Wellhello - Rakpart", youtubeId: "K5L3XzE3G0g", duration: 215, isYouTubeClip: true },
+        { title: "Gorillaz - Feel Good Inc.", youtubeId: "HyHNuVaZJ-k", duration: 245, isYouTubeClip: true },
+        { title: "Red Hot Chili Peppers - Can't Stop", youtubeId: "BfOdQmkibkc", duration: 269, isYouTubeClip: true },
+        { title: "Bon Jovi - It's My Life", youtubeId: "vx2u5uUNy2k", duration: 265, isYouTubeClip: true },
+        { title: "The Offspring - The Kids Aren't Alright", youtubeId: "7iNBLVxopiI", duration: 185, isYouTubeClip: true },
+        { title: "Green Day - Boulevard of Broken Dreams", youtubeId: "Soa3gO7tL-c", duration: 270, isYouTubeClip: true },
+        { title: "Muse - Uprising", youtubeId: "w8KQmps-Sog", duration: 250, isYouTubeClip: true },
+        { title: "Arctic Monkeys - Do I Wanna Know?", youtubeId: "bpOSxM0rN9g", duration: 265, isYouTubeClip: true },
+        { title: "Eminem - Without Me", youtubeId: "YVkUvmDQ3HY", duration: 270, isYouTubeClip: true },
+        { title: "Bruno Mars - 24K Magic", youtubeId: "UqyT8IEBbiY", duration: 230, isYouTubeClip: true }
     ];
 
     const EMERGENCY_BACKUP_CLIP = {
         title: "KÉPBEN! Master Stúdió Klip",
-        youtubeId: "TUVcZfQe-Kw",
-        duration: 204,
+        youtubeId: "4NRXx6U8ABQ",
+        duration: 200,
         isYouTubeClip: true
     };
 
@@ -1654,8 +1692,7 @@
     let cachedWeatherData = [];
     let currentWeatherCityIndex = 0;
     let weatherCityInterval = null;
-    let morningNewsRandomDelayPassed = false;
-    let randomMorningOffsetSeconds = Math.floor(Math.random() * 35); // 0 és 35 mp közötti véletlenszerű időpont reggel 06:00 után
+    let randomMorningOffsetSeconds = Math.floor(Math.random() * 35); // 0-35 mp közötti véletlenszerű visszatérés reggel
 
     const deckA = document.getElementById('tv-video-deck-a');
     const deckB = document.getElementById('tv-video-deck-b');
@@ -1675,8 +1712,8 @@
     const ageRatingContainer = document.getElementById('tv-age-rating-container');
     const nmhhRingBox = document.getElementById('nmhh-ring-box');
 
-    const nightBumperScreen = document.getElementById('tv-night-bumper-screen');
-    const nightBumperCountdownText = document.getElementById('night-bumper-countdown-text');
+    const nightWarningBanner = document.getElementById('tv-night-warning-banner');
+    const nwCountdownBadge = document.getElementById('nw-countdown-badge');
 
     const newsGlassCard = document.getElementById('news-glass-card');
     const newsSourceBadge = document.getElementById('news-source-badge');
@@ -1710,7 +1747,7 @@
         { title: "Dua Lipa - Don't Start Now", filename: "yt_oygrmJFKYZY.mp4", youtubeId: "oygrmJFKYZY", duration: 185, isYouTubeClip: true }
     ];
 
-    // 🌐 DUAL YOUTUBE PLAYER INITIALIZATION (100% FELIRAT ÉS AJÁNLÓMENTES)
+    // 🌐 DUAL YOUTUBE PLAYER INITIALIZATION
     window.onYouTubeIframeAPIReady = function() {
         isYtApiReady = true;
         const originUrl = window.location.origin || (window.location.protocol + "//" + window.location.host);
@@ -1725,7 +1762,7 @@
                     rel: 0,
                     modestbranding: 1,
                     iv_load_policy: 3,
-                    cc_load_policy: 0, // Feliratok kikapcsolva
+                    cc_load_policy: 0,
                     disablekb: 1,
                     fs: 0,
                     playsinline: 1,
@@ -1761,7 +1798,7 @@
                     rel: 0,
                     modestbranding: 1,
                     iv_load_policy: 3,
-                    cc_load_policy: 0, // Feliratok kikapcsolva
+                    cc_load_policy: 0,
                     disablekb: 1,
                     fs: 0,
                     playsinline: 1,
@@ -1815,9 +1852,8 @@
         } catch(e){}
     }
 
-    // 🛡️ HIBABIZTOS YOUTUBE FALLBACK KEZELŐ (0 MS ÁTKAPCSOLÁS R2-RE VAGY BIZTONSÁGI KLIPRE)
     function handleYouTubePlaybackError(err, deckName) {
-        log(`🚨 [YT HIBA] A YouTube videó nem elérhető (Kód: ${err.data || 'error'}). Váltás tartalék forrásra!`, 'warn');
+        log(`🚨 [YT HIBA] A YouTube videó nem indítható el (Kód: ${err.data || 'error'}). Váltás tartalékra!`, 'warn');
         const todayKey = getSelectedDateKey(0);
         const sched = weekSchedules[todayKey] || [];
         const currentItem = sched[currentClipIndex];
@@ -1835,7 +1871,7 @@
             return;
         }
 
-        log(`🛡️ [HOT-SWAP] Vészhelyzeti biztonsági stúdióklip bekapcsolása...`, 'success');
+        log(`🛡️ [HOT-SWAP] Vészhelyzeti biztonsági stúdióklip indítása...`, 'success');
         const targetPlayer = (deckName === 'A') ? ytPlayerA : ytPlayerB;
         if (targetPlayer && targetPlayer.loadVideoById) {
             targetPlayer.loadVideoById({ videoId: EMERGENCY_BACKUP_CLIP.youtubeId, startSeconds: 0 });
@@ -1934,7 +1970,7 @@
         }
     }
 
-    // 🎲 22:00 - 06:00 KITERJESZTETT ÉJSZAKAI YOUTUBE DISCOVERY AUTODJ MOTOR (MAX 4 PERC 30 MP)
+    // 🎲 7 NAPOS GLOBÁLIS ISMÉTLÉSMENTES AUTODJ KEVERŐ (22:00-06:00 DISCOVERY POOLLAL)
     function createAntiArtistClusteringGenerator(pool, dateKey) {
         if (!pool || pool.length === 0) return () => null;
 
@@ -1970,7 +2006,7 @@
         return function getNextClip(currentSec = 0) {
             const hour = Math.floor(currentSec / 3600);
 
-            // 🌙 22:00 - 06:00 ÉJSZAKAI DISCOVERY SÁV
+            // 🌙 22:00 - 06:00 ÉJSZAKAI DISCOVERY SÁV (MAX 4:30)
             if (hour >= 22 || hour < 6) {
                 if (discoveryDeck.length === 0) generateDiscoveryDeck();
                 const dClip = discoveryDeck.pop();
@@ -2565,7 +2601,7 @@
             document.getElementById('master-live-badge').classList.remove('live');
             watermarkWrap.style.display = 'none';
             ageRatingContainer.style.display = 'none';
-            nightBumperScreen.classList.remove('active');
+            nightWarningBanner.classList.remove('active');
             deckA.pause(); deckB.pause();
             deckA.style.opacity = '0'; deckB.style.opacity = '0';
             if (ytPlayerA && ytPlayerA.stopVideo) ytPlayerA.stopVideo();
@@ -3102,12 +3138,10 @@
         if (isTvBroadcasting && isNewsGlassManualEnabled) {
             if (curH >= 22 || curH < 6) {
                 newsGlassContainer.style.display = 'none';
-                morningNewsRandomDelayPassed = false;
             } else if (curH === 6 && curM === 0 && curS < randomMorningOffsetSeconds) {
                 newsGlassContainer.style.display = 'none';
             } else {
                 newsGlassContainer.style.display = 'flex';
-                morningNewsRandomDelayPassed = true;
             }
         }
     }
@@ -3326,7 +3360,7 @@
         }, 8000);
     }
 
-    // ⏱️ FŐ ÓRA ÉS IDŐZÍTETT 21:59:30 / 22:00:00 / 06:00:00 ÁTVEZETŐ MOTOR
+    // ⏱️ FŐ ÓRA ÉS IDŐZÍTETT 21:59:00 - 22:00:00 FIGYELMEZTETŐ MOTOR (NINCS HIRTELEN ELVÁGÁS!)
     function updateClock() {
         const now = new Date();
         const timeStr = now.toLocaleTimeString('hu-HU');
@@ -3340,25 +3374,15 @@
         const m = now.getMinutes();
         const s = now.getSeconds();
 
-        // 🌌 21:59:30 - 22:00:00 KÖZÖTTI 30 MP-ES ÉJSZAKAI ÁTVEZETŐ ÉS VISSZASZÁMLÁLÓ
-        if (isTvBroadcasting && h === 21 && m === 59 && s >= 30) {
-            const remainingCountdown = 60 - s;
-            nightBumperCountdownText.textContent = `Indul: 00:${String(remainingCountdown).padStart(2, '0')}`;
-            if (!nightBumperScreen.classList.contains('active')) {
-                nightBumperScreen.classList.add('active');
-                log("🌌 [MŰSORVÁLTÁS] 21:59:30 - 30 másodperces éjszakai felvezető képernyő aktív!", "warn");
+        // 🌌 21:59:00 - 22:00:00: 1 PERCES DISZKRÉT FIGYELMEZTETŐ BANNER A FUTÓ DAL MEGSZAKÍTÁSA NÉLKÜL!
+        if (isTvBroadcasting && h === 21 && m === 59) {
+            const remSec = 60 - s;
+            nwCountdownBadge.textContent = `Indul: ${remSec} mp (dal után)`;
+            if (!nightWarningBanner.classList.contains('active')) {
+                nightWarningBanner.classList.add('active');
             }
-        } else if (h === 22 && m === 0 && s === 0 && nightBumperScreen.classList.contains('active')) {
-            nightBumperScreen.classList.remove('active');
-            applyAgeRating('18');
-            log("🌌 [22:00:00] Átfeedelés a KÉPBEN! ÉJJEL Discovery DJ sávra (🔴 18+ aktív)!", "success");
-            executeVideoCrossfade(true);
-        } else if (h === 6 && m === 0 && s === 0) {
-            applyAgeRating('12');
-            log("🌅 [06:00:00] Átfeedelés a nappali adásra (🟡 12+ aktív)!", "success");
-            executeVideoCrossfade(true);
-        } else if (nightBumperScreen.classList.contains('active') && (h !== 21 || m !== 59)) {
-            nightBumperScreen.classList.remove('active');
+        } else if (nightWarningBanner.classList.contains('active') && (h !== 21 || m !== 59)) {
+            nightWarningBanner.classList.remove('active');
         }
 
         const curCat = getDaypartKeyForHour(h);
@@ -3370,7 +3394,7 @@
         evaluateAgeRatingVisibility();
         highlightCurrentOnAirRow();
 
-        if (isTvBroadcasting && !isVideoTransitioning && !transitionLock && !currentActiveTwitchStreamer && !nightBumperScreen.classList.contains('active')) {
+        if (isTvBroadcasting && !isVideoTransitioning && !transitionLock && !currentActiveTwitchStreamer) {
             const todayKey = getSelectedDateKey(0);
             const schedule = weekSchedules[todayKey] || [];
             const curSec = h * 3600 + m * 60 + s;
@@ -3386,8 +3410,9 @@
                     runTrackPresentationSequence(schedule, false);
                 }
 
+                // Csak a dal végén történik az átúsztatás!
                 if (remainingSec <= VIDEO_CROSSFADE_SEC && remainingSec >= 0) {
-                    log(`⏱️ Klip vége (${remainingSec} mp) ➔ Keresztátúsztatás indítása!`, 'info');
+                    log(`⏱️ Klip természetes vége elérve ➔ Átúsztatás a következő tételre!`, 'info');
                     executeVideoCrossfade(false);
                 }
             }
@@ -3561,6 +3586,7 @@
         updateQuotaUsageUI();
     }
 
+    // 📂 VIDEÓTÁR MEGJELENÍTÉSE DUPLIKÁCIÓ-DETEKTORRAL & R2 FELHŐ TÖRLŐ GOMBBAL
     function renderLibraryTable() {
         const tbody = document.getElementById('library-tbody');
         const pool = getCombinedClipsPool();
@@ -3568,21 +3594,45 @@
 
         tbody.innerHTML = pool.map(item => {
             const isYt = Boolean(item.youtubeId || item.isYouTubeClip);
+            const normTitle = item.title.toLowerCase().replace(/[^a-z0-9áéíóöőúüű]/g, '');
+
+            // Megvizsgáljuk, hogy ez a klip duplikáció-e (szerepel R2-ben és YouTube-on is)
+            const isDuplicate = !isYt && customYouTubeClips.some(yt => yt.title.toLowerCase().replace(/[^a-z0-9áéíóöőúüű]/g, '').includes(normTitle) || normTitle.includes(yt.title.toLowerCase().replace(/[^a-z0-9áéíóöőúüű]/g, '')));
+
+            let qualityAndDupBadge = '';
+            if (isYt) {
+                qualityAndDupBadge = `<span style="font-family:'Space Mono',monospace; font-weight:700; color:#22c55e; font-size:0.75rem;">📺 YouTube HD</span>`;
+            } else {
+                qualityAndDupBadge = `
+                    <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                        <span style="font-family:'Space Mono',monospace; font-weight:700; color:#38bdf8; font-size:0.75rem;">🎬 R2 MP4</span>
+                        ${isDuplicate ? `<span class="duplicate-alert-badge">⚠️ DUPLIKÁLT</span><button class="btn-del-r2-dup" onclick="deleteR2FromCloudAndList('${item.filename}')" title="R2 törlése a felhőből">🗑️ R2 Felhő Törlés</button>` : ''}
+                    </div>
+                `;
+            }
+
             return `
                 <tr>
                     <td>${isYt ? '📺' : '🎬'} <strong>${item.title}</strong></td>
-                    <td>
-                        <div style="display:flex; align-items:center; gap:6px;">
-                            <span style="font-family:'Space Mono',monospace; font-weight:700; color:${isYt ? '#22c55e' : '#38bdf8'}; font-size:0.75rem;">
-                                ${isYt ? 'YouTube HD' : 'R2 MP4'}
-                            </span>
-                        </div>
-                    </td>
+                    <td>${qualityAndDupBadge}</td>
                     <td><button class="btn-add-sm" onclick="openAssignModal('${item.filename}')">+ Adásba szúrás 🎯</button></td>
-                    <td style="text-align:center;"><button class="btn-del-sm" onclick="deleteClip('${item.filename}')">🗑️</button></td>
+                    <td style="text-align:center;"><button class="btn-del-sm" onclick="deleteClip('${item.filename}')" title="Törlés a listából">🗑️</button></td>
                 </tr>
             `;
         }).join('');
+    }
+
+    // 🗑️ R2 FÁJL TÖRLÉSE A CLOUDFLARE R2 FELHŐBŐL ÉS A TÁRBÓL
+    async function deleteR2FromCloudAndList(filename) {
+        if (!confirm(`Biztosan végleg törlöd az R2 felhőtárhelyről a(z) "${filename}" fájlt? Ezzel helyet szabadítasz fel.`)) return;
+        log(`🗑️ [R2 FELHŐ TÖRLÉS] ${filename}...`);
+        try {
+            const res = await fetch(`${WORKER_URL}/api/radio/delete?filename=${encodeURIComponent(filename)}`, { method: 'DELETE' });
+            if (res.ok) {
+                log(`✅ [R2 TÖRÖLVE] ${filename} sikeresen eltávolítva a felhőből!`, 'success');
+            }
+        } catch(e){}
+        await loadR2Library();
     }
 
     function deleteClip(filename) {
