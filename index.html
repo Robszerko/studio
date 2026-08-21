@@ -212,7 +212,7 @@
         opacity: 0;
         pointer-events: none !important;
         background: #000;
-        transform: none; /* Természetes 16:9 és 4:3 képarány megőrzése */
+        transform: none; /* Természetes 16:9 és 4:3 képarány */
         transition: opacity 0.3s ease;
         will-change: opacity;
     }
@@ -239,6 +239,71 @@
     }
     .tv-monoscope-layer.active { display: flex; }
     .monoscope-svg { width: 100%; height: 100%; object-fit: contain; }
+
+    /* 🌌 21:59:30 TELJES KÉPERNYŐS ÉJSZAKAI MŰSORÁTVEZETŐ ÉS VISSZASZÁMLÁLÓ */
+    .tv-night-bumper-screen {
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        z-index: 20;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(circle at 50% 40%, #1e1b4b 0%, #050811 85%);
+        color: #fff;
+        padding: 30px;
+        text-align: center;
+        user-select: none;
+        opacity: 0;
+        transition: opacity 0.6s ease-in-out;
+    }
+    .tv-night-bumper-screen.active {
+        display: flex;
+        opacity: 1;
+    }
+    .night-bumper-card {
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1.5px solid rgba(192, 132, 252, 0.4);
+        border-radius: 20px;
+        padding: 24px 32px;
+        max-width: 680px;
+        box-shadow: 0 16px 45px rgba(0, 0, 0, 0.85);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+    }
+    .night-bumper-title {
+        font-family: 'Space Mono', monospace;
+        font-weight: 900;
+        font-size: 1.35rem;
+        color: #c084fc;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .night-bumper-desc {
+        font-size: 0.88rem;
+        font-weight: 500;
+        color: #e2e8f0;
+        line-height: 1.45;
+        text-shadow: 0 1px 2px #000;
+    }
+    .night-bumper-countdown {
+        font-family: 'Space Mono', monospace;
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #38bdf8;
+        background: rgba(8, 15, 30, 0.8);
+        border: 1px solid rgba(56, 189, 248, 0.4);
+        padding: 6px 18px;
+        border-radius: 10px;
+        margin-top: 4px;
+    }
 
     /* ⏳ VÁRAKOZÓ / SZÜNET KÉPERNYŐ */
     .tv-standby-screen {
@@ -279,7 +344,7 @@
         background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.45); padding: 6px 18px; border-radius: 10px;
     }
 
-    /* 🏷️ JOBB FELSŐ KÉPBEN! LOGÓ + DISZKRÉT DIGITÁLIS ÓRA */
+    /* 🏷️ JOBB FELSŐ KÉPBEN! LOGÓ + DISZKRÉT DIGITÁLIS ÓRA ALATTA */
     .tv-watermark-wrap {
         position: absolute;
         top: 26px; right: 32px;
@@ -465,10 +530,10 @@
     }
     .lt-track-row.font-shrink { font-size: 0.78rem; }
 
-    /* 🟡🔴 KORHATÁR KARIKA */
+    /* 🟡🔴 KORHATÁR KARIKA (22:00-06:00 KÖZÖTT AUTOMATIKUSAN 18) */
     .tv-age-rating-container {
         position: absolute;
-        bottom: 22px; right: 28px;
+        bottom: 18px; right: 28px;
         z-index: 35;
         display: none;
         align-items: center;
@@ -486,16 +551,16 @@
     .nmhh-number { font-family: 'Inter', sans-serif; font-weight: 900; font-size: 1.1rem; color: #ffffff; line-height: 1; text-shadow: 0 1px 2px #000; }
     .nmhh-child-svg { width: 38px; height: 38px; fill: #22c55e; }
 
-    /* 📰 ÚJ: LEBEGŐ FÉLÁTLÁTSZÓ HÍRKÁRTYÁK (GLASS CARDS - KIS KÉPÉRNYŐKITAKARÁS) */
+    /* 📰 ÚJ: HALVÁNY, HOSSZÚ LEBEGŐ HÍRKÁRTYA + FIX SZÉLESSÉGŰ IDŐJÁRÁS DOBOZ */
     .tv-news-glass-container {
         position: absolute;
         bottom: 16px;
         left: 20px;
+        right: 76px; /* Kinyúlik egészen a korhatárkarikáig */
         z-index: 34;
         display: flex;
         align-items: center;
         gap: 10px;
-        max-width: calc(100% - 120px);
         user-select: none;
         pointer-events: none;
     }
@@ -504,37 +569,39 @@
         display: flex;
         align-items: center;
         gap: 8px;
-        background: rgba(7, 13, 26, 0.75);
-        backdrop-filter: blur(12px) saturate(160%);
-        -webkit-backdrop-filter: blur(12px) saturate(160%);
-        border: 1px solid rgba(56, 189, 248, 0.35);
+        background: rgba(5, 10, 22, 0.38); /* Sokkal halványabb diszkrét layer */
+        backdrop-filter: blur(10px) saturate(140%);
+        -webkit-backdrop-filter: blur(10px) saturate(140%);
+        border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 12px;
-        padding: 8px 12px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        padding: 6px 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         flex-shrink: 0;
+        width: 175px; /* RÖGZÍTETT FIX SZÉLESSÉG - Nincs több ugrálás/pattogás */
         height: 52px;
+        overflow: hidden;
     }
-    .glass-weather-icon { font-size: 1.3rem; line-height: 1; }
-    .glass-weather-col { display: flex; flex-direction: column; line-height: 1.1; }
-    .glass-weather-city { font-family: 'Space Mono', monospace; font-size: 0.62rem; font-weight: 800; color: #ffffff; text-shadow: 0 1px 2px #000; }
-    .glass-weather-temp { font-family: 'Space Mono', monospace; font-size: 0.82rem; font-weight: 900; color: var(--accent-cyan); text-shadow: 0 1px 2px #000; }
+    .glass-weather-icon { font-size: 1.3rem; line-height: 1; flex-shrink: 0; }
+    .glass-weather-col { display: flex; flex-direction: column; line-height: 1.1; overflow: hidden; }
+    .glass-weather-city { font-family: 'Space Mono', monospace; font-size: 0.62rem; font-weight: 800; color: #ffffff; text-shadow: 0 1px 3px #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .glass-weather-temp { font-family: 'Space Mono', monospace; font-size: 0.82rem; font-weight: 900; color: var(--accent-cyan); text-shadow: 0 1px 3px #000; }
 
     .glass-news-card {
         display: flex;
         flex-direction: column;
         justify-content: center;
         gap: 2px;
-        background: rgba(7, 13, 26, 0.78);
-        backdrop-filter: blur(14px) saturate(180%);
-        -webkit-backdrop-filter: blur(14px) saturate(180%);
-        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: rgba(5, 10, 22, 0.38); /* Sokkal halványabb diszkrét layer */
+        backdrop-filter: blur(12px) saturate(150%);
+        -webkit-backdrop-filter: blur(12px) saturate(150%);
+        border: 1px solid rgba(255, 255, 255, 0.14);
         border-left: 3.5px solid var(--accent-amber);
         border-radius: 12px;
         padding: 6px 14px;
         height: 52px;
-        min-width: 280px;
-        max-width: 520px;
-        box-shadow: 0 4px 18px rgba(0,0,0,0.6);
+        flex: 1; /* Teljes hosszt kihasználja a korhatárkarikáig */
+        min-width: 0;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.4);
         opacity: 0;
         transform: translateY(6px);
         transition: opacity 0.35s ease, transform 0.35s ease;
@@ -543,20 +610,20 @@
     .glass-news-card.news-show { opacity: 1; transform: translateY(0); }
     .glass-news-card.news-hide { opacity: 0; transform: translateY(-6px); }
 
-    .glass-news-top-row { display: flex; align-items: center; gap: 6px; overflow: hidden; }
+    .glass-news-top-row { display: flex; align-items: center; gap: 6px; overflow: hidden; width: 100%; }
     .glass-news-badge {
         font-family: 'Space Mono', monospace; font-size: 0.58rem; font-weight: 900; color: #facc15;
         background: rgba(250, 204, 21, 0.2); border: 1px solid rgba(250, 204, 21, 0.4);
         padding: 1px 5px; border-radius: 4px; flex-shrink: 0; text-transform: uppercase;
     }
-    .glass-news-time { font-family: 'Space Mono', monospace; font-size: 0.60rem; font-weight: 700; color: #94a3b8; flex-shrink: 0; }
+    .glass-news-time { font-family: 'Space Mono', monospace; font-size: 0.60rem; font-weight: 700; color: #cbd5e1; flex-shrink: 0; }
     .glass-news-title {
         font-size: 0.80rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.9);
+        text-shadow: 0 1px 3px rgba(0,0,0,0.95);
     }
     .glass-news-summary {
-        font-size: 0.68rem; font-weight: 500; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.9);
+        font-size: 0.68rem; font-weight: 500; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.95);
     }
 
     /* 📅 MŰSORELŐZETES */
@@ -837,7 +904,25 @@
             </svg>
         </div>
 
-        <!-- ⏳ VÁRAKOZÓ KÉPERNYŐ -->
+        <!-- 🌌 21:59:30 TELJES KÉPERNYŐS ÉJSZAKAI MŰSORÁTVEZETŐ ÉS VISSZASZÁMLÁLÓ -->
+        <div class="tv-night-bumper-screen" id="tv-night-bumper-screen">
+            <div class="night-bumper-card">
+                <div class="night-bumper-title">
+                    <span>🌌 MŰSORVÁLTÁS · KÉPBEN! ÉJJEL</span>
+                </div>
+                <div style="font-family:'Space Mono',monospace; font-size:0.85rem; font-weight:800; color:#facc15;">
+                    NIGHT DISCOVERY DJ BLOKK (22:00 – 06:00)
+                </div>
+                <div class="night-bumper-desc">
+                    Hamarosan kezdetét veszi éjszakai kísérleti Discovery DJ műsorsávunk. A következő órákban a rendszer automatikusan és teljesen véletlenszerűen szemezget ritka, energikus és különleges zenei videóklipeket a YouTube világából. A kiszámíthatatlan és változatos zenei felhozatal miatt a műsorsáv megtekintése 18 éven aluliak számára nem ajánlott.
+                </div>
+                <div class="night-bumper-countdown" id="night-bumper-countdown-text">
+                    Indul: 00:30
+                </div>
+            </div>
+        </div>
+
+        <!-- ⏳ VÁRAKOZÓ / SZÜNET KÉPERNYŐ -->
         <div class="tv-standby-screen" id="tv-standby-screen">
             <div class="standby-content-box">
                 <div class="standby-brand">KÉPBEN<span style="color:#ef4444;">!</span>MUSIC</div>
@@ -861,7 +946,7 @@
             </div>
         </div>
 
-        <!-- 📰 ÚJ: LEBEGŐ FÉLÁTLÁTSZÓ HÍRKÁRTYÁK (GLASS CARDS) -->
+        <!-- 📰 ÚJ: HALVÁNY, HOSSZÚ LEBEGŐ HÍRKÁRTYÁK (GLASS CARDS) + FIX IDŐJÁRÁS DOBOZ -->
         <div class="tv-news-glass-container" id="tv-news-glass-container">
             <div class="glass-weather-badge">
                 <span class="glass-weather-icon" id="weather-icon-badge">☀️</span>
@@ -1303,9 +1388,9 @@
         </div>
         <div>
             <label style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted); display:flex; justify-content:space-between;">
-                <span>ALULRÓL (Bottom):</span> <strong id="lbl-pos-bottom" style="color:#fff;">22 px</strong>
+                <span>ALULRÓL (Bottom):</span> <strong id="lbl-pos-bottom" style="color:#fff;">18 px</strong>
             </label>
-            <input type="range" min="10" max="150" value="22" id="rng-pos-bottom" style="width:100%; accent-color:var(--accent-cyan);" oninput="updatePositionsUI()">
+            <input type="range" min="10" max="150" value="18" id="rng-pos-bottom" style="width:100%; accent-color:var(--accent-cyan);" oninput="updatePositionsUI()">
         </div>
         <div>
             <label style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted); display:flex; justify-content:space-between;">
@@ -1466,7 +1551,7 @@
         { name: "Split", lat: 43.5147, lon: 16.4435 }
     ];
 
-    // 🌙 22:00-06:00 KITERJESZTETT ÉJSZAKAI YOUTUBE DISCOVERY POOL (ZÚZÓS, ELEKTRONIKUS, ROCK, DANCE - MAX 4:30)
+    // 🌙 22:00-06:00 KITERJESZTETT ÉJSZAKAI YOUTUBE DISCOVERY POOL (MAX 4:30)
     const NIGHT_DISCOVERY_POOL = [
         { title: "Rammstein - Deutschland", youtubeId: "NeQM1c-XCDc", duration: 270, isYouTubeClip: true },
         { title: "The Prodigy - Breathe", youtubeId: "rmHDhAohLkQ", duration: 235, isYouTubeClip: true },
@@ -1581,6 +1666,9 @@
     const ageRatingContainer = document.getElementById('tv-age-rating-container');
     const nmhhRingBox = document.getElementById('nmhh-ring-box');
 
+    const nightBumperScreen = document.getElementById('tv-night-bumper-screen');
+    const nightBumperCountdownText = document.getElementById('night-bumper-countdown-text');
+
     const newsGlassCard = document.getElementById('news-glass-card');
     const newsSourceBadge = document.getElementById('news-source-badge');
     const newsTimeStamp = document.getElementById('news-time-stamp');
@@ -1630,7 +1718,7 @@
                     rel: 0,
                     modestbranding: 1,
                     iv_load_policy: 3,
-                    cc_load_policy: 0, // Feliratok kikapcsolva
+                    cc_load_policy: 0,
                     disablekb: 1,
                     fs: 0,
                     playsinline: 1,
@@ -1666,7 +1754,7 @@
                     rel: 0,
                     modestbranding: 1,
                     iv_load_policy: 3,
-                    cc_load_policy: 0, // Feliratok kikapcsolva
+                    cc_load_policy: 0,
                     disablekb: 1,
                     fs: 0,
                     playsinline: 1,
@@ -1884,7 +1972,7 @@
                         title: dClip.title,
                         filename: `disc_${dClip.youtubeId}.mp4`,
                         youtubeId: dClip.youtubeId,
-                        duration: Math.min(270, dClip.duration || 210), // Szigorúan max 4:30
+                        duration: Math.min(270, dClip.duration || 210),
                         isYouTubeClip: true,
                         isDiscoveryClip: true
                     };
@@ -2470,6 +2558,7 @@
             document.getElementById('master-live-badge').classList.remove('live');
             watermarkWrap.style.display = 'none';
             ageRatingContainer.style.display = 'none';
+            nightBumperScreen.classList.remove('active');
             deckA.pause(); deckB.pause();
             deckA.style.opacity = '0'; deckB.style.opacity = '0';
             if (ytPlayerA && ytPlayerA.stopVideo) ytPlayerA.stopVideo();
@@ -2900,7 +2989,7 @@
     }
 
     function applySavedPositions(settings) {
-        const b = settings?.rating_pos_b || localStorage.getItem('kb_tv_pos_b') || "22";
+        const b = settings?.rating_pos_b || localStorage.getItem('kb_tv_pos_b') || "18";
         const r = settings?.rating_pos_r || localStorage.getItem('kb_tv_pos_r') || "28";
         const s = settings?.rating_pos_s || localStorage.getItem('kb_tv_pos_s') || "38";
 
@@ -2923,7 +3012,7 @@
         updatePositionsUI();
     }
 
-    // 🔴 AUTOMATIKUS 18-AS KORHATÁR (22:00-06:00)
+    // 🔴 22:00-06:00 KÖZÖTT AUTOMATIKUSAN 18-AS KORHATÁR
     function applyAgeRating(rating) {
         const now = new Date();
         const curH = now.getHours();
@@ -2982,7 +3071,7 @@
         const now = new Date();
         const curH = now.getHours();
         if (curH >= 22 || curH < 6) {
-            ageRatingContainer.style.display = 'flex'; // Éjjel mindig látszik
+            ageRatingContainer.style.display = 'flex'; // Éjjel kötelezően látszik
             return;
         }
         if (currentAgeRating === 'none') {
@@ -3219,6 +3308,7 @@
         }, 8000);
     }
 
+    // ⏱️ FŐ ÓRA ÉS IDŐZÍTETT 21:59:30 / 22:00:00 / 06:00:00 ÁTVEZETŐ MOTOR
     function updateClock() {
         const now = new Date();
         const timeStr = now.toLocaleTimeString('hu-HU');
@@ -3232,6 +3322,29 @@
         const m = now.getMinutes();
         const s = now.getSeconds();
 
+        // 🌌 21:59:30 - 22:00:00 KÖZÖTTI 30 MP-ES ÉJSZAKAI ÁTVEZETŐ ÉS VISSZASZÁMLÁLÓ
+        if (isTvBroadcasting && h === 21 && m === 59 && s >= 30) {
+            const remainingCountdown = 60 - s;
+            nightBumperCountdownText.textContent = `Indul: 00:${String(remainingCountdown).padStart(2, '0')}`;
+            if (!nightBumperScreen.classList.contains('active')) {
+                nightBumperScreen.classList.add('active');
+                log("🌌 [MŰSORVÁLTÁS] 21:59:30 - 30 másodperces éjszakai felvezető képernyő aktív!", "warn");
+            }
+        } else if (h === 22 && m === 0 && s === 0 && nightBumperScreen.classList.contains('active')) {
+            // Pontosan 22:00:00-kor átúsztatunk az éjszakai Discovery sávra
+            nightBumperScreen.classList.remove('active');
+            applyAgeRating('18');
+            log("🌌 [22:00:00] Átfeedelés a KÉPBEN! ÉJJEL Discovery DJ sávra (🔴 18+ aktív)!", "success");
+            executeVideoCrossfade(true);
+        } else if (h === 6 && m === 0 && s === 0) {
+            // Pontosan 06:00:00-kor visszaállunk a nappali üzemmódra
+            applyAgeRating('12');
+            log("🌅 [06:00:00] Átfeedelés a nappali adásra (🟡 12+ aktív)!", "success");
+            executeVideoCrossfade(true);
+        } else if (nightBumperScreen.classList.contains('active') && (h !== 21 || m !== 59)) {
+            nightBumperScreen.classList.remove('active');
+        }
+
         const curCat = getDaypartKeyForHour(h);
         if (curCat !== currentActiveDaypartKey) {
             currentActiveDaypartKey = curCat;
@@ -3241,7 +3354,7 @@
         evaluateAgeRatingVisibility();
         highlightCurrentOnAirRow();
 
-        if (isTvBroadcasting && !isVideoTransitioning && !transitionLock && !currentActiveTwitchStreamer) {
+        if (isTvBroadcasting && !isVideoTransitioning && !transitionLock && !currentActiveTwitchStreamer && !nightBumperScreen.classList.contains('active')) {
             const todayKey = getSelectedDateKey(0);
             const schedule = weekSchedules[todayKey] || [];
             const curSec = h * 3600 + m * 60 + s;
@@ -3494,7 +3607,7 @@
             logo_visible: isLogoVisible,
             live_badge_mode: liveBadgeMode,
             source_playback_mode: sourcePlaybackMode,
-            rating_pos_b: localStorage.getItem('kb_tv_pos_b') || "22",
+            rating_pos_b: localStorage.getItem('kb_tv_pos_b') || "18",
             rating_pos_r: localStorage.getItem('kb_tv_pos_r') || "28",
             rating_pos_s: localStorage.getItem('kb_tv_pos_s') || "38",
             logo_pos_t: localStorage.getItem('kb_tv_logo_t') || "26",
