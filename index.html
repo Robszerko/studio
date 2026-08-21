@@ -530,7 +530,7 @@
     }
     .lt-track-row.font-shrink { font-size: 0.78rem; }
 
-    /* 🟡🔴 KORHATÁR KARIKA */
+    /* 🟡🔴 KORHATÁR KARIKA (22:00-06:00 KÖZÖTT AUTOMATIKUSAN 18) */
     .tv-age-rating-container {
         position: absolute;
         bottom: 18px; right: 28px;
@@ -563,6 +563,7 @@
         gap: 10px;
         user-select: none;
         pointer-events: none;
+        transition: opacity 0.4s ease;
     }
 
     .glass-weather-badge {
@@ -1567,7 +1568,14 @@
         { title: "Dua Lipa - Levitating", youtubeId: "TUVcZfQe-Kw", duration: 204, isYouTubeClip: true },
         { title: "The Weeknd - Blinding Lights", youtubeId: "4NRXx6U8ABQ", duration: 200, isYouTubeClip: true },
         { title: "Calvin Harris - Summer", youtubeId: "ebXbLfLACGM", duration: 215, isYouTubeClip: true },
-        { title: "Dua Lipa - Don't Start Now", youtubeId: "oygrmJFKYZY", duration: 185, isYouTubeClip: true }
+        { title: "Dua Lipa - Don't Start Now", youtubeId: "oygrmJFKYZY", duration: 185, isYouTubeClip: true },
+        { title: "Tankcsapda - Mennyország tourist", youtubeId: "1.1.1", duration: 245, isYouTubeClip: true },
+        { title: "Nirvana - Smells Like Teen Spirit", youtubeId: "hTWKbfoikeg", duration: 270, isYouTubeClip: true },
+        { title: "Metallica - Enter Sandman", youtubeId: "1unkFBuysdI", duration: 270, isYouTubeClip: true },
+        { title: "Queen - Don't Stop Me Now", youtubeId: "aJez0ljzSQw", duration: 215, isYouTubeClip: true },
+        { title: "Valmar ft. Szikora Robi - Úristen", youtubeId: "Kp26l2FYjkY", duration: 200, isYouTubeClip: true },
+        { title: "Azahriah x Desh - Mind1", youtubeId: "Mfy0OweIo3w", duration: 185, isYouTubeClip: true },
+        { title: "Halott Pénz - Valami van a levegőben", youtubeId: "LEZPCdc2oho", duration: 213, isYouTubeClip: true }
     ];
 
     const EMERGENCY_BACKUP_CLIP = {
@@ -1646,6 +1654,8 @@
     let cachedWeatherData = [];
     let currentWeatherCityIndex = 0;
     let weatherCityInterval = null;
+    let morningNewsRandomDelayPassed = false;
+    let randomMorningOffsetSeconds = Math.floor(Math.random() * 35); // 0 és 35 mp közötti véletlenszerű időpont reggel 06:00 után
 
     const deckA = document.getElementById('tv-video-deck-a');
     const deckB = document.getElementById('tv-video-deck-b');
@@ -1715,7 +1725,7 @@
                     rel: 0,
                     modestbranding: 1,
                     iv_load_policy: 3,
-                    cc_load_policy: 0,
+                    cc_load_policy: 0, // Feliratok kikapcsolva
                     disablekb: 1,
                     fs: 0,
                     playsinline: 1,
@@ -1751,7 +1761,7 @@
                     rel: 0,
                     modestbranding: 1,
                     iv_load_policy: 3,
-                    cc_load_policy: 0,
+                    cc_load_policy: 0, // Feliratok kikapcsolva
                     disablekb: 1,
                     fs: 0,
                     playsinline: 1,
@@ -2376,7 +2386,7 @@
         }, 250);
     }
 
-    // 🎚️ ZERO-BLACK-SCREEN: 100%-OS KÉP- ÉS HANGSZINKRONIZÁLT ÁTÚSZTATÁS
+    // 🎚️ ZERO-BLACK-SCREEN: 100%-OS KÉP- ÉS HANGSZINKRONIZÁLT ÁTÚSZTATÁS (TELJESEN FEKETE KÉPKOCKA NÉLKÜL)
     async function executeVideoCrossfade(forceImmediate = false) {
         if (twitchPendingSwitchStreamer) {
             log(`🚨 Dal véget ért ➔ Átkapcsolás ${twitchPendingSwitchStreamer.toUpperCase()} Twitch közvetítésére!`, 'warn');
@@ -3016,7 +3026,7 @@
         const isNightMandatory18 = (curH >= 22 || curH < 6);
 
         if (isNightMandatory18) {
-            rating = "18"; // 22:00 - 06:00 között KÖTELEZŐEN 18!
+            rating = "18";
         } else if (!rating || rating === 'default') {
             rating = localStorage.getItem('kb_tv_rating') || '12';
         }
@@ -3067,28 +3077,39 @@
         }
         const now = new Date();
         const curH = now.getHours();
+        const curM = now.getMinutes();
+        const curS = now.getSeconds();
+
+        // 1. Éjszakai Korhatár (22:00-06:00)
         if (curH >= 22 || curH < 6) {
-            ageRatingContainer.style.display = 'flex'; // Éjjel kötelezően látszik
-            return;
-        }
-        if (currentAgeRating === 'none') {
+            ageRatingContainer.style.display = 'flex';
+        } else if (currentAgeRating === 'none') {
             ageRatingContainer.style.display = 'none';
-            return;
-        }
-        if (isRatingAutoTimerEnabled && !document.getElementById('position-modal').classList.contains('active')) {
-            const curM = curH * 60 + now.getMinutes();
+        } else if (isRatingAutoTimerEnabled && !document.getElementById('position-modal').classList.contains('active')) {
+            const curMins = curH * 60 + curM;
             const [onH, onM] = ratingTimerOnTime.split(':').map(Number);
             const [offH, offM] = ratingTimerOffTime.split(':').map(Number);
-            const onMins = onH * 60 + onM;
-            const offMins = offH * 60 + offM;
+            const onTotal = onH * 60 + onM;
+            const offTotal = offH * 60 + offM;
 
-            let inWindow = (onMins <= offMins) ? (curM >= onMins && curM < offMins) : (curM >= onMins || curM < offMins);
-            if (!inWindow) {
-                ageRatingContainer.style.display = 'none';
-                return;
+            let inWindow = (onTotal <= offTotal) ? (curMins >= onTotal && curMins < offTotal) : (curMins >= onTotal || curMins < offTotal);
+            ageRatingContainer.style.display = inWindow ? 'flex' : 'none';
+        } else {
+            ageRatingContainer.style.display = 'flex';
+        }
+
+        // 2. Éjszakai Hírsáv kikapcsolás (22:00-06:00) & Reggeli véletlenszerű visszatérés (06:00:00 - 06:00:35)
+        if (isTvBroadcasting && isNewsGlassManualEnabled) {
+            if (curH >= 22 || curH < 6) {
+                newsGlassContainer.style.display = 'none';
+                morningNewsRandomDelayPassed = false;
+            } else if (curH === 6 && curM === 0 && curS < randomMorningOffsetSeconds) {
+                newsGlassContainer.style.display = 'none';
+            } else {
+                newsGlassContainer.style.display = 'flex';
+                morningNewsRandomDelayPassed = true;
             }
         }
-        ageRatingContainer.style.display = 'flex';
     }
 
     function toggleAgeRating() {
