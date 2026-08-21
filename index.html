@@ -194,7 +194,7 @@
         pointer-events: none;
         transform: translateZ(0);
         will-change: opacity;
-        transition: opacity 0.8s ease-in-out;
+        transition: opacity 1.2s ease-in-out;
     }
     .tv-video-deck.active {
         opacity: 1;
@@ -213,7 +213,7 @@
         background: #000;
         transform: scale(1.05);
         transform-origin: center center;
-        transition: opacity 0.8s ease-in-out;
+        transition: opacity 1.2s ease-in-out;
         will-change: opacity;
     }
     .tv-embed-deck.active {
@@ -971,7 +971,7 @@
         <div style="max-height:280px; overflow-y:auto;">
             <table class="rundown-table">
                 <thead>
-                    <tr><th>ADÁSKEZDET</th><th>MŰSOR</th><th>CÍM / ELŐADÓ</th><th>KORHATÁR</th><th>HOSSZ</th><th>ADÁSVÉG</th><th>MŰVELET</th></tr>
+                    <tr><th>ADÁSKEZDET</th><th>MŰSOR</th><th>CÍM / ELŐADÓ</th><th>KORHATÁR</th><th>PONTOS HOSSZ</th><th>ADÁSVÉG</th><th>MŰVELET</th></tr>
                 </thead>
                 <tbody id="rundown-tbody"></tbody>
             </table>
@@ -1056,6 +1056,9 @@
                 <label style="display:flex; align-items:center; gap:6px; font-size:0.72rem; color:var(--accent-cyan); font-family:'Space Mono',monospace; cursor:pointer; white-space:nowrap;">
                     <input type="checkbox" id="modal-auto-append" checked onchange="toggleManualTime(this.checked)"> Folyamatos sorrend
                 </label>
+            </div>
+            <div style="font-size:0.68rem; color:var(--text-muted); margin-top:8px;">
+                💡 <strong>Beszúrás mód:</strong> Ha egy adott időre szúrod be, a rendszer pontosan oda illeszti be, és az utána következő összes klipet automatikusan elcsúsztatja!
             </div>
         </div>
 
@@ -1300,7 +1303,7 @@
 <script>
     const WORKER_URL = "https://kepbenoszlop.androjid21.workers.dev";
     const FIREBASE_URL = "https://hiroszlop-default-rtdb.europe-west1.firebasedatabase.app";
-    const VIDEO_CROSSFADE_SEC = 4;
+    const VIDEO_CROSSFADE_SEC = 8; // 🎚️ 8 MÁSODPERCES LÁGY ÉS ZÖKKENŐMENTES KERESZTÁTÚSZTATÁS
 
     // 🏙️ 85 VÁROS (MAGYAR + 25 KIEMELT KÜLFÖLDI VÁROS)
     const HUNGARY_CITIES = [
@@ -1375,8 +1378,6 @@
     let isAgcActive = true;
     let isAudioInitialized = false;
     let agcMonitorTimer = null;
-    let testToneOsc = null;
-    let testToneGain = null;
 
     // TWITCH DETEKTOR
     let monitoredTwitchChannels = JSON.parse(localStorage.getItem('kb_twitch_monitors') || '["thevr"]');
@@ -1411,9 +1412,6 @@
     let currentWeatherCityIndex = 0;
     let weatherCityInterval = null;
 
-    let upcomingDrawerHideTimer = null;
-    let lastDrawerTriggerMinute = -1;
-
     const deckA = document.getElementById('tv-video-deck-a');
     const deckB = document.getElementById('tv-video-deck-b');
     const embedDeckA = document.getElementById('tv-embed-deck-a');
@@ -1435,7 +1433,6 @@
 
     const newsCardBox = document.getElementById('news-card-box');
     const newsSourceBadge = document.getElementById('news-source-badge');
-    const newsTimeStamp = document.getElementById('news-time-stamp');
     const newsHeadlineText = document.getElementById('news-headline-text');
     const newsSummaryText = document.getElementById('news-summary-text');
 
@@ -1835,7 +1832,7 @@
         }
     }
 
-    // 🛡️ DUAL YOUTUBE PRE-EMPTIVE MONITOR (NINCSENEK AJÁNLÓK!)
+    // 🛡️ DUAL YOUTUBE PRE-EMPTIVE MONITOR (8 MÁSODPERCCEL A VÉGE ELŐTT LÁGY ÁTFEDÉS)
     function startYtMonitor() {
         clearInterval(ytMonitorInterval);
         ytMonitorInterval = setInterval(() => {
@@ -1849,21 +1846,21 @@
 
             // Dal vége előtt 24 mp-cel: Outro kártyák
             const remaining = dur - curTime;
-            if (remaining <= 24 && remaining > 5 && !isEndSequenceRunning) {
+            if (remaining <= 24 && remaining > (VIDEO_CROSSFADE_SEC + 1) && !isEndSequenceRunning) {
                 const todayKey = getSelectedDateKey(0);
                 runTrackPresentationSequence(weekSchedules[todayKey] || [], false);
             }
 
-            // Dal vége előtt 4 mp-cel: LÁGY ÁTÚSZTATÁS A KÖVETKEZŐRE! (NINCS AJÁNLÓ!)
+            // Dal vége előtt 8 mp-cel: LÁGY ÁTÚSZTATÁS A KÖVETKEZŐRE! (NINCS AJÁNLÓ!)
             if (dur > 0 && remaining <= VIDEO_CROSSFADE_SEC) {
-                log(`⏱️ Klip vége közeleg ➔ Lágy átúsztatás a következőre...`, 'info');
+                log(`⏱️ 8 mp van hátra ➔ 8 másodperces lágy keresztátúsztatás indítása...`, 'info');
                 clearInterval(ytMonitorInterval);
                 executeVideoCrossfade(false);
             }
         }, 250);
     }
 
-    // 🎚️ LÁGY HIBRID ÁTÚSZTATÁS (CROSSFADE) YOUTUBE ÉS MP4 KÖZÖTT
+    // 🎚️ 8 MÁSODPERCES LÁGY HIBRID KERESZTÁTÚSZTATÁS (CROSSFADE)
     function executeVideoCrossfade(forceImmediate = false) {
         const todayKey = getSelectedDateKey(0);
         const schedule = weekSchedules[todayKey] || [];
@@ -1905,18 +1902,23 @@
             }
 
             let step = 0;
-            const steps = 20;
+            const steps = 80; // 8 másodperc (80 x 100ms)
             const timer = setInterval(() => {
                 step++;
                 const p = step / steps;
-                incomingEmbed.style.opacity = p.toFixed(2);
-                if (incomingPlayer && incomingPlayer.setVolume) incomingPlayer.setVolume(Math.round(masterVolume * 100 * p));
 
-                outgoingEmbed.style.opacity = (1 - p).toFixed(2);
-                if (outgoingPlayer && outgoingPlayer.setVolume) outgoingPlayer.setVolume(Math.round(masterVolume * 100 * (1 - p)));
+                // Egyenletes Equal-Power hang és látvány átúsztatás
+                const inVolCurve = Math.sin(p * Math.PI / 2);
+                const outVolCurve = Math.cos(p * Math.PI / 2);
 
-                outgoingVideo.style.opacity = (1 - p).toFixed(2);
-                outgoingVideo.volume = Math.max(0, masterVolume * (1 - p));
+                incomingEmbed.style.opacity = inVolCurve.toFixed(3);
+                if (incomingPlayer && incomingPlayer.setVolume) incomingPlayer.setVolume(Math.round(masterVolume * 100 * inVolCurve));
+
+                outgoingEmbed.style.opacity = outVolCurve.toFixed(3);
+                if (outgoingPlayer && outgoingPlayer.setVolume) outgoingPlayer.setVolume(Math.round(masterVolume * 100 * outVolCurve));
+
+                outgoingVideo.style.opacity = outVolCurve.toFixed(3);
+                outgoingVideo.volume = Math.max(0, masterVolume * outVolCurve);
 
                 if (step >= steps) {
                     clearInterval(timer);
@@ -1934,7 +1936,7 @@
                     startYtMonitor();
                     runTrackPresentationSequence(schedule, true);
                 }
-            }, 80);
+            }, 100);
             return;
         }
 
@@ -1954,19 +1956,22 @@
         nextDeck.play().catch(()=>{});
 
         let step = 0;
-        const steps = 20;
+        const steps = 80; // 8 másodperc (80 x 100ms)
         const timer = setInterval(() => {
             step++;
             const p = step / steps;
 
-            nextDeck.style.opacity = p.toFixed(2);
-            nextDeck.volume = Math.min(masterVolume, masterVolume * p);
+            const inVolCurve = Math.sin(p * Math.PI / 2);
+            const outVolCurve = Math.cos(p * Math.PI / 2);
 
-            currentDeck.style.opacity = (1 - p).toFixed(2);
-            currentDeck.volume = Math.max(0, masterVolume * (1 - p));
+            nextDeck.style.opacity = inVolCurve.toFixed(3);
+            nextDeck.volume = Math.min(masterVolume, masterVolume * inVolCurve);
 
-            activeYtEmbed.style.opacity = (1 - p).toFixed(2);
-            if (activeYtPlayer && activeYtPlayer.setVolume) activeYtPlayer.setVolume(Math.round(masterVolume * 100 * (1 - p)));
+            currentDeck.style.opacity = outVolCurve.toFixed(3);
+            currentDeck.volume = Math.max(0, masterVolume * outVolCurve);
+
+            activeYtEmbed.style.opacity = outVolCurve.toFixed(3);
+            if (activeYtPlayer && activeYtPlayer.setVolume) activeYtPlayer.setVolume(Math.round(masterVolume * 100 * outVolCurve));
 
             if (step >= steps) {
                 clearInterval(timer);
@@ -1984,7 +1989,7 @@
                 transitionLock = false;
                 runTrackPresentationSequence(schedule, true);
             }
-        }, 80);
+        }, 100);
     }
 
     function toggleTvBroadcast() {
@@ -2019,19 +2024,20 @@
         syncBroadcastSettingsToCloud();
     }
 
-    // 🎚️ INTELLIGENS DINAMIKUS AGC ÉS HANGKOMPRESSZOR
+    // 🎚️ INTELLIGENS DINAMIKUS AGC ÉS HANGKOMPRESSZOR (KIEGYENLÍTŐ)
     function setupAudioNodes() {
         if (isAudioInitialized) return;
         try {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
 
+            // Broadcast Dynamics Compressor
             compressorNode = audioCtx.createDynamicsCompressor();
-            compressorNode.threshold.setValueAtTime(-26, audioCtx.currentTime);
+            compressorNode.threshold.setValueAtTime(-24, audioCtx.currentTime);
             compressorNode.knee.setValueAtTime(30, audioCtx.currentTime);
-            compressorNode.ratio.setValueAtTime(16, audioCtx.currentTime);
-            compressorNode.attack.setValueAtTime(0.003, audioCtx.currentTime);
-            compressorNode.release.setValueAtTime(0.25, audioCtx.currentTime);
+            compressorNode.ratio.setValueAtTime(14, audioCtx.currentTime);
+            compressorNode.attack.setValueAtTime(0.002, audioCtx.currentTime);
+            compressorNode.release.setValueAtTime(0.20, audioCtx.currentTime);
 
             autoGainNode = audioCtx.createGain();
             autoGainNode.gain.setValueAtTime(1.0, audioCtx.currentTime);
@@ -2049,7 +2055,7 @@
 
             startAgcLevelMonitor();
             isAudioInitialized = true;
-            log("🎚️ [AGC] Dinamikus Stúdió Hangszintező bekapcsolva!", 'success');
+            log("🎚️ [AGC] Dinamikus Stúdió Hangszintező és Kompresszor aktív!", 'success');
         } catch(e){}
     }
 
@@ -2064,14 +2070,17 @@
             for (let i = 0; i < dataArr.length; i++) sum += dataArr[i];
             let avg = sum / dataArr.length;
 
-            if (avg > 0 && avg < 35) {
-                autoGainNode.gain.linearRampToValueAtTime(1.35, audioCtx.currentTime + 0.5);
-            } else if (avg > 95) {
-                autoGainNode.gain.linearRampToValueAtTime(0.75, audioCtx.currentTime + 0.5);
+            // Automatikus hangerő-kiegyenlítés (Normalizálás)
+            if (avg > 0 && avg < 30) {
+                // Halk tartalom: felerősítés
+                autoGainNode.gain.linearRampToValueAtTime(1.4, audioCtx.currentTime + 0.4);
+            } else if (avg > 90) {
+                // Túl hangos tartalom: visszaszabályozás
+                autoGainNode.gain.linearRampToValueAtTime(0.7, audioCtx.currentTime + 0.4);
             } else {
-                autoGainNode.gain.linearRampToValueAtTime(1.0, audioCtx.currentTime + 0.5);
+                autoGainNode.gain.linearRampToValueAtTime(1.0, audioCtx.currentTime + 0.4);
             }
-        }, 800);
+        }, 500);
     }
 
     function toggleAudioCompressor() {
@@ -2087,72 +2096,7 @@
         }
     }
 
-    // 🎴 PONTOS STÚDIÓ KÁRTYA SZEKVENCIÁK (INTRO: 7.5S MOST / OUTRO: MOST -> KÖVETKEZIK -> KÉSŐBB)
-    function triggerLowerThirdBanner(type, rawTrackTitle, showCat) {
-        if (!isTvBroadcasting || !isLogoVisible) return;
-        const showConfig = tvDaypartConfig[showCat] || tvDaypartConfig.delelott;
-        applyDaypartTheme(showCat);
-
-        const parsed = parseArtistAndTitle(rawTrackTitle);
-        ltShowTitle.textContent = showConfig.title;
-        ltStatusBadge.className = `lt-status-badge badge-${type.toLowerCase()}`;
-        ltStatusBadge.textContent = type;
-        ltArtistRow.textContent = parsed.artist;
-        ltTrackRow.textContent = parsed.title;
-
-        if (parsed.title.length > 36 || parsed.artist.length > 28) ltTrackRow.classList.add('font-shrink');
-        else ltTrackRow.classList.remove('font-shrink');
-
-        lowerThirdBanner.classList.add('banner-show');
-    }
-
-    function hideLowerThirdImmediate() {
-        clearTimeout(bannerHideTimeout);
-        bannerSequenceTimers.forEach(t => clearTimeout(t));
-        bannerSequenceTimers = [];
-        isIntroBannerRunning = false;
-        isEndSequenceRunning = false;
-        lowerThirdBanner.classList.remove('banner-show');
-    }
-
-    function runTrackPresentationSequence(schedule, isIntro = true) {
-        if (!isTvBroadcasting || !isLogoVisible) return;
-        hideLowerThirdImmediate();
-
-        const curClip = schedule[currentClipIndex];
-        const curCat = curClip?.cat || getDaypartKeyForHour(new Date().getHours());
-
-        if (isIntro) {
-            isIntroBannerRunning = true;
-            if (curClip) triggerLowerThirdBanner("MOST", curClip.title, curCat);
-
-            bannerSequenceTimers.push(setTimeout(() => {
-                lowerThirdBanner.classList.remove('banner-show');
-                isIntroBannerRunning = false;
-            }, 7500));
-        } else {
-            isEndSequenceRunning = true;
-            const nextClip = schedule[(currentClipIndex + 1) % schedule.length];
-            const laterClip = schedule[(currentClipIndex + 2) % schedule.length];
-
-            if (curClip) triggerLowerThirdBanner("MOST", curClip.title, curCat);
-
-            bannerSequenceTimers.push(setTimeout(() => {
-                if (nextClip && isTvBroadcasting) triggerLowerThirdBanner("KÖVETKEZIK", nextClip.title, curCat);
-            }, 5000));
-
-            bannerSequenceTimers.push(setTimeout(() => {
-                if (laterClip && isTvBroadcasting) triggerLowerThirdBanner("KÉSŐBB", laterClip.title, curCat);
-            }, 10000));
-
-            bannerSequenceTimers.push(setTimeout(() => {
-                lowerThirdBanner.classList.remove('banner-show');
-                isEndSequenceRunning = false;
-            }, 15000));
-        }
-    }
-
-    // 📋 ADÁSTERV TÁBLÁZAT (VALÓS IDEJŰ AKTÍV SOR KIJELÖLÉSSEL)
+    // 📋 ADÁSTERV TÁBLÁZAT (PONTOS HOSSZ KIÍRÁSSAL ÉS ÉLŐ SOR KIJELÖLÉSSEL)
     function renderRundownTable() {
         const tbody = document.getElementById('rundown-tbody');
         const dateKey = getSelectedDateKey(selectedDayIndex);
@@ -2173,6 +2117,10 @@
             const isYt = item.youtubeId || item.isYouTubeClip;
             const isStreamItem = item.isStream;
 
+            const m = Math.floor(item.duration / 60);
+            const s = item.duration % 60;
+            const formattedDur = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')} (${item.duration} mp)`;
+
             return `
                 <tr id="rundown-row-${idx}" class="${isCurrentOnAir ? 'current-on-air-row' : ''}">
                     <td>
@@ -2187,7 +2135,7 @@
                         </span>
                     </td>
                     <td><span style="font-family:'Space Mono',monospace; font-weight:800; font-size:0.75rem; color:#facc15;">${item.rating === 'none' ? '🚫 Nincs' : item.rating}</span></td>
-                    <td style="font-family:'Space Mono',monospace; color:var(--text-muted);">${Math.floor(item.duration/60)}:${String(item.duration%60).padStart(2,'0')}</td>
+                    <td style="font-family:'Space Mono',monospace; font-weight:700; color:#e2e8f0;">${formattedDur}</td>
                     <td style="font-family:'Space Mono',monospace; color:var(--text-muted);">${item.endTimeStr}</td>
                     <td><button class="btn-del-sm" onclick="removeRundownItem('${item.id}')">❌</button></td>
                 </tr>
