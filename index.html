@@ -356,7 +356,7 @@
     }
     .tv-morning-clock.active { display: inline-block; }
 
-    /* 🎴 LOWER-THIRD GRAFIKAI SÁV */
+    /* 🎴 LOWER-THIRD GRAFIKAI SÁV (PONTOS ELŐADÓ ÉS DALCÍM MEGJELENÍTŐ) */
     .tv-lower-third-banner {
         position: absolute;
         bottom: 74px;
@@ -365,13 +365,13 @@
         display: flex;
         flex-direction: column;
         gap: 3px;
-        max-width: 540px;
+        max-width: 560px;
         width: calc(100% - 120px);
         pointer-events: none;
         user-select: none;
         transform: translate3d(-125%, 0, 0);
         opacity: 0;
-        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s linear;
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s linear;
         will-change: transform, opacity;
     }
     .tv-lower-third-banner.banner-show {
@@ -455,7 +455,7 @@
     }
     .lt-artist-row {
         font-family: 'Space Mono', monospace;
-        font-size: 0.76rem;
+        font-size: 0.78rem;
         font-weight: 800;
         color: var(--accent-cyan);
         letter-spacing: 0.2px;
@@ -463,7 +463,7 @@
         line-height: 1.2;
     }
     .lt-track-row {
-        font-size: 0.90rem;
+        font-size: 0.92rem;
         font-weight: 800;
         color: #ffffff;
         letter-spacing: -0.1px;
@@ -519,7 +519,7 @@
         align-items: center;
         gap: 10px;
         flex-shrink: 0;
-        min-width: 195px;
+        min-width: 205px;
     }
     .ticker-date-badge {
         display: flex;
@@ -534,7 +534,7 @@
 
     .weather-box-anim { display: flex; align-items: center; gap: 8px; transition: opacity 0.2s ease; }
     .weather-box-anim.switching { opacity: 0; }
-    .weather-icon-badge { font-size: 1.25rem; }
+    .weather-icon-badge { font-size: 1.3rem; line-height: 1; }
     .weather-info-col { display: flex; flex-direction: column; line-height: 1.1; }
     .weather-city-lbl { font-family: 'Space Mono', monospace; font-size: 0.64rem; font-weight: 800; color: #ffffff; text-shadow: 0 1px 2px #000; }
     .weather-temp-lbl { font-family: 'Space Mono', monospace; font-size: 0.80rem; font-weight: 900; color: var(--theme-primary); text-shadow: 0 1px 2px #000; }
@@ -867,7 +867,7 @@
         <div class="tv-watermark-wrap" id="tv-watermark-wrap">
             <div class="tv-watermark-clean">
                 <svg class="kb-icon-mini" viewBox="0 0 24 24">
-                    <path d="M3 8V5a2 2 0 0 1 2-2h3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M21 16v3a2 2 0 0 1-2 2h-3"/>
+                    <path d="M3 8V5a2 2 0 0 1 2-2h3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 1-2 2h-3"/>
                     <circle cx="12" cy="12" r="3"/>
                     <circle cx="12" cy="12" r="8" opacity="0.5"/>
                 </svg>
@@ -1056,9 +1056,6 @@
                 <label style="display:flex; align-items:center; gap:6px; font-size:0.72rem; color:var(--accent-cyan); font-family:'Space Mono',monospace; cursor:pointer; white-space:nowrap;">
                     <input type="checkbox" id="modal-auto-append" checked onchange="toggleManualTime(this.checked)"> Folyamatos sorrend
                 </label>
-            </div>
-            <div style="font-size:0.68rem; color:var(--text-muted); margin-top:8px;">
-                💡 <strong>Beszúrás mód:</strong> Ha egy adott időre szúrod be, a rendszer pontosan oda illeszti be, és az utána következő összes klipet automatikusan elcsúsztatja!
             </div>
         </div>
 
@@ -1254,7 +1251,7 @@
         </div>
         <div>
             <label style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted); display:flex; justify-content:space-between;">
-                <span>ALULRÓL (Bottom):</span> <strong id="lbl-pos-bottom" style="color:#fff;">74 px</strong>
+                <span>ALULRŐL (Bottom):</span> <strong id="lbl-pos-bottom" style="color:#fff;">74 px</strong>
             </label>
             <input type="range" min="20" max="150" value="74" id="rng-pos-bottom" style="width:100%; accent-color:var(--accent-cyan);" oninput="updatePositionsUI()">
         </div>
@@ -1303,9 +1300,9 @@
 <script>
     const WORKER_URL = "https://kepbenoszlop.androjid21.workers.dev";
     const FIREBASE_URL = "https://hiroszlop-default-rtdb.europe-west1.firebasedatabase.app";
-    const VIDEO_CROSSFADE_SEC = 8; // 🎚️ 8 MÁSODPERCES LÁGY ÉS ZÖKKENŐMENTES KERESZTÁTÚSZTATÁS
+    const VIDEO_CROSSFADE_SEC = 8; // 🎚️ 8 MÁSODPERCES LÁGY KERESZTÁTÚSZTATÁS
 
-    // 🏙️ 85 VÁROS (MAGYAR + 25 KIEMELT KÜLFÖLDI VÁROS)
+    // 🏙️ 85 VÁROS (MAGYAR + 25 KIEMELT NEMZETKÖZI / EURÓPAI VÁROS)
     const HUNGARY_CITIES = [
         { name: "Budapest", lat: 47.4979, lon: 19.0402 },
         { name: "Debrecen", lat: 47.5316, lon: 21.6273 },
@@ -1356,8 +1353,8 @@
     let currentClipIndex = -1;
     let currentlyPlayingId = null;
     let selectedAssignFilename = null;
-    let activeDeckName = 'A'; // 'A' or 'B' for MP4 / Video
-    let activeYtDeck = 'A';   // 'A' or 'B' for Dual YouTube
+    let activeDeckName = 'A'; // 'A' or 'B'
+    let activeYtDeck = 'A';   // 'A' or 'B'
     let isVideoTransitioning = false;
     let masterVolume = 0.9;
     let transitionLock = false;
@@ -1468,7 +1465,7 @@
         { title: "Krisz Rudi - Homokba zárt víz", filename: "yt_kr_02.mp4", youtubeId: "4NRXx6U8ABQ", duration: 198, isYouTubeClip: true }
     ];
 
-    // 🌐 DUAL YOUTUBE PLAYER INITIALIZATION (SEAMLESS AJÁNLÓMENTES ÁTFEDÉS)
+    // 🌐 DUAL YOUTUBE PLAYER INITIALIZATION
     window.onYouTubeIframeAPIReady = function() {
         isYtApiReady = true;
         const originUrl = window.location.origin || (window.location.protocol + "//" + window.location.host);
@@ -1825,7 +1822,7 @@
                 log(`▶️ [MP4 ÉLŐBEN] ${clip.title} (+${Math.round(offset)} mp seek)`, 'success');
             }
 
-            if (offset < 15) runTrackPresentationSequence(schedule, true);
+            if (offset < 12) runTrackPresentationSequence(schedule, true);
         } else {
             let nextClip = schedule.find(item => item.startSec > curSec) || schedule[0];
             showStandby(nextClip ? nextClip.startTimeStr : null);
@@ -1843,9 +1840,9 @@
 
             const curTime = activePlayer.getCurrentTime();
             const dur = activePlayer.getDuration();
+            const remaining = dur - curTime;
 
             // Dal vége előtt 24 mp-cel: Outro kártyák
-            const remaining = dur - curTime;
             if (remaining <= 24 && remaining > (VIDEO_CROSSFADE_SEC + 1) && !isEndSequenceRunning) {
                 const todayKey = getSelectedDateKey(0);
                 runTrackPresentationSequence(weekSchedules[todayKey] || [], false);
@@ -1907,7 +1904,6 @@
                 step++;
                 const p = step / steps;
 
-                // Egyenletes Equal-Power hang és látvány átúsztatás
                 const inVolCurve = Math.sin(p * Math.PI / 2);
                 const outVolCurve = Math.cos(p * Math.PI / 2);
 
@@ -2031,7 +2027,6 @@
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
 
-            // Broadcast Dynamics Compressor
             compressorNode = audioCtx.createDynamicsCompressor();
             compressorNode.threshold.setValueAtTime(-24, audioCtx.currentTime);
             compressorNode.knee.setValueAtTime(30, audioCtx.currentTime);
@@ -2070,12 +2065,9 @@
             for (let i = 0; i < dataArr.length; i++) sum += dataArr[i];
             let avg = sum / dataArr.length;
 
-            // Automatikus hangerő-kiegyenlítés (Normalizálás)
             if (avg > 0 && avg < 30) {
-                // Halk tartalom: felerősítés
                 autoGainNode.gain.linearRampToValueAtTime(1.4, audioCtx.currentTime + 0.4);
             } else if (avg > 90) {
-                // Túl hangos tartalom: visszaszabályozás
                 autoGainNode.gain.linearRampToValueAtTime(0.7, audioCtx.currentTime + 0.4);
             } else {
                 autoGainNode.gain.linearRampToValueAtTime(1.0, audioCtx.currentTime + 0.4);
@@ -2093,6 +2085,71 @@
             btn.classList.remove('active-toggle');
             btn.textContent = "🎚️ Dinamikus AGC: KI";
             if (autoGainNode) autoGainNode.gain.setValueAtTime(1.0, audioCtx.currentTime);
+        }
+    }
+
+    // 🎴 PONTOS STÚDIÓ KÁRTYA SZEKVENCIÁK (INTRO: 7.5S MOST / OUTRO: MOST -> KÖVETKEZIK -> KÉSŐBB)
+    function triggerLowerThirdBanner(type, rawTrackTitle, showCat) {
+        if (!isTvBroadcasting || !isLogoVisible) return;
+        const showConfig = tvDaypartConfig[showCat] || tvDaypartConfig.delelott;
+        applyDaypartTheme(showCat);
+
+        const parsed = parseArtistAndTitle(rawTrackTitle);
+        ltShowTitle.textContent = showConfig.title;
+        ltStatusBadge.className = `lt-status-badge badge-${type.toLowerCase()}`;
+        ltStatusBadge.textContent = type;
+        ltArtistRow.textContent = parsed.artist;
+        ltTrackRow.textContent = parsed.title;
+
+        if (parsed.title.length > 36 || parsed.artist.length > 28) ltTrackRow.classList.add('font-shrink');
+        else ltTrackRow.classList.remove('font-shrink');
+
+        lowerThirdBanner.classList.add('banner-show');
+    }
+
+    function hideLowerThirdImmediate() {
+        clearTimeout(bannerHideTimeout);
+        bannerSequenceTimers.forEach(t => clearTimeout(t));
+        bannerSequenceTimers = [];
+        isIntroBannerRunning = false;
+        isEndSequenceRunning = false;
+        lowerThirdBanner.classList.remove('banner-show');
+    }
+
+    function runTrackPresentationSequence(schedule, isIntro = true) {
+        if (!isTvBroadcasting || !isLogoVisible) return;
+        hideLowerThirdImmediate();
+
+        const curClip = schedule[currentClipIndex];
+        const curCat = curClip?.cat || getDaypartKeyForHour(new Date().getHours());
+
+        if (isIntro) {
+            isIntroBannerRunning = true;
+            if (curClip) triggerLowerThirdBanner("MOST", curClip.title, curCat);
+
+            bannerSequenceTimers.push(setTimeout(() => {
+                lowerThirdBanner.classList.remove('banner-show');
+                isIntroBannerRunning = false;
+            }, 7500));
+        } else {
+            isEndSequenceRunning = true;
+            const nextClip = schedule[(currentClipIndex + 1) % schedule.length];
+            const laterClip = schedule[(currentClipIndex + 2) % schedule.length];
+
+            if (curClip) triggerLowerThirdBanner("MOST", curClip.title, curCat);
+
+            bannerSequenceTimers.push(setTimeout(() => {
+                if (nextClip && isTvBroadcasting) triggerLowerThirdBanner("KÖVETKEZIK", nextClip.title, curCat);
+            }, 5000));
+
+            bannerSequenceTimers.push(setTimeout(() => {
+                if (laterClip && isTvBroadcasting) triggerLowerThirdBanner("KÉSŐBB", laterClip.title, curCat);
+            }, 10000));
+
+            bannerSequenceTimers.push(setTimeout(() => {
+                lowerThirdBanner.classList.remove('banner-show');
+                isEndSequenceRunning = false;
+            }, 15000));
         }
     }
 
@@ -2480,7 +2537,7 @@
         setTimeout(() => {
             newsHeadlineText.textContent = item.title;
             newsSummaryText.textContent = item.summary || "A hír részleteit és a teljes műsort keresse a KÉPBEN! Music Television online felületein.";
-            newsSourceBadge.innerHTML = `<span>📌 ${item.source}</span><span style="opacity:0.5;">|</span><span id="news-time-stamp">${item.timeStr}</span>`;
+            newsSourceBadge.innerHTML = `<span>📌 ${item.source}</span><span style="opacity:0.5;">|</span><span>${item.timeStr}</span>`;
 
             newsCardBox.classList.remove('news-exit');
             newsCardBox.classList.add('news-visible');
@@ -2490,22 +2547,55 @@
         }, 320);
     }
 
-    // ⛅ IDŐJÁRÁS (85 VÁROS, 10 PERCES LEKÉRDEZÉS)
+    // ⛅ IDŐJÁRÁS (85 VÁROS, WMO KÓDOLÁS ÉS 10 PERCES LEKÉRDEZÉS)
+    function decodeWmoWeather(code, isDay = 1) {
+        const isNight = (isDay === 0);
+        if (code === 0) return isNight ? { icon: "🌙", text: "Tiszta csillagos ég" } : { icon: "☀️", text: "Tiszta, napos idő" };
+        if (code === 1) return isNight ? { icon: "🌙⛅", text: "Alig felhős éjjel" } : { icon: "🌤️", text: "Túlnyomóan derült" };
+        if (code === 2) return isNight ? { icon: "☁️🌙", text: "Részben felhős" } : { icon: "⛅", text: "Változóan felhős" };
+        if (code === 3) return { icon: "☁️", text: "Borult égbolt" };
+        if (code === 45 || code === 48) return { icon: "🌫️", text: "Párás, ködös idő" };
+        if (code >= 51 && code <= 55) return { icon: "🌦️", text: "Szitálás" };
+        if (code === 56 || code === 57) return { icon: "🌧️", text: "Ónos szitálás" };
+        if (code >= 61 && code <= 65) return { icon: "🌧️", text: "Esőzés" };
+        if (code === 66 || code === 67) return { icon: "🌧️", text: "Ónos eső" };
+        if (code >= 71 && code <= 77) return { icon: "❄️", text: "Havazás" };
+        if (code >= 80 && code <= 82) return { icon: "🌦️", text: "Záporeső" };
+        if (code === 85 || code === 86) return { icon: "🌨️", text: "Hózápor" };
+        if (code >= 95 && code <= 99) return { icon: "⛈️", text: "Zivatar" };
+        return isNight ? { icon: "🌙", text: "Csendes éjszaka" } : { icon: "🌤️", text: "Kellemes idő" };
+    }
+
     async function fetchLiveWeather() {
         try {
-            const lats = HUNGARY_CITIES.map(c => c.lat).join(',');
-            const lons = HUNGARY_CITIES.map(c => c.lon).join(',');
-            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&current=temperature_2m,weather_code,is_day&timezone=auto`);
-            if (res.ok) {
-                const data = await res.json();
-                if (Array.isArray(data)) {
-                    cachedWeatherData = data.map((d, i) => ({
-                        name: HUNGARY_CITIES[i].name.toUpperCase(),
-                        temp: d.current.temperature_2m.toFixed(1),
-                        icon: d.current.is_day ? "☀️" : "🌙"
-                    }));
-                    renderCurrentWeatherCity();
+            const chunks = [HUNGARY_CITIES.slice(0, 45), HUNGARY_CITIES.slice(45)];
+            let items = [];
+
+            for (const chunk of chunks) {
+                const lats = chunk.map(c => c.lat).join(',');
+                const lons = chunk.map(c => c.lon).join(',');
+                const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&current=temperature_2m,weather_code,is_day&timezone=auto`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data)) {
+                        data.forEach((cityRes, idx) => {
+                            if (cityRes.current && chunk[idx]) {
+                                const info = decodeWmoWeather(cityRes.current.weather_code, cityRes.current.is_day);
+                                items.push({
+                                    name: chunk[idx].name.toUpperCase(),
+                                    temp: Number(cityRes.current.temperature_2m).toFixed(1),
+                                    icon: info.icon,
+                                    desc: info.text
+                                });
+                            }
+                        });
+                    }
                 }
+            }
+
+            if (items.length > 0) {
+                cachedWeatherData = items;
+                renderCurrentWeatherCity();
             }
         } catch(e){}
     }
@@ -2514,7 +2604,8 @@
         if (cachedWeatherData.length === 0) return;
         const c = cachedWeatherData[currentWeatherCityIndex % cachedWeatherData.length];
         weatherCityLbl.textContent = c.name;
-        weatherTempLbl.textContent = `+${c.temp}°C`;
+        const tempVal = parseFloat(c.temp);
+        weatherTempLbl.textContent = `${tempVal > 0 ? '+' : ''}${c.temp}°C`;
         weatherIconBadge.textContent = c.icon;
     }
 
