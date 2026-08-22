@@ -957,7 +957,7 @@
                     <span style="color:#facc15; font-size:0.75rem;">(22:00 – 06:00)</span>
                 </div>
                 <div class="nw-desc-row">
-                    A futó dal után indul az éjszakai kísérleti Discovery DJ blokk (véletlenszerű YouTube válogatás · 18+).
+                    A futó dal után indul az éjszakai Discovery DJ blokk (változatos rock, metál & elektronika · 18+).
                 </div>
             </div>
             <div class="nw-countdown-badge" id="nw-countdown-badge">
@@ -1151,15 +1151,15 @@
         </div>
     </div>
 
-    <!-- 📂 VIDEÓTÁR (AUTOMATIKUS DUPLIKÁCIÓ-DETEKTORRAL, PLAYLIST IMPORTÁLÓVAL ÉS R2 FELHŐ TÖRLŐ GOMBBAL) -->
+    <!-- 📂 VIDEÓTÁR (AUTOMATIKUS DUPLIKÁCIÓ-DETEKTORRAL ÉS R2 FELHŐ TÖRLŐ GOMBBAL) -->
     <div class="library-panel">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
             <div style="font-family:'Space Mono',monospace; font-size:0.85rem; font-weight:700; color:var(--accent-green);">
                 📂 VIDEÓKLIP TÁR (<span id="library-count">0</span> db)
             </div>
             <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                <button class="btn-act" style="background:rgba(56,189,248,0.2); color:var(--accent-cyan); font-weight:800;" onclick="openPlaylistImportModal()">📥 YouTube Playlist Importálás</button>
                 <button class="btn-act" style="background:var(--accent-red); color:#fff; font-weight:800;" onclick="openAddYouTubeDirectModal()">➕ YouTube Klip</button>
+                <button class="btn-act" style="background:var(--accent-purple); color:#fff; font-weight:800;" onclick="openImportPlaylistModal()">📥 Playlist Import</button>
                 <button class="btn-act" onclick="loadR2Library()">🔄 Frissítés</button>
             </div>
         </div>
@@ -1185,31 +1185,6 @@
     </div>
 
     <div class="log-box" id="studio-log"></div>
-</div>
-
-<!-- 🪟 YOUTUBE PLAYLIST IMPORTÁLÓ MODAL (AUTOMATIKUS ÁLLÓKÉP-SZŰRŐVEL) -->
-<div class="modal-overlay" id="playlist-import-modal">
-    <div class="modal-card">
-        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
-            <div style="font-family:'Space Mono',monospace; font-size:0.85rem; font-weight:800; color:var(--accent-cyan);">
-                📥 YOUTUBE PLAYLIST IMPORTÁLÁS (ÁLLÓKÉP-SZŰRŐVEL)
-            </div>
-            <button class="btn-del-sm" onclick="closePlaylistImportModal()">✖</button>
-        </div>
-
-        <div>
-            <label style="font-family:'Space Mono',monospace; font-size:0.7rem; color:var(--text-muted); display:block; margin-bottom:4px;">YOUTUBE LEJÁTSZÁSI LISTA LINK / ID:</label>
-            <input type="text" id="inp-playlist-url" placeholder="https://www.youtube.com/playlist?list=PL... vagy lista ID" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-family:'Space Mono',monospace; font-size:0.82rem; outline:none; font-weight:700;">
-        </div>
-
-        <div style="background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.25); border-radius:10px; padding:10px; font-size:0.7rem; color:#cbd5e1; line-height:1.4;">
-            🛡️ <strong>Szigorú Állókép-Szűrő Aktív:</strong> Az importálás automatikusan kizárja a <em>- Topic</em>, <em>Official Audio</em>, <em>Lyric Video</em> és <em>Visualizer</em> feltöltéseket. Kizárólag a hivatalos, 2:00 és 4:30 közötti mozgóképes videóklipek kerülnek be a tárba!
-        </div>
-
-        <button class="btn-act" style="background:var(--accent-cyan); color:#000; font-size:0.85rem; padding:10px; border:none; font-weight:800;" onclick="confirmPlaylistImport()">
-            🚀 Playlist Feldolgozása & Klipek Importálása
-        </button>
-    </div>
 </div>
 
 <!-- 🪟 ADÁSBA SZÚRÁS MODAL -->
@@ -1264,6 +1239,21 @@
     </div>
 </div>
 
+<!-- 🪟 YOUTUBE PLAYLIST IMPORTÁLÓ MODAL (ÁLLÓKÉP- ÉS TOPIC SZŰRŐVEL) -->
+<div class="modal-overlay" id="yt-playlist-modal">
+    <div class="modal-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
+            <strong style="color:var(--accent-purple); font-family:'Space Mono',monospace;">📥 YOUTUBE PLAYLIST IMPORT (ÁLLÓKÉP-SZŰRŐVEL)</strong>
+            <button class="btn-del-sm" onclick="closeImportPlaylistModal()">✖</button>
+        </div>
+        <div style="font-size:0.75rem; color:#cbd5e1; line-height:1.4;">
+            Illessz be egy nyilvános YouTube lejátszási lista linket (pl. <em>Top 100 Hits, Rock Classics</em>). A motor automatikusan kiszűri a borítóképes, <strong>Topic</strong> és <strong>Audio-only</strong> videókat, és csak a valódi mozgóképes videóklipeket menti el!
+        </div>
+        <input type="text" id="inp-yt-playlist-url" placeholder="https://www.youtube.com/playlist?list=PL..." style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:10px; font-family:'Space Mono',monospace; font-size:0.82rem;">
+        <button class="btn-act" style="background:var(--accent-purple); color:#000; font-weight:800; padding:12px;" onclick="confirmImportYouTubePlaylist()">🚀 Valódi Klipek Importálása</button>
+    </div>
+</div>
+
 <!-- 🪟 YOUTUBE KLIP HOZZÁADÓ MODAL -->
 <div class="modal-overlay" id="yt-direct-modal">
     <div class="modal-card">
@@ -1281,7 +1271,7 @@
     </div>
 </div>
 
-<!-- 🪟 JAVÍTOTT KÜLSŐ LINK (YOUTUBE / TWITCH LIVE) MODAL - NAP + ÓRA + PERC LEGÖRDÜLŐVEL -->
+<!-- 🪟 KÜLSŐ LINK (YOUTUBE / TWITCH LIVE) MODAL - NAP + ÓRA + PERC LEGÖRDÜLŐVEL -->
 <div class="modal-overlay" id="external-link-modal">
     <div class="modal-card">
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
@@ -1407,7 +1397,7 @@
                 <option value="none">🚫 Nincs (Kikapcsolva)</option>
                 <option value="0">🟢 0 (Gyermekbarát)</option>
                 <option value="6">🟡 6</option>
-                <option value="12" selected>🟡 12</option>
+                <option value="12">🟡 12</option>
                 <option value="16">🟡 16</option>
                 <option value="18">🔴 18</option>
             </select>
@@ -1805,88 +1795,279 @@
     const vuLedFill = document.getElementById('vu-led-fill');
     const limiterDot = document.getElementById('limiter-dot');
 
-    // 📥 YOUTUBE PLAYLIST IMPORTÁLÁS MODAL MEGNYITÁSA ÉS KEZELÉSE
-    function openPlaylistImportModal() {
-        document.getElementById('playlist-import-modal').classList.add('active');
-    }
+    const tvDaypartConfig = {
+        ejjel: { title: "🌙 KÉPBEN! Éjjel · Discovery DJ", primaryColor: "#818cf8", gradient: "linear-gradient(135deg, #050811 0%, #1e1b4b 100%)" },
+        reggel: { title: "🌅 Ébredj KÉPBEN!", primaryColor: "#f59e0b", gradient: "linear-gradient(135deg, #1b263b 0%, #78350f 100%)" },
+        delelott: { title: "☀️ KÉPBEN! Délelőtt", primaryColor: "#38bdf8", gradient: "linear-gradient(135deg, #0b1329 0%, #0369a1 100%)" },
+        delben: { title: "🍽️ KÉPBEN! Délben", primaryColor: "#10b981", gradient: "linear-gradient(135deg, #062419 0%, #047857 100%)" },
+        delutan: { title: "🌆 KÉPBEN! Délután", primaryColor: "#06b6d4", gradient: "linear-gradient(135deg, #0b1329 0%, #0e7490 100%)" },
+        este: { title: "🎉 KÉPBEN! Este", primaryColor: "#c084fc", gradient: "linear-gradient(135deg, #0b1329 0%, #6b21a8 100%)" },
+        kesoeste: { title: "🌌 KÉPBEN! Késő Este · Discovery DJ", primaryColor: "#6366f1", gradient: "linear-gradient(135deg, #0b1026 0%, #312e81 100%)" },
+        live: { title: "🔴 KÉPBEN! ÉLŐ KÖZVETÍTÉS", primaryColor: "#ef4444", gradient: "linear-gradient(135deg, #1e0b0b 0%, #7f1d1d 100%)" }
+    };
 
-    function closePlaylistImportModal() {
-        document.getElementById('playlist-import-modal').classList.remove('active');
-    }
+    // 🌐 DUAL YOUTUBE PLAYER INITIALIZATION
+    window.onYouTubeIframeAPIReady = function() {
+        isYtApiReady = true;
+        const originUrl = window.location.origin || (window.location.protocol + "//" + window.location.host);
 
-    async function confirmPlaylistImport() {
-        const urlOrId = document.getElementById('inp-playlist-url').value.trim();
-        if (!urlOrId) return alert("Kérlek add meg a YouTube Playlist URL-jét vagy azonosítóját!");
-
-        let pId = urlOrId;
-        const m = urlOrId.match(/[?&]list=([a-zA-Z0-9_-]+)/);
-        if (m) pId = m[1];
-
-        log(`📥 [PLAYLIST IMPORT] Playlist letöltése és átvilágítása (ID: ${pId})...`, 'info');
-
-        const blacklistWords = ["- topic", "official audio", "audio only", "lyric video", "lyrics", "visualizer", "static video", "album stream", "full album", "dalszöveges"];
-        let addedCount = 0;
-
-        const invidiousNodes = [
-            "https://inv.tux.pizza",
-            "https://invidious.nerdvpn.de",
-            "https://vid.priv.au"
-        ];
-
-        let videos = [];
-        for (let node of invidiousNodes) {
-            try {
-                const res = await fetch(`${node}/api/v1/playlists/${pId}`, { signal: AbortSignal.timeout(3500) });
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data && Array.isArray(data.videos) && data.videos.length > 0) {
-                        videos = data.videos;
-                        break;
-                    }
+        try {
+            ytPlayerA = new YT.Player('yt-player-target-a', {
+                height: '100%',
+                width: '100%',
+                playerVars: {
+                    autoplay: 1,
+                    controls: 0,
+                    rel: 0,
+                    modestbranding: 1,
+                    iv_load_policy: 3,
+                    cc_load_policy: 0,
+                    disablekb: 1,
+                    fs: 0,
+                    playsinline: 1,
+                    enablejsapi: 1,
+                    suggestedQuality: 'hd1080',
+                    origin: originUrl
+                },
+                events: {
+                    onReady: () => { 
+                        isYtPlayerAReady = true; 
+                        disableYouTubeCaptions(ytPlayerA);
+                        applyBestYouTubeQuality(ytPlayerA);
+                        log("🎬 YouTube Deck A üzemkész!", "success"); 
+                    },
+                    onStateChange: (e) => { 
+                        ytPlayerAState = e.data;
+                        if (e.data === YT.PlayerState.PLAYING) {
+                            disableYouTubeCaptions(ytPlayerA);
+                            applyBestYouTubeQuality(ytPlayerA);
+                        }
+                        if (e.data === YT.PlayerState.ENDED) executeVideoCrossfade(true); 
+                    },
+                    onError: (err) => { handleYouTubePlaybackError(err, 'A'); }
                 }
-            } catch(e){}
-        }
+            });
 
-        if (videos.length === 0) {
-            alert("⚠️ Nem sikerült letölteni a lejátszási listát vagy a lista privát/üres.");
+            ytPlayerB = new YT.Player('yt-player-target-b', {
+                height: '100%',
+                width: '100%',
+                playerVars: {
+                    autoplay: 1,
+                    controls: 0,
+                    rel: 0,
+                    modestbranding: 1,
+                    iv_load_policy: 3,
+                    cc_load_policy: 0,
+                    disablekb: 1,
+                    fs: 0,
+                    playsinline: 1,
+                    enablejsapi: 1,
+                    suggestedQuality: 'hd1080',
+                    origin: originUrl
+                },
+                events: {
+                    onReady: () => { 
+                        isYtPlayerBReady = true; 
+                        disableYouTubeCaptions(ytPlayerB);
+                        applyBestYouTubeQuality(ytPlayerB);
+                        log("🎬 YouTube Deck B üzemkész!", "success"); 
+                    },
+                    onStateChange: (e) => { 
+                        ytPlayerBState = e.data;
+                        if (e.data === YT.PlayerState.PLAYING) {
+                            disableYouTubeCaptions(ytPlayerB);
+                            applyBestYouTubeQuality(ytPlayerB);
+                        }
+                        if (e.data === YT.PlayerState.ENDED) executeVideoCrossfade(true); 
+                    },
+                    onError: (err) => { handleYouTubePlaybackError(err, 'B'); }
+                }
+            });
+        } catch(e) {
+            log(`⚠️ YouTube API Init: ${e.message}`, 'warn');
+        }
+    };
+
+    function disableYouTubeCaptions(player) {
+        if (!player) return;
+        try {
+            if (player.unloadModule) player.unloadModule("captions");
+            if (player.setOption) player.setOption('captions', 'track', {});
+        } catch(e){}
+    }
+
+    function applyBestYouTubeQuality(player) {
+        if (!player) return;
+        try {
+            if (player.getAvailableQualityLevels) {
+                const levels = player.getAvailableQualityLevels();
+                if (levels && levels.includes('hd1080')) player.setPlaybackQuality('hd1080');
+                else if (levels && levels.includes('hd720')) player.setPlaybackQuality('hd720');
+                else if (levels && levels.includes('large')) player.setPlaybackQuality('large');
+                else if (player.setPlaybackQuality) player.setPlaybackQuality('highres');
+            } else if (player.setPlaybackQuality) {
+                player.setPlaybackQuality('hd1080');
+            }
+        } catch(e){}
+    }
+
+    // 🛡️ 30+ VÉSZHELYZETI KLIPBŐL TÖRTÉNŐ RANDOM, NEM ISMÉTLŐDŐ HÚZÁS
+    function getNextEmergencyBackupClip() {
+        if (emergencyDrawDeck.length === 0) {
+            emergencyDrawDeck = [...EMERGENCY_BACKUP_POOL];
+            for (let i = emergencyDrawDeck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [emergencyDrawDeck[i], emergencyDrawDeck[j]] = [emergencyDrawDeck[j], emergencyDrawDeck[i]];
+            }
+        }
+        return emergencyDrawDeck.pop() || EMERGENCY_BACKUP_POOL[0];
+    }
+
+    // 🛡️ HIBABIZTOS YOUTUBE FALLBACK KEZELŐ
+    function handleYouTubePlaybackError(err, deckName) {
+        log(`🚨 [YT HIBA] A YouTube videó nem elérhető (Kód: ${err.data || 'error'}). Váltás tartalék forrásra!`, 'warn');
+        const todayKey = getSelectedDateKey(0);
+        const sched = weekSchedules[todayKey] || [];
+        const currentItem = sched[currentClipIndex];
+
+        if (currentItem && currentItem.url && currentItem.url.includes('http') && !currentItem.url.includes('youtube.com')) {
+            log(`🛡️ [R2 FALLBACK] Átváltás az R2 MP4 változatra: ${currentItem.title}`, 'success');
+            embedDeckA.classList.remove('active'); embedDeckA.style.opacity = '0';
+            embedDeckB.classList.remove('active'); embedDeckB.style.opacity = '0';
+            const activeDeck = (activeDeckName === 'A') ? deckA : deckB;
+            activeDeck.src = currentItem.url;
+            activeDeck.volume = masterVolume;
+            activeDeck.style.opacity = '1';
+            activeDeck.classList.add('active');
+            activeDeck.play().catch(()=>{});
             return;
         }
 
-        videos.forEach(v => {
-            const titleLower = (v.title || '').toLowerCase();
-            const authorLower = (v.author || '').toLowerCase();
-            const dur = v.lengthSeconds || 210;
+        const backupClip = getNextEmergencyBackupClip();
+        log(`🛡️ [HOT-SWAP] Random 30+ biztonsági klip betöltése: "${backupClip.title}"...`, 'success');
+        const targetPlayer = (deckName === 'A') ? ytPlayerA : ytPlayerB;
+        if (targetPlayer && targetPlayer.loadVideoById) {
+            targetPlayer.loadVideoById({ videoId: backupClip.youtubeId, startSeconds: 0 });
+            targetPlayer.unMute();
+            targetPlayer.setVolume(Math.round(masterVolume * 100));
+        } else {
+            executeVideoCrossfade(true);
+        }
+    }
 
-            // 🛡️ SZIGORÚ ÁLLÓKÉP ÉS HOSSZ SZŰRŐ: Csakis 2:00 és 4:30 közötti valódi klipek
-            const isBlacklisted = blacklistWords.some(w => titleLower.includes(w) || authorLower.includes(w));
-            const isDurationValid = (dur >= 120 && dur <= 270);
+    function log(msg, type = 'info') {
+        const box = document.getElementById('studio-log');
+        const time = new Date().toLocaleTimeString('hu-HU');
+        const div = document.createElement('div');
+        div.style.marginBottom = '2px';
+        if (type === 'success') div.style.color = '#22c55e';
+        if (type === 'warn') div.style.color = '#f59e0b';
+        if (type === 'error') div.style.color = '#ef4444';
+        div.textContent = `[${time}] ${msg}`;
+        box.appendChild(div);
+        box.scrollTop = box.scrollHeight;
+    }
 
-            if (!isBlacklisted && isDurationValid && v.videoId) {
-                const exists = customYouTubeClips.some(c => c.youtubeId === v.videoId);
-                if (!exists) {
-                    const parsed = parseArtistAndTitle(v.title);
-                    customYouTubeClips.push({
-                        filename: `yt_${v.videoId}.mp4`,
-                        title: `${parsed.artist} - ${parsed.title}`,
-                        rawUrl: `https://www.youtube.com/watch?v=${v.videoId}`,
-                        youtubeId: v.videoId,
-                        duration: dur,
-                        isYouTubeClip: true
+    function cleanHtmlText(raw) {
+        if (!raw) return "";
+        return raw.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+    }
+
+    function parseArtistAndTitle(rawTitle) {
+        if (!rawTitle) return { artist: "KÉPBEN! MUSIC", title: "-" };
+        let clean = rawTitle.replace(/\.(mp4|webm)$/i, '').replace(/^\d+[\.\-\s]+/, '');
+        clean = clean.replace(/\s*\[.*?\]|\s*\(.*?\)/g, '').trim();
+        let parts = clean.split(/ - | – | · |: /);
+        if (parts.length >= 2) {
+            return { artist: parts[0].trim() || "KÉPBEN! MUSIC", title: parts.slice(1).join(' - ').trim() || clean };
+        }
+        return { artist: "KÉPBEN! SLÁGER", title: clean };
+    }
+
+    function extractYouTubeVideoId(url) {
+        if (!url) return null;
+        const clean = url.trim();
+        if (/^[a-zA-Z0-9_-]{11}$/.test(clean)) return clean;
+        const match = clean.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|live)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i);
+        return match ? match[1] : null;
+    }
+
+    function extractYouTubePlaylistId(url) {
+        if (!url) return null;
+        const match = url.match(/[?&]list=([a-zA-Z0-9_-]+)/i);
+        return match ? match[1] : (url.startsWith('PL') ? url.trim() : null);
+    }
+
+    // 🛡️ SZIGORÚ ÁLLÓKÉP ÉS TOPIC SZŰRŐ (KIZÁRJA A DALSZÖVEGES ÉS AUTOMATIKUS ALBUMKÉPES VIDEÓKAT)
+    function isStrictlyValidMusicVideo(title) {
+        if (!title) return false;
+        const lower = title.toLowerCase();
+        
+        // ❌ FEKETELISTA: Állóképek, Topicok, Csak hangok, Dalszöveges feltöltések
+        const blacklist = [
+            "- topic", "official audio", "audio only", "audio)", "audio]", "lyric video", 
+            "lyrics", "dalszöveg", "visualizer", "static video", "full album", "album stream",
+            "podcast", "cover art", "loop", "hour version", "extended mix", "instrumental"
+        ];
+        if (blacklist.some(bad => lower.includes(bad))) return false;
+
+        return true;
+    }
+
+    // 📥 YOUTUBE PLAYLIST IMPORTÁLÓ FUNKCIÓ (AUTOMATIKUS SZŰRÉSSEL)
+    function openImportPlaylistModal() {
+        document.getElementById('yt-playlist-modal').classList.add('active');
+    }
+    function closeImportPlaylistModal() {
+        document.getElementById('yt-playlist-modal').classList.remove('active');
+    }
+
+    async function confirmImportYouTubePlaylist() {
+        const url = document.getElementById('inp-yt-playlist-url').value.trim();
+        const pId = extractYouTubePlaylistId(url);
+        if (!pId) return alert("Érvénytelen YouTube Playlist link!");
+
+        log(`📥 [PLAYLIST IMPORT] "${pId}" lekérdezése és állókép-szűrése...`, 'info');
+
+        try {
+            // Publikus Invidious / Piped API lekérés a lejátszási lista videóira
+            const res = await fetch(`https://inv.tux.pizza/api/v1/playlists/${pId}`, { signal: AbortSignal.timeout(4000) });
+            if (res.ok) {
+                const data = await res.json();
+                if (data && Array.isArray(data.videos)) {
+                    let addedCount = 0;
+                    data.videos.forEach(v => {
+                        const dur = v.lengthSeconds || 210;
+                        if (isStrictlyValidMusicVideo(v.title) && dur >= 120 && dur <= 270) {
+                            if (!customYouTubeClips.some(c => c.youtubeId === v.videoId)) {
+                                customYouTubeClips.push({
+                                    filename: `yt_${v.videoId}.mp4`,
+                                    title: v.title,
+                                    rawUrl: `https://www.youtube.com/watch?v=${v.videoId}`,
+                                    youtubeId: v.videoId,
+                                    duration: dur,
+                                    isYouTubeClip: true
+                                });
+                                addedCount++;
+                            }
+                        }
                     });
-                    addedCount++;
+
+                    localStorage.setItem('kb_yt_direct_clips', JSON.stringify(customYouTubeClips));
+                    try {
+                        fetch(`${FIREBASE_URL}/custom_yt_clips.json`, { method: 'PUT', body: JSON.stringify(customYouTubeClips) });
+                    } catch(e){}
+
+                    renderLibraryTable();
+                    closeImportPlaylistModal();
+                    log(`🎉 [IMPORT SIKERES] ${addedCount} valódi mozgóképes videóklip hozzáadva a Videótárhoz!`, 'success');
+                    alert(`✅ Sikeres import: ${addedCount} db ellenőrzött mozgóképes videóklip bekerült a Videótárba!`);
+                    return;
                 }
             }
-        });
-
-        localStorage.setItem('kb_yt_direct_clips', JSON.stringify(customYouTubeClips));
-        try {
-            fetch(`${FIREBASE_URL}/custom_yt_clips.json`, { method: 'PUT', body: JSON.stringify(customYouTubeClips) });
         } catch(e){}
 
-        renderLibraryTable();
-        closePlaylistImportModal();
-        log(`🎉 [PLAYLIST KÉSZ] ${addedCount} db valódi mozgóképes videóklip importálva (állókép és topic videók kiszűrve)!`, 'success');
-        alert(`🎉 SIKER: ${addedCount} valódi videóklip sikeresen bekerült a Videótáradba! (Az állóképes és nem megfelelő hosszúságú videók automatikusan kidobva)`);
+        alert("⚠️ Nem sikerült közvetlenül feldolgozni a lejátszási listát. Ellenőrizd, hogy nyilvános-e a lista!");
     }
 
     // ⭐ 1-KATTINTÁSOS MENTÉS A VIDEÓKLIP TÁRBA
@@ -2432,13 +2613,11 @@
             const dur = activePlayer.getDuration();
             const remaining = dur - curTime;
 
-            // Outro kártyák 20 mp-cel a vége előtt
             if (remaining <= 20 && remaining > (VIDEO_CROSSFADE_SEC + 1) && !isEndSequenceRunning) {
                 const todayKey = getSelectedDateKey(0);
                 runTrackPresentationSequence(weekSchedules[todayKey] || [], false);
             }
 
-            // Pontosan 4 mp-cel a vége előtt elindítjuk a lágy átúsztatást, így a YouTube ajánlódobozok SOHA NEM JELENNEK MEG!
             if (dur > 0 && remaining <= VIDEO_CROSSFADE_SEC && remaining > 0) {
                 log(`⏱️ Klip vége elérve (${remaining.toFixed(1)} mp) ➔ Tiszta, ajánlómentes átúsztatás...`, 'info');
                 clearInterval(ytMonitorInterval);
@@ -3045,7 +3224,6 @@
 
         const ytId = extractYouTubeVideoId(url);
         const dateKey = getSelectedDateKey(dayIdx);
-        const showCat = getDaypartKeyForHour(h);
 
         const streamClip = {
             title: `🔴 ${title}`,
@@ -3058,7 +3236,7 @@
             isStream: true
         };
 
-        insertClipAtTime(dateKey, streamClip, startSec, showCat, rating);
+        insertClipAtTime(dateKey, streamClip, startSec, getDaypartKeyForHour(Math.floor(startSec / 3600)), rating);
         closeExternalLinkModal();
         log(`🔴 [STREAM IDŐZÍTVE] "${title}" @ ${formatSecToHMS(startSec)} (${dateKey})`, 'success');
     }
@@ -3231,7 +3409,6 @@
         const curM = now.getMinutes();
         const curS = now.getSeconds();
 
-        // 1. Éjszakai Korhatár (22:00-06:00)
         if (curH >= 22 || curH < 6) {
             ageRatingContainer.style.display = 'flex';
         } else if (currentAgeRating === 'none') {
@@ -3249,7 +3426,6 @@
             ageRatingContainer.style.display = 'flex';
         }
 
-        // 2. Éjszakai Hírsáv kikapcsolás (22:00-06:00) & Reggeli véletlenszerű visszatérés (06:00:00 - 06:00:35)
         if (isTvBroadcasting && isNewsGlassManualEnabled) {
             if (curH >= 22 || curH < 6) {
                 newsGlassContainer.style.display = 'none';
@@ -3475,7 +3651,7 @@
         }, 8000);
     }
 
-    // ⏱️ FŐ ÓRA ÉS IDŐZÍTETT 21:59:00 - 22:00:00 FIGYELMEZTETŐ MOTOR
+    // ⏱️ FŐ ÓRA ÉS IDŐZÍTETT 21:59:00 - 22:00:00 FIGYELMEZTETŐ MOTOR (NINCS HIRTELEN ELVÁGÁS!)
     function updateClock() {
         const now = new Date();
         const timeStr = now.toLocaleTimeString('hu-HU');
@@ -3489,7 +3665,6 @@
         const m = now.getMinutes();
         const s = now.getSeconds();
 
-        // 🌌 21:59:00 - 22:00:00: 1 PERCES DISZKRÉT FIGYELMEZTETŐ BANNER
         if (isTvBroadcasting && h === 21 && m === 59) {
             const remSec = 60 - s;
             nwCountdownBadge.textContent = `Indul: ${remSec} mp (dal után)`;
