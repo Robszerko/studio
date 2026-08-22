@@ -914,11 +914,11 @@
 
     <!-- 📺 MASTER TV SCREEN -->
     <div class="tv-screen-wrapper" id="tv-screen-container">
-        <!-- 🎬 MP4 DUAL-DECK -->
+        <!-- 🎬 MP4 DUAL-DECK (KÖZVETLEN REKLÁMMENTES LEJÁTSZÓ) -->
         <video id="tv-video-deck-a" class="tv-video-deck active" playsinline preload="auto"></video>
         <video id="tv-video-deck-b" class="tv-video-deck" playsinline preload="auto"></video>
 
-        <!-- 🌐 DUAL YOUTUBE CHROMELESS DECK (FELIRAT ÉS AJÁNLÓMENTES) -->
+        <!-- 🌐 DUAL YOUTUBE CHROMELESS DECK (TARTALÉK) -->
         <div id="tv-embed-deck-a" class="tv-embed-deck">
             <div id="yt-player-target-a" style="width:100%; height:100%;"></div>
         </div>
@@ -1076,7 +1076,7 @@
             <div class="tv-logo-sub-clock" id="tv-logo-sub-clock">--:--:--</div>
         </div>
 
-        <!-- 🟡🔴 100%-BAN ÁTLÁTSZÓ BELSEJŰ NMHH KORHATÁR KARIKA -->
+        <!-- 🟡🔴 100%-BAN ÁTLÁTSZÓ BELSEJŰ NMHH KORHATÁR KARIKA (ÁLLÍTHATÓ) -->
         <div class="tv-age-rating-container" id="tv-age-rating-container">
             <div class="nmhh-ring ring-yellow" id="nmhh-ring-box">
                 <span class="nmhh-number" id="nmhh-number-text">12</span>
@@ -1441,7 +1441,7 @@
             </div>
             <div>
                 <label style="font-family:'Space Mono',monospace; font-size:0.68rem; color:var(--accent-cyan); font-weight:700;">(MÁSODPERC):</label>
-                <input type="number" id="inp-edit-dur-sec" min="0" max="59" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-family:'Space Mono',monospace; font-size:0.8rem; font-weight:700; outline:none;">
+                <input type="number" id="inp-edit-dur-sec" min="0" max="59" style="width:100%; background:var(--card-sub); color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-family:'Space Mono',monospace; font-size:0.8rem; outline:none; font-weight:700;">
             </div>
         </div>
 
@@ -1451,7 +1451,7 @@
                 <option value="none">🚫 Nincs (Kikapcsolva)</option>
                 <option value="0">🟢 0 (Gyermekbarát)</option>
                 <option value="6">🟡 6</option>
-                <option value="12">🟡 12</option>
+                <option value="12" selected>🟡 12</option>
                 <option value="16">🟡 16</option>
                 <option value="18">🔴 18</option>
             </select>
@@ -1665,6 +1665,41 @@
         { name: "Kijev", lat: 50.4501, lon: 30.5234 },
         { name: "Rijeka", lat: 45.3271, lon: 14.4422 },
         { name: "Split", lat: 43.5147, lon: 16.4435 }
+    ];
+
+    // 🛡️ 30+ GARANTÁLTAN ÉLŐ, BEÁGYAZHATÓ BIZTONSÁGI VÉSZHELYZETI KLIP
+    const EMERGENCY_BACKUP_POOL = [
+        { title: "The Weeknd - Blinding Lights", youtubeId: "4NRXx6U8ABQ", duration: 200, isYouTubeClip: true },
+        { title: "Dua Lipa - Levitating", youtubeId: "TUVcZfQe-Kw", duration: 204, isYouTubeClip: true },
+        { title: "Calvin Harris - Summer", youtubeId: "ebXbLfLACGM", duration: 215, isYouTubeClip: true },
+        { title: "David Guetta - Titanium", youtubeId: "JRfuAukYTKg", duration: 245, isYouTubeClip: true },
+        { title: "Linkin Park - In the End", youtubeId: "eVTXPUF4Oz4", duration: 216, isYouTubeClip: true },
+        { title: "Linkin Park - Numb", youtubeId: "kXYiU_JCYtU", duration: 186, isYouTubeClip: true },
+        { title: "The Prodigy - Breathe", youtubeId: "6_PAHbqq-o4", duration: 240, isYouTubeClip: true },
+        { title: "The Prodigy - Firestarter", youtubeId: "wmin5W4FAC8", duration: 225, isYouTubeClip: true },
+        { title: "Rammstein - Du Hast", youtubeId: "W3q8Od5qJio", duration: 235, isYouTubeClip: true },
+        { title: "Daft Punk - One More Time", youtubeId: "FGBhQbmMxH8", duration: 235, isYouTubeClip: true },
+        { title: "Avicii - Wake Me Up", youtubeId: "IcrbM1l_BoI", duration: 270, isYouTubeClip: true },
+        { title: "Tiësto - The Business", youtubeId: "1_4ELAxKrDc", duration: 164, isYouTubeClip: true },
+        { title: "Nirvana - Smells Like Teen Spirit", youtubeId: "hTWKbfoikeg", duration: 270, isYouTubeClip: true },
+        { title: "Metallica - Enter Sandman", youtubeId: "1unkFBuysdI", duration: 270, isYouTubeClip: true },
+        { title: "Queen - Don't Stop Me Now", youtubeId: "aJez0ljzSQw", duration: 215, isYouTubeClip: true },
+        { title: "Gorillaz - Feel Good Inc.", youtubeId: "HyHNuVaZJ-k", duration: 245, isYouTubeClip: true },
+        { title: "Red Hot Chili Peppers - Can't Stop", youtubeId: "BfOdQmkibkc", duration: 269, isYouTubeClip: true },
+        { title: "Bon Jovi - It's My Life", youtubeId: "vx2u5uUNy2k", duration: 265, isYouTubeClip: true },
+        { title: "The Offspring - The Kids Aren't Alright", youtubeId: "7iNBLVxopiI", duration: 185, isYouTubeClip: true },
+        { title: "Green Day - Boulevard of Broken Dreams", youtubeId: "Soa3gO7tL-c", duration: 270, isYouTubeClip: true },
+        { title: "Muse - Uprising", youtubeId: "w8KQmps-Sog", duration: 250, isYouTubeClip: true },
+        { title: "Arctic Monkeys - Do I Wanna Know?", youtubeId: "bpOSxM0rN9g", duration: 265, isYouTubeClip: true },
+        { title: "Eminem - Without Me", youtubeId: "YVkUvmDQ3HY", duration: 270, isYouTubeClip: true },
+        { title: "Bruno Mars - 24K Magic", youtubeId: "UqyT8IEBbiY", duration: 230, isYouTubeClip: true },
+        { title: "Valmar ft. Szikora Robi - Úristen", youtubeId: "Kp26l2FYjkY", duration: 200, isYouTubeClip: true },
+        { title: "Azahriah x Desh - Mind1", youtubeId: "Mfy0OweIo3w", duration: 185, isYouTubeClip: true },
+        { title: "Halott Pénz - Valami van a levegőben", youtubeId: "LEZPCdc2oho", duration: 213, isYouTubeClip: true },
+        { title: "Wellhello - Rakpart", youtubeId: "K5L3XzE3G0g", duration: 215, isYouTubeClip: true },
+        { title: "Robin Schulz - Sugar", youtubeId: "bvC_0foemLY", duration: 220, isYouTubeClip: true },
+        { title: "Dua Lipa - Don't Start Now", youtubeId: "oygrmJFKYZY", duration: 185, isYouTubeClip: true },
+        { title: "Swedish House Mafia - Don't You Worry Child", youtubeId: "1y6smkh6c-0", duration: 215, isYouTubeClip: true }
     ];
 
     let emergencyDrawDeck = [];
@@ -2484,6 +2519,37 @@
         interstitialScreen.classList.remove('active');
     }
 
+    // 🚫 100% REKLÁMMENTES KÖZVETLEN STREAM BETÖLTŐ
+    async function loadCleanDirectStream(clip, targetDeck, offset = 0) {
+        const vId = clip.youtubeId || extractYouTubeVideoId(clip.rawUrl || clip.url);
+        
+        if (!vId) {
+            // Nem YouTube klip, normál R2 lejátszás
+            targetDeck.src = clip.url;
+            targetDeck.currentTime = offset;
+            targetDeck.play().catch(()=>{});
+            return true;
+        }
+
+        try {
+            // Lekérjük a Workerből a tiszta reklámmentes közvetlen videófolyamot
+            const res = await fetch(`${WORKER_URL}/api/radio/stream-url?id=${vId}`, { signal: AbortSignal.timeout(3200) });
+            if (res.ok) {
+                const data = await res.json();
+                if (data && data.status === 'success' && data.streamUrl) {
+                    targetDeck.src = data.streamUrl;
+                    targetDeck.currentTime = offset;
+                    await targetDeck.play();
+                    log(`⚡ [REKLÁMMENTES STREAM] "${clip.title}" tiszta videófolyam elindítva!`, 'success');
+                    return true;
+                }
+            }
+        } catch(e){}
+
+        // Fallback: Ha nem elérhető a közvetlen stream, a beépített privát/Invidious decken játsszuk le
+        return false;
+    }
+
     // 🎯 FALIÓRA SZERINTI PONTOS MÁSODPERC SZINKRONIZÁLÁS
     async function syncToCurrentWallClockTime() {
         if (!isTvBroadcasting || transitionLock || currentActiveTwitchStreamer) return;
@@ -2512,15 +2578,22 @@
             updateLiveBadgeUI(Boolean(clip.isStream));
             applyDaypartTheme(clip.cat);
 
-            let shouldPlayOnYt = false;
-            if (sourcePlaybackMode === 'yt_only') shouldPlayOnYt = true;
-            else if (sourcePlaybackMode === 'r2_only') shouldPlayOnYt = false;
-            else shouldPlayOnYt = Boolean(clip.youtubeId || clip.isYouTubeClip);
+            const activeDeck = (activeDeckName === 'A') ? deckA : deckB;
+            const otherDeck = (activeDeckName === 'A') ? deckB : deckA;
 
-            if (shouldPlayOnYt) {
-                deckA.pause(); deckB.pause();
-                deckA.style.opacity = '0'; deckB.style.opacity = '0';
+            otherDeck.pause();
+            otherDeck.style.opacity = '0';
+            otherDeck.classList.remove('active');
 
+            activeDeck.volume = masterVolume;
+            activeDeck.style.opacity = '1';
+            activeDeck.classList.add('active');
+
+            // Megpróbáljuk 100%-ban tiszta reklámmentes streamként betölteni a videó deckbe
+            const isCleanSuccess = await loadCleanDirectStream(clip, activeDeck, offset);
+
+            if (!isCleanSuccess) {
+                // Tartalék YouTube Deck lejátszás
                 const targetYtId = clip.youtubeId || extractYouTubeVideoId(clip.rawUrl || clip.url) || getNextEmergencyBackupClip().youtubeId;
                 const activePlayer = (activeYtDeck === 'A') ? ytPlayerA : ytPlayerB;
                 const activeEmbedDeck = (activeYtDeck === 'A') ? embedDeckA : embedDeckB;
@@ -2539,31 +2612,9 @@
                     applyBestYouTubeQuality(activePlayer);
                     startYtMonitor();
                 }
-
-                log(`▶️ [YOUTUBE HD] ${clip.title} (+${Math.round(offset)} mp seek)`, 'success');
-            } else {
-                clearInterval(ytMonitorInterval);
-                embedDeckA.classList.remove('active'); embedDeckA.style.opacity = '0';
-                embedDeckB.classList.remove('active'); embedDeckB.style.opacity = '0';
-                if (ytPlayerA && ytPlayerA.stopVideo) ytPlayerA.stopVideo();
-                if (ytPlayerB && ytPlayerB.stopVideo) ytPlayerB.stopVideo();
-
-                const activeDeck = (activeDeckName === 'A') ? deckA : deckB;
-                const otherDeck = (activeDeckName === 'A') ? deckB : deckA;
-
-                otherDeck.pause();
-                otherDeck.style.opacity = '0';
-                otherDeck.classList.remove('active');
-
-                activeDeck.src = clip.url;
-                activeDeck.currentTime = offset;
-                activeDeck.volume = masterVolume;
-                activeDeck.style.opacity = '1';
-                activeDeck.classList.add('active');
-                activeDeck.play().then(() => hideInterstitialScreen()).catch(()=>{});
-                log(`▶️ [R2 MP4] ${clip.title} (+${Math.round(offset)} mp seek)`, 'success');
             }
 
+            hideInterstitialScreen();
             if (offset < 12) runTrackPresentationSequence(schedule, true);
         } else {
             let nextClip = schedule.find(item => item.startSec > curSec) || schedule[0];
@@ -2597,7 +2648,7 @@
         }, 200);
     }
 
-    // 🎚️ ZERO-BLACK-SCREEN & ZERO-ENDCARD: ATOMBIZTOS ÁTÚSZTATÁS TECHNIKAI SZÜNET PUFFERREL
+    // 🎚️ ZERO-BLACK-SCREEN & REKLÁMMENTES KERESZTÁTÚSZTATÁS
     async function executeVideoCrossfade(forceImmediate = false) {
         if (twitchPendingSwitchStreamer) {
             log(`🚨 Dal véget ért ➔ Átkapcsolás ${twitchPendingSwitchStreamer.toUpperCase()} Twitch közvetítésére!`, 'warn');
@@ -2622,88 +2673,6 @@
         updateLiveBadgeUI(Boolean(newClip.isStream));
         applyDaypartTheme(newClip.cat);
 
-        let isNextYt = false;
-        if (sourcePlaybackMode === 'yt_only') isNextYt = true;
-        else if (sourcePlaybackMode === 'r2_only') isNextYt = false;
-        else isNextYt = Boolean(newClip.youtubeId || newClip.isYouTubeClip);
-
-        // 1. ESET: KÖVETKEZŐ ELEM YOUTUBE HD
-        if (isNextYt) {
-            const nextYtDeckName = (activeYtDeck === 'A') ? 'B' : 'A';
-            const incomingEmbed = (nextYtDeckName === 'A') ? embedDeckA : embedDeckB;
-            const outgoingEmbed = (nextYtDeckName === 'A') ? embedDeckB : embedDeckA;
-            const incomingPlayer = (nextYtDeckName === 'A') ? ytPlayerA : ytPlayerB;
-            const outgoingPlayer = (nextYtDeckName === 'A') ? ytPlayerB : ytPlayerA;
-            const outgoingVideo = (activeDeckName === 'A') ? deckA : deckB;
-
-            const targetYtId = newClip.youtubeId || extractYouTubeVideoId(newClip.rawUrl || newClip.url) || getNextEmergencyBackupClip().youtubeId;
-
-            incomingEmbed.classList.add('active');
-            incomingEmbed.style.opacity = '0';
-
-            if (incomingPlayer && incomingPlayer.loadVideoById) {
-                incomingPlayer.loadVideoById({ videoId: targetYtId, startSeconds: 0 });
-                incomingPlayer.unMute();
-                incomingPlayer.setVolume(0);
-                disableYouTubeCaptions(incomingPlayer);
-                applyBestYouTubeQuality(incomingPlayer);
-            }
-
-            let waitForPlayAttempts = 0;
-            const checkPlayStateInterval = setInterval(() => {
-                waitForPlayAttempts++;
-                const isPlaying = (nextYtDeckName === 'A' ? ytPlayerAState : ytPlayerBState) === YT.PlayerState.PLAYING;
-
-                // Ha késik a betöltés, beúszik a technikai szünet bumper
-                if (!isPlaying && waitForPlayAttempts > 6 && !interstitialScreen.classList.contains('active')) {
-                    showInterstitialScreen(newClip.title, 4);
-                }
-
-                if (isPlaying || waitForPlayAttempts > 25) {
-                    clearInterval(checkPlayStateInterval);
-
-                    let step = 0;
-                    const steps = 35;
-                    const timer = setInterval(() => {
-                        step++;
-                        const p = step / steps;
-
-                        const inVolCurve = Math.sin(p * Math.PI / 2);
-                        const outVolCurve = Math.cos(p * Math.PI / 2);
-
-                        incomingEmbed.style.opacity = inVolCurve.toFixed(3);
-                        if (incomingPlayer && incomingPlayer.setVolume) incomingPlayer.setVolume(Math.round(masterVolume * 100 * inVolCurve));
-
-                        outgoingEmbed.style.opacity = outVolCurve.toFixed(3);
-                        if (outgoingPlayer && outgoingPlayer.setVolume) outgoingPlayer.setVolume(Math.round(masterVolume * 100 * outVolCurve));
-
-                        outgoingVideo.style.opacity = outVolCurve.toFixed(3);
-                        outgoingVideo.volume = Math.max(0, masterVolume * outVolCurve);
-
-                        if (step >= steps) {
-                            clearInterval(timer);
-                            outgoingEmbed.classList.remove('active');
-                            outgoingEmbed.style.opacity = '0';
-                            if (outgoingPlayer && outgoingPlayer.stopVideo) outgoingPlayer.stopVideo();
-
-                            outgoingVideo.pause();
-                            outgoingVideo.classList.remove('active');
-                            outgoingVideo.style.opacity = '0';
-
-                            hideInterstitialScreen();
-                            activeYtDeck = nextYtDeckName;
-                            isVideoTransitioning = false;
-                            transitionLock = false;
-                            startYtMonitor();
-                            runTrackPresentationSequence(schedule, true);
-                        }
-                    }, 100);
-                }
-            }, 100);
-            return;
-        }
-
-        // 2. ESET: KÖVETKEZŐ ELEM R2 MP4
         const currentDeck = (activeDeckName === 'A') ? deckA : deckB;
         const nextDeck = (activeDeckName === 'A') ? deckB : deckA;
         const nextDeckName = (activeDeckName === 'A') ? 'B' : 'A';
@@ -2711,13 +2680,15 @@
         const activeYtPlayer = (activeYtDeck === 'A') ? ytPlayerA : ytPlayerB;
         const activeYtEmbed = (activeYtDeck === 'A') ? embedDeckA : embedDeckB;
 
-        nextDeck.src = newClip.url;
         nextDeck.currentTime = 0;
         nextDeck.volume = 0;
         nextDeck.style.opacity = '0';
         nextDeck.classList.add('active');
 
-        const startMp4Crossfade = () => {
+        // Megpróbáljuk közvetlen reklámmentes streamként indítani az új dalt
+        const isCleanDirect = await loadCleanDirectStream(newClip, nextDeck, 0);
+
+        if (isCleanDirect) {
             let step = 0;
             const steps = 35;
             const timer = setInterval(() => {
@@ -2754,14 +2725,79 @@
                     runTrackPresentationSequence(schedule, true);
                 }
             }, 100);
-        };
+            return;
+        }
 
-        nextDeck.play().then(() => {
-            startMp4Crossfade();
-        }).catch(() => {
-            showInterstitialScreen(newClip.title, 3);
-            setTimeout(startMp4Crossfade, 500);
-        });
+        // Fallback: Ha csak beágyazva megy a klip
+        const nextYtDeckName = (activeYtDeck === 'A') ? 'B' : 'A';
+        const incomingEmbed = (nextYtDeckName === 'A') ? embedDeckA : embedDeckB;
+        const outgoingEmbed = (nextYtDeckName === 'A') ? embedDeckB : embedDeckA;
+        const incomingPlayer = (nextYtDeckName === 'A') ? ytPlayerA : ytPlayerB;
+        const outgoingPlayer = (nextYtDeckName === 'A') ? ytPlayerB : ytPlayerA;
+
+        const targetYtId = newClip.youtubeId || extractYouTubeVideoId(newClip.rawUrl || newClip.url) || getNextEmergencyBackupClip().youtubeId;
+
+        incomingEmbed.classList.add('active');
+        incomingEmbed.style.opacity = '0';
+
+        if (incomingPlayer && incomingPlayer.loadVideoById) {
+            incomingPlayer.loadVideoById({ videoId: targetYtId, startSeconds: 0 });
+            incomingPlayer.unMute();
+            incomingPlayer.setVolume(0);
+            disableYouTubeCaptions(incomingPlayer);
+            applyBestYouTubeQuality(incomingPlayer);
+        }
+
+        let waitForPlayAttempts = 0;
+        const checkPlayStateInterval = setInterval(() => {
+            waitForPlayAttempts++;
+            const isPlaying = (nextYtDeckName === 'A' ? ytPlayerAState : ytPlayerBState) === YT.PlayerState.PLAYING;
+
+            if (!isPlaying && waitForPlayAttempts > 6 && !interstitialScreen.classList.contains('active')) {
+                showInterstitialScreen(newClip.title, 4);
+            }
+
+            if (isPlaying || waitForPlayAttempts > 25) {
+                clearInterval(checkPlayStateInterval);
+
+                let step = 0;
+                const steps = 35;
+                const timer = setInterval(() => {
+                    step++;
+                    const p = step / steps;
+
+                    const inVolCurve = Math.sin(p * Math.PI / 2);
+                    const outVolCurve = Math.cos(p * Math.PI / 2);
+
+                    incomingEmbed.style.opacity = inVolCurve.toFixed(3);
+                    if (incomingPlayer && incomingPlayer.setVolume) incomingPlayer.setVolume(Math.round(masterVolume * 100 * inVolCurve));
+
+                    outgoingEmbed.style.opacity = outVolCurve.toFixed(3);
+                    if (outgoingPlayer && outgoingPlayer.setVolume) outgoingPlayer.setVolume(Math.round(masterVolume * 100 * outVolCurve));
+
+                    currentDeck.style.opacity = outVolCurve.toFixed(3);
+                    currentDeck.volume = Math.max(0, masterVolume * outVolCurve);
+
+                    if (step >= steps) {
+                        clearInterval(timer);
+                        outgoingEmbed.classList.remove('active');
+                        outgoingEmbed.style.opacity = '0';
+                        if (outgoingPlayer && outgoingPlayer.stopVideo) outgoingPlayer.stopVideo();
+
+                        currentDeck.pause();
+                        currentDeck.classList.remove('active');
+                        currentDeck.style.opacity = '0';
+
+                        hideInterstitialScreen();
+                        activeYtDeck = nextYtDeckName;
+                        isVideoTransitioning = false;
+                        transitionLock = false;
+                        startYtMonitor();
+                        runTrackPresentationSequence(schedule, true);
+                    }
+                }, 100);
+            }
+        }, 100);
     }
 
     function toggleTvBroadcast() {
@@ -3129,7 +3165,7 @@
         }
     }
 
-    // 🔴 KÜLSŐ LINK & IDŐZÍTETT STREAM MODAL MEGNYITÁSA (LEGÖRDÜLŐVEL)
+    // 🔴 KÜLSŐ LINK & IDŐZÍTETT STREAM MODAL MEGNYITÁSA
     function openExternalLinkModal() {
         const daySelect = document.getElementById('modal-ext-day-select');
         daySelect.innerHTML = '';
@@ -3452,7 +3488,7 @@
     }
     function hideStandby() { standbyScreen.classList.remove('active'); }
 
-    // 📰 2026 HÍREK ÉS IDŐJÁRÁS (LEBEGŐ ÜVEGKÁRTYÁK)
+    // 📰 2026 HÍREK ÉS IDŐJÁRÁS
     async function fetchLiveNews() {
         try {
             const res = await fetch(`${WORKER_URL}?_t=${Date.now()}`);
@@ -3607,14 +3643,14 @@
         }, 8000);
     }
 
-    // 🤖 FOLYAMATOS 24 ÓRÁS ADÁS-ELLENŐRZŐ ÉS AUTOMATA ÖNKITÖLTŐ MOTOR
+    // 🤖 FOLYAMATOS 24 ÓRÁS MŰSOR-ÖNKITÖLTŐ MOTOR
     function checkAndAutofillUpcomingDays() {
         for (let i = 0; i < 7; i++) {
             const dateKey = getSelectedDateKey(i);
             const sched = weekSchedules[dateKey] || [];
             const totalSec = sched.length > 0 ? sched[sched.length - 1].endSec : 0;
             if (sched.length === 0 || totalSec < 85800) {
-                log(`🤖 [AUTODJ ÖNKITÖLTÉS] ${dateKey} hiányos (${Math.floor(totalSec/3600)} óra) ➔ Teljes 24 órás műsor önműködő generálása...`, 'info');
+                log(`🤖 [AUTODJ ÖNKITÖLTÉS] ${dateKey} hiányos (${Math.floor(totalSec/3600)} óra) ➔ 24 órás önműködő generálás...`, 'info');
                 autoGenerateDaySchedule(i, true);
             }
         }
