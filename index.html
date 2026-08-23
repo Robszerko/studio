@@ -1845,44 +1845,46 @@
         live: { title: "🔴 KÉPBEN! ÉLŐ KÖZVETÍTÉS", primaryColor: "#ef4444", gradient: "linear-gradient(135deg, #1e0b0b 0%, #7f1d1d 100%)" }
     };
 
-    // 🌐 DUAL YOUTUBE PLAYER INITIALIZATION
+    // 🌐 DUAL YOUTUBE PLAYER INITIALIZATION (JAVÍTOTT ORIGIN ÉS AUTOPLAY)
     window.onYouTubeIframeAPIReady = function() {
         isYtApiReady = true;
-        const originUrl = window.location.origin || (window.location.protocol + "//" + window.location.host);
+        const validOrigin = (window.location.origin && window.location.origin !== "null") ? window.location.origin : undefined;
+
+        const commonVars = {
+            autoplay: 1,
+            controls: 0,
+            rel: 0,
+            modestbranding: 1,
+            iv_load_policy: 3,
+            cc_load_policy: 0,
+            disablekb: 1,
+            fs: 0,
+            playsinline: 1,
+            enablejsapi: 1,
+            suggestedQuality: 'hd1080'
+        };
+        if (validOrigin) commonVars.origin = validOrigin;
 
         try {
             ytPlayerA = new YT.Player('yt-player-target-a', {
                 height: '100%',
                 width: '100%',
-                playerVars: {
-                    autoplay: 1,
-                    controls: 0,
-                    rel: 0,
-                    modestbranding: 1,
-                    iv_load_policy: 3,
-                    cc_load_policy: 0,
-                    disablekb: 1,
-                    fs: 0,
-                    playsinline: 1,
-                    enablejsapi: 1,
-                    suggestedQuality: 'hd1080',
-                    origin: originUrl
-                },
+                playerVars: commonVars,
                 events: {
                     onReady: () => { 
                         isYtPlayerAReady = true; 
                         disableYouTubeCaptions(ytPlayerA);
                         applyBestYouTubeQuality(ytPlayerA);
                         log("🎬 YouTube Deck A üzemkész!", "success"); 
+                        if (isTvBroadcasting) syncToCurrentWallClockTime();
                     },
                     onStateChange: (e) => { 
                         ytPlayerAState = e.data;
                         if (e.data === YT.PlayerState.PLAYING) {
                             disableYouTubeCaptions(ytPlayerA);
                             applyBestYouTubeQuality(ytPlayerA);
-                            if (activeYtDeck === 'A' && !preCueState.active) {
-                                hideInterstitialScreen();
-                            }
+                            hideInterstitialScreen();
+                            hideStandby();
                         }
                         if (e.data === YT.PlayerState.ENDED && activeYtDeck === 'A') {
                             executeVideoCrossfade(true); 
@@ -1895,20 +1897,7 @@
             ytPlayerB = new YT.Player('yt-player-target-b', {
                 height: '100%',
                 width: '100%',
-                playerVars: {
-                    autoplay: 1,
-                    controls: 0,
-                    rel: 0,
-                    modestbranding: 1,
-                    iv_load_policy: 3,
-                    cc_load_policy: 0,
-                    disablekb: 1,
-                    fs: 0,
-                    playsinline: 1,
-                    enablejsapi: 1,
-                    suggestedQuality: 'hd1080',
-                    origin: originUrl
-                },
+                playerVars: commonVars,
                 events: {
                     onReady: () => { 
                         isYtPlayerBReady = true; 
@@ -1921,9 +1910,8 @@
                         if (e.data === YT.PlayerState.PLAYING) {
                             disableYouTubeCaptions(ytPlayerB);
                             applyBestYouTubeQuality(ytPlayerB);
-                            if (activeYtDeck === 'B' && !preCueState.active) {
-                                hideInterstitialScreen();
-                            }
+                            hideInterstitialScreen();
+                            hideStandby();
                         }
                         if (e.data === YT.PlayerState.ENDED && activeYtDeck === 'B') {
                             executeVideoCrossfade(true); 
@@ -2625,18 +2613,18 @@
         return false;
     }
 
-    // 🎯 FALIÓRA SZERINTI PONTOS MÁSODPERC SZINKRONIZÁLÁS
+    // 🎯 FALIÓRA SZERINTI PONTOS MÁSODPERC SZINKRONIZÁLÁS (FEKETE KÉP FIX)
     async function syncToCurrentWallClockTime() {
         if (!isTvBroadcasting || transitionLock || currentActiveTwitchStreamer) return;
 
         const now = new Date();
         const curSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
         const todayKey = getSelectedDateKey(0);
-        const schedule = weekSchedules[todayKey] || [];
+        let schedule = weekSchedules[todayKey] || [];
 
         if (schedule.length === 0) {
-            showStandby(null);
-            return;
+            autoGenerateDaySchedule(0, true);
+            schedule = weekSchedules[todayKey] || [];
         }
 
         const foundIdx = schedule.findIndex(item => curSec >= item.startSec && curSec < item.endSec);
@@ -2660,13 +2648,22 @@
             otherDeck.style.opacity = '0';
             otherDeck.classList.remove('active');
 
-            activeDeck.volume = masterVolume;
-            activeDeck.style.opacity = '1';
-            activeDeck.classList.add('active');
-
+            // Ha nincs közvetlen R2 MP4 forrás, akkor a YouTube Decket aktiváljuk
             const isCleanSuccess = await loadCleanDirectStream(clip, activeDeck, offset);
 
-            if (!isCleanSuccess) {
+            if (isCleanSuccess) {
+                // MP4 élvez prioritást
+                activeDeck.volume = masterVolume;
+                activeDeck.style.opacity = '1';
+                activeDeck.classList.add('active');
+                embedDeckA.classList.remove('active'); embedDeckA.style.opacity = '0';
+                embedDeckB.classList.remove('active'); embedDeckB.style.opacity = '0';
+            } else {
+                // YouTube forrás: A fekete MP4 réteget kötelezően eltüntetjük a kép elől!
+                activeDeck.pause();
+                activeDeck.style.opacity = '0';
+                activeDeck.classList.remove('active');
+
                 const targetYtId = clip.youtubeId || extractYouTubeVideoId(clip.rawUrl || clip.url) || getNextEmergencyBackupClip().youtubeId;
                 const activePlayer = (activeYtDeck === 'A') ? ytPlayerA : ytPlayerB;
                 const activeEmbedDeck = (activeYtDeck === 'A') ? embedDeckA : embedDeckB;
