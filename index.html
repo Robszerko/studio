@@ -2585,30 +2585,61 @@
         }, 100);
     }
 
-    // 🚫 100% REKLÁMMENTES KÖZVETLEN STREAM BETÖLTŐ
+    // 🛡️ 100% REKLÁMMENTES KÖZVETLEN STREAM KINYERŐ (PIPED & INVIDIOUS DIRECT ENGINE)
     async function loadCleanDirectStream(clip, targetDeck, offset = 0) {
         const vId = clip.youtubeId || extractYouTubeVideoId(clip.rawUrl || clip.url);
         
         if (!vId) {
-            targetDeck.src = clip.url;
-            targetDeck.currentTime = offset;
-            targetDeck.play().catch(()=>{});
-            return true;
+            if (clip.url && clip.url.startsWith('http')) {
+                targetDeck.src = clip.url;
+                targetDeck.currentTime = offset;
+                targetDeck.play().catch(()=>{});
+                return true;
+            }
+            return false;
         }
 
+        // 1. Próbálkozás: Saját Cloudflare Worker
         try {
-            const res = await fetch(`${WORKER_URL}/api/radio/stream-url?id=${vId}`, { signal: AbortSignal.timeout(3200) });
+            const res = await fetch(`${WORKER_URL}/api/radio/stream-url?id=${vId}`, { signal: AbortSignal.timeout(2000) });
             if (res.ok) {
                 const data = await res.json();
-                if (data && data.status === 'success' && data.streamUrl) {
+                if (data && data.streamUrl) {
                     targetDeck.src = data.streamUrl;
                     targetDeck.currentTime = offset;
                     await targetDeck.play();
-                    log(`⚡ [REKLÁMMENTES STREAM] "${clip.title}" tiszta videófolyam elindítva!`, 'success');
+                    log(`⚡ [REKLÁMMENTES MP4] "${clip.title}" közvetlen videófolyam elindítva!`, 'success');
                     return true;
                 }
             }
         } catch(e){}
+
+        // 2. Próbálkozás: Invidious Nyilvános API pool (Direct MP4 URL)
+        const invidiousInstances = [
+            "https://inv.nadeko.net",
+            "https://invidious.nerdvpn.de",
+            "https://yt.chocolatemoo53.com",
+            "https://inv.thepixora.com"
+        ];
+
+        for (const inst of invidiousInstances) {
+            try {
+                const invRes = await fetch(`${inst}/api/v1/videos/${vId}`, { signal: AbortSignal.timeout(2200) });
+                if (invRes.ok) {
+                    const invData = await invRes.json();
+                    if (invData && Array.isArray(invData.formatStreams) && invData.formatStreams.length > 0) {
+                        const stream = invData.formatStreams.find(s => s.container === 'mp4' && (s.qualityLabel === '720p' || s.qualityLabel === '1080p')) || invData.formatStreams[0];
+                        if (stream && stream.url) {
+                            targetDeck.src = stream.url;
+                            targetDeck.currentTime = offset;
+                            await targetDeck.play();
+                            log(`⚡ [INVIDIOUS DIRECT MP4] "${clip.title}" tiszta videó elindítva reklám nélkül!`, 'success');
+                            return true;
+                        }
+                    }
+                }
+            } catch(e){}
+        }
 
         return false;
     }
@@ -2652,38 +2683,30 @@
             const isCleanSuccess = await loadCleanDirectStream(clip, activeDeck, offset);
 
             if (isCleanSuccess) {
-                // MP4 élvez prioritást
                 activeDeck.volume = masterVolume;
                 activeDeck.style.opacity = '1';
                 activeDeck.classList.add('active');
                 embedDeckA.classList.remove('active'); embedDeckA.style.opacity = '0';
                 embedDeckB.classList.remove('active'); embedDeckB.style.opacity = '0';
             } else {
-                // YouTube forrás: A fekete MP4 réteget kötelezően eltüntetjük a kép elől!
+                // 🚫 REKLÁMMENTES INVIDIOUS BEÁGYAZÁS (Ha az MP4 nem érhető el)
                 activeDeck.pause();
                 activeDeck.style.opacity = '0';
                 activeDeck.classList.remove('active');
 
                 const targetYtId = clip.youtubeId || extractYouTubeVideoId(clip.rawUrl || clip.url) || getNextEmergencyBackupClip().youtubeId;
-                const activePlayer = (activeYtDeck === 'A') ? ytPlayerA : ytPlayerB;
                 const activeEmbedDeck = (activeYtDeck === 'A') ? embedDeckA : embedDeckB;
                 const otherEmbedDeck = (activeYtDeck === 'A') ? embedDeckB : embedDeckA;
 
                 otherEmbedDeck.classList.remove('active');
                 otherEmbedDeck.style.opacity = '0';
+
+                // Reklámmentes Invidious lejátszó iframe betöltése
+                activeEmbedDeck.innerHTML = `<iframe style="width:100%; height:100%; border:none; pointer-events:none;" src="https://inv.nadeko.net/embed/${targetYtId}?autoplay=1&controls=0&loop=0&t=${Math.floor(offset)}" allow="autoplay; fullscreen"></iframe>`;
                 activeEmbedDeck.classList.add('active');
                 activeEmbedDeck.style.opacity = '1';
-
-                if (activePlayer && activePlayer.loadVideoById) {
-                    activePlayer.loadVideoById({ videoId: targetYtId, startSeconds: Math.floor(offset) });
-                    activePlayer.unMute();
-                    activePlayer.setVolume(Math.round(masterVolume * 100));
-                    disableYouTubeCaptions(activePlayer);
-                    applyBestYouTubeQuality(activePlayer);
-                    startYtMonitor();
-                }
+                log(`🛡️ [ZERO-AD EMBED] "${clip.title}" reklámmentes lejátszóban elindítva!`, 'success');
             }
-
             hideInterstitialScreen();
             if (offset < 12) runTrackPresentationSequence(schedule, true);
         } else {
