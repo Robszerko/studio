@@ -926,7 +926,7 @@
         <video id="tv-video-deck-a" class="tv-video-deck active" playsinline preload="auto"></video>
         <video id="tv-video-deck-b" class="tv-video-deck" playsinline preload="auto"></video>
 
-        <!-- 🌐 DUAL YOUTUBE CHROMELESS DECK (TARTALÉK) -->
+        <!-- 🌐 DUAL YOUTUBE CHROMELESS DECK (TARTALÉK & STREAM) -->
         <div id="tv-embed-deck-a" class="tv-embed-deck">
             <div id="yt-player-target-a" style="width:100%; height:100%;"></div>
         </div>
@@ -1334,7 +1334,7 @@
     </div>
 </div>
 
-<!-- 🪟 KÜLSŐ LINK (YOUTUBE / TWITCH LIVE) MODAL - NAP + ÓRA + PERC LEGÖRDÜLŐVEL -->
+<!-- 🪟 KÜLSŐ LINK (YOUTUBE / TWITCH LIVE) MODAL -->
 <div class="modal-overlay" id="external-link-modal">
     <div class="modal-card">
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
@@ -1713,7 +1713,7 @@
     let emergencyDrawDeck = [];
     let interstitialTimer = null;
 
-    // 100% Felhős Állapotok (0% LocalStorage!)
+    // 100% Felhős Állapotok
     let r2Library = [];
     let customYouTubeClips = [];
     let weekSchedules = {};
@@ -1730,6 +1730,16 @@
     let transitionLock = false;
 
     let sourcePlaybackMode = 'hybrid';
+
+    // 🛡️ PRE-ROLL DRAINER & CUEING ENGINE ÁLLAPOTOK
+    let preCueState = {
+        active: false,
+        cued: false,
+        deckName: null,
+        videoId: null,
+        title: null,
+        checkInterval: null
+    };
 
     // YOUTUBE & AUDIO AGC + LIMITER ENGINE
     let ytPlayerA = null;
@@ -1869,9 +1879,13 @@
                         if (e.data === YT.PlayerState.PLAYING) {
                             disableYouTubeCaptions(ytPlayerA);
                             applyBestYouTubeQuality(ytPlayerA);
-                            hideInterstitialScreen();
+                            if (activeYtDeck === 'A' && !preCueState.active) {
+                                hideInterstitialScreen();
+                            }
                         }
-                        if (e.data === YT.PlayerState.ENDED) executeVideoCrossfade(true); 
+                        if (e.data === YT.PlayerState.ENDED && activeYtDeck === 'A') {
+                            executeVideoCrossfade(true); 
+                        }
                     },
                     onError: (err) => { handleYouTubePlaybackError(err, 'A'); }
                 }
@@ -1906,9 +1920,13 @@
                         if (e.data === YT.PlayerState.PLAYING) {
                             disableYouTubeCaptions(ytPlayerB);
                             applyBestYouTubeQuality(ytPlayerB);
-                            hideInterstitialScreen();
+                            if (activeYtDeck === 'B' && !preCueState.active) {
+                                hideInterstitialScreen();
+                            }
                         }
-                        if (e.data === YT.PlayerState.ENDED) executeVideoCrossfade(true); 
+                        if (e.data === YT.PlayerState.ENDED && activeYtDeck === 'B') {
+                            executeVideoCrossfade(true); 
+                        }
                     },
                     onError: (err) => { handleYouTubePlaybackError(err, 'B'); }
                 }
@@ -1953,7 +1971,7 @@
     }
 
     function handleYouTubePlaybackError(err, deckName) {
-        log(`🚨 [YT HIBA] A YouTube videó nem elérhető (Kód: ${err.data || 'error'}). Váltás tartalék forrásra!`, 'warn');
+        log(`🚨 [YT HIBA] A videó nem indítható a ${deckName} decken (Kód: ${err.data || 'error'}). Váltás tartalékra!`, 'warn');
         const todayKey = getSelectedDateKey(0);
         const sched = weekSchedules[todayKey] || [];
         const currentItem = sched[currentClipIndex];
@@ -2038,12 +2056,8 @@
         return true;
     }
 
-    function openImportPlaylistModal() {
-        document.getElementById('yt-playlist-modal').classList.add('active');
-    }
-    function closeImportPlaylistModal() {
-        document.getElementById('yt-playlist-modal').classList.remove('active');
-    }
+    function openImportPlaylistModal() { document.getElementById('yt-playlist-modal').classList.add('active'); }
+    function closeImportPlaylistModal() { document.getElementById('yt-playlist-modal').classList.remove('active'); }
 
     async function confirmImportYouTubePlaylist() {
         const url = document.getElementById('inp-yt-playlist-url').value.trim();
@@ -2075,7 +2089,6 @@
                         }
                     });
 
-                    // 100% Felhő-mentés
                     await syncCustomClipsToCloud();
                     renderLibraryTable();
                     closeImportPlaylistModal();
@@ -2157,7 +2170,6 @@
         }
     }
 
-    // 100% Saját Felhős Videótár Forrás Kinyerése
     function getCombinedClipsPool() {
         if (sourcePlaybackMode === 'r2_only') {
             return (r2Library.length > 0) ? r2Library : EMERGENCY_BACKUP_POOL.slice(0, 5);
@@ -2455,7 +2467,7 @@
                             const parentParams = `parent=${host}&parent=localhost&parent=127.0.0.1&parent=kepbenoszlop.androjid21.workers.dev`;
                             embedDeckA.innerHTML = `<iframe style="width:100%; height:100%; border:none;" src="https://player.twitch.tv/?channel=${channel}&${parentParams}&autoplay=true&muted=false" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
                             
-                            log(`🚨 [TWITCH ÉLŐ DETEKTÁLVA] ${channel.toUpperCase()} online! Stream előtöltve a háttérben, a dal után átkapcsolunk.`, 'warn');
+                            log(`🚨 [TWITCH ÉLŐ DETEKTÁLVA] ${channel.toUpperCase()} online! Stream előtöltve a háttérben.`, 'warn');
                         }
                         return;
                     }
@@ -2514,6 +2526,75 @@
     function hideInterstitialScreen() {
         if (interstitialTimer) clearInterval(interstitialTimer);
         interstitialScreen.classList.remove('active');
+    }
+
+    // 🚀 PRE-ROLL DRAINER & CUEING AUTOMATIKA (PONT 2)
+    function triggerNextTrackPreCue(nextClip) {
+        if (!nextClip || preCueState.active || preCueState.cued) return;
+        const targetYtId = nextClip.youtubeId || extractYouTubeVideoId(nextClip.rawUrl || nextClip.url);
+        if (!targetYtId) return;
+
+        const targetDeckName = (activeYtDeck === 'A') ? 'B' : 'A';
+        const targetPlayer = (targetDeckName === 'A') ? ytPlayerA : ytPlayerB;
+        const targetEmbed = (targetDeckName === 'A') ? embedDeckA : embedDeckB;
+
+        if (!targetPlayer || !targetPlayer.loadVideoById) return;
+
+        preCueState.active = true;
+        preCueState.cued = false;
+        preCueState.deckName = targetDeckName;
+        preCueState.videoId = targetYtId;
+        preCueState.title = nextClip.title;
+
+        // Háttérben, láthatatlanul és 100%-ban némítva indítjuk
+        targetEmbed.style.opacity = '0';
+        targetEmbed.classList.remove('active');
+
+        try {
+            targetPlayer.mute();
+            targetPlayer.setVolume(0);
+            targetPlayer.loadVideoById({
+                videoId: targetYtId,
+                startSeconds: 0,
+                suggestedQuality: 'hd1080'
+            });
+            disableYouTubeCaptions(targetPlayer);
+            applyBestYouTubeQuality(targetPlayer);
+        } catch(e){}
+
+        log(`⏳ [PRE-ROLL DRAINER] Következő dal ("${nextClip.title}") előtöltése és reklámkisöprése a ${targetDeckName} decken...`, 'info');
+
+        let checkAttempts = 0;
+        if (preCueState.checkInterval) clearInterval(preCueState.checkInterval);
+
+        preCueState.checkInterval = setInterval(() => {
+            checkAttempts++;
+            if (!preCueState.active) {
+                clearInterval(preCueState.checkInterval);
+                return;
+            }
+
+            try {
+                const playerState = (targetDeckName === 'A') ? ytPlayerAState : ytPlayerBState;
+                const curTime = targetPlayer.getCurrentTime ? targetPlayer.getCurrentTime() : 0;
+
+                // Amint a tényleges dal elindul és átlépi a 0.2 másodpercet (reklám már lement vagy nem volt)
+                if (playerState === YT.PlayerState.PLAYING && curTime >= 0.2) {
+                    targetPlayer.pauseVideo();
+                    targetPlayer.seekTo(0, true);
+                    preCueState.cued = true;
+                    preCueState.active = false;
+                    clearInterval(preCueState.checkInterval);
+                    log(`⚡ [PRE-CUE KÉSZ] "${nextClip.title}" reklámmentesítve és 0:00-ra csőre töltve a ${targetDeckName} decken!`, 'success');
+                }
+            } catch(e){}
+
+            // Biztonsági timeout 35 mp után
+            if (checkAttempts > 350) {
+                clearInterval(preCueState.checkInterval);
+                preCueState.active = false;
+            }
+        }, 100);
     }
 
     // 🚫 100% REKLÁMMENTES KÖZVETLEN STREAM BETÖLTŐ
@@ -2627,6 +2708,14 @@
             const dur = activePlayer.getDuration();
             const remaining = dur - curTime;
 
+            // 🚀 Pre-roll Drainer aktiválása 28 mp-cel a vége előtt
+            if (remaining <= 28 && remaining > (VIDEO_CROSSFADE_SEC + 2) && !preCueState.active && !preCueState.cued) {
+                const todayKey = getSelectedDateKey(0);
+                const sched = weekSchedules[todayKey] || [];
+                const nextClip = sched[(currentClipIndex + 1) % sched.length];
+                if (nextClip) triggerNextTrackPreCue(nextClip);
+            }
+
             if (remaining <= 20 && remaining > (VIDEO_CROSSFADE_SEC + 1) && !isEndSequenceRunning) {
                 const todayKey = getSelectedDateKey(0);
                 runTrackPresentationSequence(weekSchedules[todayKey] || [], false);
@@ -2640,7 +2729,7 @@
         }, 200);
     }
 
-    // 🎚️ ZERO-BLACK-SCREEN & REKLÁMMENTES KERESZTÁTÚSZTATÁS
+    // 🎚️ ZERO-BLACK-SCREEN, PRE-CUED REKLÁMMENTES KERESZTÁTÚSZTATÁS
     async function executeVideoCrossfade(forceImmediate = false) {
         if (twitchPendingSwitchStreamer) {
             log(`🚨 Dal véget ért ➔ Átkapcsolás ${twitchPendingSwitchStreamer.toUpperCase()} Twitch közvetítésére!`, 'warn');
@@ -2719,7 +2808,7 @@
             return;
         }
 
-        // Fallback Iframe átúsztatás
+        // 🚀 PRE-CUED YOUTUBE ÁTÚSZTATÁS (0 mp KÉSLELTETÉSSEL ÉS REKLÁMMENTESEN)
         const nextYtDeckName = (activeYtDeck === 'A') ? 'B' : 'A';
         const incomingEmbed = (nextYtDeckName === 'A') ? embedDeckA : embedDeckB;
         const outgoingEmbed = (nextYtDeckName === 'A') ? embedDeckB : embedDeckA;
@@ -2728,15 +2817,28 @@
 
         const targetYtId = newClip.youtubeId || extractYouTubeVideoId(newClip.rawUrl || newClip.url) || getNextEmergencyBackupClip().youtubeId;
 
+        const wasPreCued = preCueState.cued && (preCueState.deckName === nextYtDeckName) && (preCueState.videoId === targetYtId);
+        
+        preCueState.active = false;
+        preCueState.cued = false;
+        if (preCueState.checkInterval) clearInterval(preCueState.checkInterval);
+
         incomingEmbed.classList.add('active');
         incomingEmbed.style.opacity = '0';
 
-        if (incomingPlayer && incomingPlayer.loadVideoById) {
-            incomingPlayer.loadVideoById({ videoId: targetYtId, startSeconds: 0 });
+        if (wasPreCued) {
+            log(`⚡ [INSTANT ADÁSBAVÉTEL] "${newClip.title}" csőre töltve volt ➔ azonnali elindítás!`, 'success');
+            incomingPlayer.playVideo();
             incomingPlayer.unMute();
             incomingPlayer.setVolume(0);
-            disableYouTubeCaptions(incomingPlayer);
-            applyBestYouTubeQuality(incomingPlayer);
+        } else {
+            if (incomingPlayer && incomingPlayer.loadVideoById) {
+                incomingPlayer.loadVideoById({ videoId: targetYtId, startSeconds: 0 });
+                incomingPlayer.unMute();
+                incomingPlayer.setVolume(0);
+                disableYouTubeCaptions(incomingPlayer);
+                applyBestYouTubeQuality(incomingPlayer);
+            }
         }
 
         let waitForPlayAttempts = 0;
@@ -2748,7 +2850,7 @@
                 showInterstitialScreen(newClip.title, 4);
             }
 
-            if (isPlaying || waitForPlayAttempts > 25) {
+            if (isPlaying || wasPreCued || waitForPlayAttempts > 25) {
                 clearInterval(checkPlayStateInterval);
 
                 let step = 0;
@@ -2788,7 +2890,7 @@
                     }
                 }, 100);
             }
-        }, 100);
+        }, wasPreCued ? 20 : 100);
     }
 
     function toggleTvBroadcast() {
@@ -3156,7 +3258,6 @@
         }
     }
 
-    // 🔴 KÜLSŐ LINK & IDŐZÍTETT STREAM MODAL MEGNYITÁSA
     function openExternalLinkModal() {
         const daySelect = document.getElementById('modal-ext-day-select');
         daySelect.innerHTML = '';
@@ -3665,6 +3766,12 @@
                 const curClip = schedule[expectedIdx];
                 const remainingSec = curClip.endSec - curSec;
 
+                // 🚀 Pre-roll Drainer trigger (28 másodperccel a vége előtt)
+                if (remainingSec <= 28 && remainingSec > (VIDEO_CROSSFADE_SEC + 2) && !preCueState.active && !preCueState.cued) {
+                    const nextClip = schedule[(expectedIdx + 1) % schedule.length];
+                    if (nextClip) triggerNextTrackPreCue(nextClip);
+                }
+
                 if (remainingSec <= 20 && remainingSec > (VIDEO_CROSSFADE_SEC + 1) && !isEndSequenceRunning) {
                     runTrackPresentationSequence(schedule, false);
                 }
@@ -3841,7 +3948,7 @@
         updateQuotaUsageUI();
     }
 
-    // 📂 VIDEÓTÁR MEGJELENÍTÉSE DUPLIKÁCIÓ-DETEKTORRAL (YT+YT, R2+R2, R2+YT)
+    // 📂 VIDEÓTÁR MEGJELENÍTÉSE DUPLIKÁCIÓ-DETEKTORRAL
     function renderLibraryTable() {
         const tbody = document.getElementById('library-tbody');
         const pool = getCombinedClipsPool();
@@ -3908,16 +4015,16 @@
         if (totalDuplicatesFound > 0) {
             cleanBtn.style.display = 'inline-block';
             summaryBar.style.display = 'block';
-            summaryBar.textContent = `⚠️ Figyelem: ${totalDuplicatesFound} db duplikált tétel található a tárban! Egyetlen tiszta példány (YouTube preferált) megtartásához kattints a fenti sárga gombra.`;
+            summaryBar.textContent = `⚠️ Figyelem: ${totalDuplicatesFound} db duplikált tétel található a tárban! Egyetlen tiszta példány megtartásához kattints a fenti sárga gombra.`;
         } else {
             cleanBtn.style.display = 'none';
             summaryBar.style.display = 'none';
         }
     }
 
-    // 🧹 INTELLIGENS DUPLIKÁCIÓ TISZTÍTÓ (100% FELHŐBŐL TÖRLÉSSEL)
+    // 🧹 DUPLIKÁCIÓ TISZTÍTÓ
     async function autoCleanAllDuplicates() {
-        if (!confirm("Biztosan automatikusan törölni szeretnéd az összes duplikációt? A rendszer minden dalból megtart egyetlen (lehetőleg YouTube HD) példányt, a felesleges másolatokat pedig véglegesen törli (az R2 felhőből is).")) return;
+        if (!confirm("Biztosan automatikusan törölni szeretnéd az összes duplikációt? A rendszer minden dalból megtart egyetlen (lehetőleg YouTube HD) példányt, a felesleges másolatokat pedig véglegesen törli.")) return;
 
         log("🧹 [TISZTÍTÁS] Duplikációk szűrése és felhős törlése folyamatban...", "warn");
         const pool = getCombinedClipsPool();
@@ -3963,216 +4070,216 @@
 
         await syncCustomClipsToCloud();
         await loadR2Library();
-        log(`🎉 [TISZTÍTÁS KÉSZ] ${deletedCount} db felesleges duplikáció sikeresen eltávolítva a felhőből és a tárból!`, "success");
+        log(`🎉 [TISZTÍTÁS KÉSZ] ${deletedCount} db felesleges duplikáció sikeresen eltávolítva!`, "success");
         alert(`✅ SIKERES TISZTÍTÁS: ${deletedCount} db duplikáció végleg törölve a felhőből! Mostantól minden klipből pontosan 1 példány van a rendszerben.`);
-    }
+}
 
-    async function deleteSingleClipFromAppropriateSource(filename, isYt) {
-        if (!confirm(`Biztosan törlöd ezt a klipet (${filename})?`)) return;
-        if (isYt) {
-            await deleteClip(filename);
-        } else {
-            await deleteR2FromCloudAndList(filename);
+async function deleteSingleClipFromAppropriateSource(filename, isYt) {
+    if (!confirm(`Biztosan törlöd ezt a klipet (${filename})?`)) return;
+    if (isYt) {
+        await deleteClip(filename);
+    } else {
+        await deleteR2FromCloudAndList(filename);
+    }
+}
+
+async function deleteR2FromCloudAndList(filename) {
+    log(`🗑️ [R2 FELHŐ TÖRLÉS] ${filename}...`);
+    try {
+        const res = await fetch(`${WORKER_URL}/api/radio/delete?filename=${encodeURIComponent(filename)}`, { method: 'DELETE' });
+        if (res.ok) {
+            log(`✅ [R2 TÖRÖLVE] ${filename} sikeresen eltávolítva a felhőből!`, 'success');
+        }
+    } catch(e){}
+    await loadR2Library();
+}
+
+async function deleteClip(filename) {
+    customYouTubeClips = customYouTubeClips.filter(c => c.filename !== filename);
+    await syncCustomClipsToCloud();
+    renderLibraryTable();
+}
+
+async function handleVideoUpload(files) {
+    if (!files || files.length === 0) return;
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const cleanName = file.name.replace(/\s+/g, '_');
+        log(`📤 Feltöltés: ${cleanName}...`);
+        try {
+            await fetch(`${WORKER_URL}/api/radio/upload?filename=${encodeURIComponent(cleanName)}`, {
+                method: 'PUT',
+                body: file
+            });
+            log(`✅ Feltöltve: ${cleanName}`, 'success');
+        } catch(e){}
+    }
+    await loadR2Library();
+}
+
+// ☁️ 100% FELHŐS SZINKRONIZÁLÁSI FÜGGVÉNYEK (0% LOCALSTORAGE)
+async function syncCustomClipsToCloud() {
+    try {
+        await fetch(`${FIREBASE_URL}/custom_yt_clips.json`, { method: 'PUT', body: JSON.stringify(customYouTubeClips) });
+    } catch(e){}
+}
+
+async function loadCustomClipsFromCloud() {
+    try {
+        const res = await fetch(`${FIREBASE_URL}/custom_yt_clips.json?_t=${Date.now()}`);
+        if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data)) {
+                customYouTubeClips = data;
+            } else if (data && typeof data === 'object') {
+                customYouTubeClips = Object.values(data);
+            }
+        }
+    } catch(e){}
+}
+
+async function saveWeekSchedules() {
+    try {
+        await Promise.all([
+            fetch(`${WORKER_URL}/api/radio/schedule`, { method: 'PUT', body: JSON.stringify(weekSchedules) }),
+            fetch(`${FIREBASE_URL}/tv_week_schedules.json`, { method: 'PUT', body: JSON.stringify(weekSchedules) })
+        ]);
+    } catch(e){}
+}
+
+async function syncBroadcastSettingsToCloud() {
+    const payload = {
+        isBroadcasting: isTvBroadcasting,
+        rating: currentAgeRating,
+        logo_visible: isLogoVisible,
+        live_badge_mode: liveBadgeMode,
+        source_playback_mode: sourcePlaybackMode,
+        rating_pos_b: document.getElementById('rng-pos-bottom')?.value || "18",
+        rating_pos_r: document.getElementById('rng-pos-right')?.value || "28",
+        rating_pos_s: document.getElementById('rng-pos-size')?.value || "38",
+        logo_pos_t: document.getElementById('rng-logo-top')?.value || "26",
+        logo_pos_r: document.getElementById('rng-logo-right')?.value || "32",
+        logo_scale: document.getElementById('rng-logo-scale')?.value || "100",
+        rating_auto_timer: isRatingAutoTimerEnabled,
+        rating_on_time: ratingTimerOnTime,
+        rating_off_time: ratingTimerOffTime,
+        video_enhanced: isVideoEnhanced,
+        updatedAt: new Date().toISOString()
+    };
+    try {
+        await Promise.all([
+            fetch(`${WORKER_URL}/api/radio/settings`, { method: 'PUT', body: JSON.stringify(payload) }),
+            fetch(`${FIREBASE_URL}/tv_broadcast_settings.json`, { method: 'PUT', body: JSON.stringify(payload) })
+        ]);
+    } catch(e){}
+}
+
+async function loadBroadcastSettingsFromCloud() {
+    try {
+        const res = await fetch(`${FIREBASE_URL}/tv_broadcast_settings.json?_t=${Date.now()}`);
+        if (res.ok) {
+            const cloud = await res.json();
+            if (cloud) {
+                if (cloud.rating !== undefined) currentAgeRating = cloud.rating;
+                if (cloud.logo_visible !== undefined) isLogoVisible = cloud.logo_visible;
+                if (cloud.live_badge_mode !== undefined) liveBadgeMode = cloud.live_badge_mode;
+                if (cloud.source_playback_mode !== undefined) sourcePlaybackMode = cloud.source_playback_mode;
+                if (cloud.rating_auto_timer !== undefined) isRatingAutoTimerEnabled = cloud.rating_auto_timer;
+                if (cloud.rating_on_time !== undefined) ratingTimerOnTime = cloud.rating_on_time;
+                if (cloud.rating_off_time !== undefined) ratingTimerOffTime = cloud.rating_off_time;
+                if (cloud.video_enhanced !== undefined) isVideoEnhanced = cloud.video_enhanced;
+                applySavedPositions(cloud);
+                applyLogoVisibility();
+                applyAgeRating(currentAgeRating);
+                updateLiveBadgeUI();
+                updateSourceModeToggleUI();
+                return cloud;
+            }
+        }
+    } catch(e){}
+    applySavedPositions(null);
+    applyLogoVisibility();
+    applyAgeRating(currentAgeRating);
+    updateLiveBadgeUI();
+    updateSourceModeToggleUI();
+    return null;
+}
+
+// 🔄 AUTOMATIKUS 320+ KLIP VISSZAÁLLÍTÓ MOTOR AZ ADÁSTERVBŐL A VIDEÓTÁRBA
+async function autoRestoreLibraryFromSchedule() {
+    let restoredCount = 0;
+    const knownYtIds = new Set(customYouTubeClips.map(c => c.youtubeId).filter(Boolean));
+
+    for (const dateKey in weekSchedules) {
+        const dayItems = weekSchedules[dateKey];
+        if (Array.isArray(dayItems)) {
+            dayItems.forEach(item => {
+                const vId = item.youtubeId || extractYouTubeVideoId(item.rawUrl || item.url);
+                if (vId && !knownYtIds.has(vId)) {
+                    customYouTubeClips.push({
+                        filename: `yt_${vId}.mp4`,
+                        title: item.title || "Visszaállított klip",
+                        rawUrl: `https://www.youtube.com/watch?v=${vId}`,
+                        youtubeId: vId,
+                        duration: item.duration || 210,
+                        isYouTubeClip: true
+                    });
+                    knownYtIds.add(vId);
+                    restoredCount++;
+                }
+            });
         }
     }
 
-    async function deleteR2FromCloudAndList(filename) {
-        log(`🗑️ [R2 FELHŐ TÖRLÉS] ${filename}...`);
-        try {
-            const res = await fetch(`${WORKER_URL}/api/radio/delete?filename=${encodeURIComponent(filename)}`, { method: 'DELETE' });
-            if (res.ok) {
-                log(`✅ [R2 TÖRÖLVE] ${filename} sikeresen eltávolítva a felhőből!`, 'success');
-            }
-        } catch(e){}
-        await loadR2Library();
-    }
-
-    async function deleteClip(filename) {
-        customYouTubeClips = customYouTubeClips.filter(c => c.filename !== filename);
+    if (restoredCount > 0) {
         await syncCustomClipsToCloud();
-        renderLibraryTable();
+        log(`✨ [FELHŐS HELYREÁLLÍTÁS] ${restoredCount} db korábbi videóklip sikeresen visszanyerve az adástervből a felhős Videótárba!`, 'success');
     }
+}
 
-    async function handleVideoUpload(files) {
-        if (!files || files.length === 0) return;
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            const cleanName = file.name.replace(/\s+/g, '_');
-            log(`📤 Feltöltés: ${cleanName}...`);
-            try {
-                await fetch(`${WORKER_URL}/api/radio/upload?filename=${encodeURIComponent(cleanName)}`, {
-                    method: 'PUT',
-                    body: file
-                });
-                log(`✅ Feltöltve: ${cleanName}`, 'success');
-            } catch(e){}
+function toggleCustomFullscreen() {
+    if (!document.fullscreenElement) tvScreenContainer.requestFullscreen();
+    else document.exitFullscreen();
+}
+
+function togglePiP() {
+    const active = (activeDeckName === 'A') ? deckA : deckB;
+    if (document.pictureInPictureElement) document.exitPictureInPicture();
+    else if (active.requestPictureInPicture) active.requestPictureInPicture();
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+    initCalendar();
+    await loadBroadcastSettingsFromCloud();
+    await loadTwitchSettingsFromCloud();
+    await loadCustomClipsFromCloud();
+
+    try {
+        const schedRes = await fetch(`${WORKER_URL}/api/radio/schedule?_t=${Date.now()}`);
+        if (schedRes.ok) {
+            const cloudSched = await schedRes.json();
+            if (cloudSched && Object.keys(cloudSched).length > 0) weekSchedules = cloudSched;
         }
-        await loadR2Library();
-    }
+    } catch(e){}
 
-    // ☁️ 100% FELHŐS SZINKRONIZÁLÁSI FÜGGVÉNYEK (0% LOCALSTORAGE)
-    async function syncCustomClipsToCloud() {
-        try {
-            await fetch(`${FIREBASE_URL}/custom_yt_clips.json`, { method: 'PUT', body: JSON.stringify(customYouTubeClips) });
-        } catch(e){}
-    }
+    // 🔄 Felhős helyreállítás: Az adástervben lévő összes dal beemelése a felhős Videótárba
+    await autoRestoreLibraryFromSchedule();
 
-    async function loadCustomClipsFromCloud() {
-        try {
-            const res = await fetch(`${FIREBASE_URL}/custom_yt_clips.json?_t=${Date.now()}`);
-            if (res.ok) {
-                const data = await res.json();
-                if (Array.isArray(data)) {
-                    customYouTubeClips = data;
-                } else if (data && typeof data === 'object') {
-                    customYouTubeClips = Object.values(data);
-                }
-            }
-        } catch(e){}
-    }
+    // 🤖 Önvezető 24 órás műsor önkitöltés ellenőrzése
+    checkAndAutofillUpcomingDays();
 
-    async function saveWeekSchedules() {
-        try {
-            await Promise.all([
-                fetch(`${WORKER_URL}/api/radio/schedule`, { method: 'PUT', body: JSON.stringify(weekSchedules) }),
-                fetch(`${FIREBASE_URL}/tv_week_schedules.json`, { method: 'PUT', body: JSON.stringify(weekSchedules) })
-            ]);
-        } catch(e){}
-    }
+    selectDay(0);
+    await loadR2Library();
 
-    async function syncBroadcastSettingsToCloud() {
-        const payload = {
-            isBroadcasting: isTvBroadcasting,
-            rating: currentAgeRating,
-            logo_visible: isLogoVisible,
-            live_badge_mode: liveBadgeMode,
-            source_playback_mode: sourcePlaybackMode,
-            rating_pos_b: document.getElementById('rng-pos-bottom')?.value || "18",
-            rating_pos_r: document.getElementById('rng-pos-right')?.value || "28",
-            rating_pos_s: document.getElementById('rng-pos-size')?.value || "38",
-            logo_pos_t: document.getElementById('rng-logo-top')?.value || "26",
-            logo_pos_r: document.getElementById('rng-logo-right')?.value || "32",
-            logo_scale: document.getElementById('rng-logo-scale')?.value || "100",
-            rating_auto_timer: isRatingAutoTimerEnabled,
-            rating_on_time: ratingTimerOnTime,
-            rating_off_time: ratingTimerOffTime,
-            video_enhanced: isVideoEnhanced,
-            updatedAt: new Date().toISOString()
-        };
-        try {
-            await Promise.all([
-                fetch(`${WORKER_URL}/api/radio/settings`, { method: 'PUT', body: JSON.stringify(payload) }),
-                fetch(`${FIREBASE_URL}/tv_broadcast_settings.json`, { method: 'PUT', body: JSON.stringify(payload) })
-            ]);
-        } catch(e){}
-    }
+    fetchLiveNews();
+    fetchLiveWeather();
+    startWeatherCityRotator();
 
-    async function loadBroadcastSettingsFromCloud() {
-        try {
-            const res = await fetch(`${FIREBASE_URL}/tv_broadcast_settings.json?_t=${Date.now()}`);
-            if (res.ok) {
-                const cloud = await res.json();
-                if (cloud) {
-                    if (cloud.rating !== undefined) currentAgeRating = cloud.rating;
-                    if (cloud.logo_visible !== undefined) isLogoVisible = cloud.logo_visible;
-                    if (cloud.live_badge_mode !== undefined) liveBadgeMode = cloud.live_badge_mode;
-                    if (cloud.source_playback_mode !== undefined) sourcePlaybackMode = cloud.source_playback_mode;
-                    if (cloud.rating_auto_timer !== undefined) isRatingAutoTimerEnabled = cloud.rating_auto_timer;
-                    if (cloud.rating_on_time !== undefined) ratingTimerOnTime = cloud.rating_on_time;
-                    if (cloud.rating_off_time !== undefined) ratingTimerOffTime = cloud.rating_off_time;
-                    if (cloud.video_enhanced !== undefined) isVideoEnhanced = cloud.video_enhanced;
-                    applySavedPositions(cloud);
-                    applyLogoVisibility();
-                    applyAgeRating(currentAgeRating);
-                    updateLiveBadgeUI();
-                    updateSourceModeToggleUI();
-                    return cloud;
-                }
-            }
-        } catch(e){}
-        applySavedPositions(null);
-        applyLogoVisibility();
-        applyAgeRating(currentAgeRating);
-        updateLiveBadgeUI();
-        updateSourceModeToggleUI();
-        return null;
-    }
-
-    // 🔄 AUTOMATIKUS 320+ KLIP VISSZAÁLLÍTÓ MOTOR AZ ADÁSTERVBŐL A VIDEÓTÁRBA
-    async function autoRestoreLibraryFromSchedule() {
-        let restoredCount = 0;
-        const knownYtIds = new Set(customYouTubeClips.map(c => c.youtubeId).filter(Boolean));
-
-        for (const dateKey in weekSchedules) {
-            const dayItems = weekSchedules[dateKey];
-            if (Array.isArray(dayItems)) {
-                dayItems.forEach(item => {
-                    const vId = item.youtubeId || extractYouTubeVideoId(item.rawUrl || item.url);
-                    if (vId && !knownYtIds.has(vId)) {
-                        customYouTubeClips.push({
-                            filename: `yt_${vId}.mp4`,
-                            title: item.title || "Visszaállított klip",
-                            rawUrl: `https://www.youtube.com/watch?v=${vId}`,
-                            youtubeId: vId,
-                            duration: item.duration || 210,
-                            isYouTubeClip: true
-                        });
-                        knownYtIds.add(vId);
-                        restoredCount++;
-                    }
-                });
-            }
-        }
-
-        if (restoredCount > 0) {
-            await syncCustomClipsToCloud();
-            log(`✨ [FELHŐS HELYREÁLLÍTÁS] ${restoredCount} db korábbi videóklip sikeresen visszanyerve az adástervből a felhős Videótárba!`, 'success');
-        }
-    }
-
-    function toggleCustomFullscreen() {
-        if (!document.fullscreenElement) tvScreenContainer.requestFullscreen();
-        else document.exitFullscreen();
-    }
-
-    function togglePiP() {
-        const active = (activeDeckName === 'A') ? deckA : deckB;
-        if (document.pictureInPictureElement) document.exitPictureInPicture();
-        else if (active.requestPictureInPicture) active.requestPictureInPicture();
-    }
-
-    window.addEventListener('DOMContentLoaded', async () => {
-        initCalendar();
-        await loadBroadcastSettingsFromCloud();
-        await loadTwitchSettingsFromCloud();
-        await loadCustomClipsFromCloud();
-
-        try {
-            const schedRes = await fetch(`${WORKER_URL}/api/radio/schedule?_t=${Date.now()}`);
-            if (schedRes.ok) {
-                const cloudSched = await schedRes.json();
-                if (cloudSched && Object.keys(cloudSched).length > 0) weekSchedules = cloudSched;
-            }
-        } catch(e){}
-
-        // 🔄 Felhős helyreállítás: Az adástervben lévő összes dal beemelése a felhős Videótárba
-        await autoRestoreLibraryFromSchedule();
-
-        // 🤖 Önvezető 24 órás műsor önkitöltés ellenőrzése
-        checkAndAutofillUpcomingDays();
-
-        selectDay(0);
-        await loadR2Library();
-
-        fetchLiveNews();
-        fetchLiveWeather();
-        startWeatherCityRotator();
-
-        setInterval(fetchLiveNews, 10 * 60 * 1000);
-        setInterval(fetchLiveWeather, 10 * 60 * 1000);
-        setInterval(checkAndAutofillUpcomingDays, 30 * 60 * 1000);
-        twitchCheckTimer = setInterval(checkTwitchStreamersLiveStatus, 30 * 1000);
-    });
+    setInterval(fetchLiveNews, 10 * 60 * 1000);
+    setInterval(fetchLiveWeather, 10 * 60 * 1000);
+    setInterval(checkAndAutofillUpcomingDays, 30 * 60 * 1000);
+    twitchCheckTimer = setInterval(checkTwitchStreamersLiveStatus, 30 * 1000);
+});
 </script>
 </body>
 </html>
