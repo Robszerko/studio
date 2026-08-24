@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<title>KÉPBEN! MUSIC TELEVISION · Master Broadcast Studio</title>
+<title>KÉPBEN! MUSIC TELEVISION · Master Broadcast Studio 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700;800&family=Syne:wght@700;800;900&display=swap" rel="stylesheet">
@@ -24,7 +24,7 @@
         --border: #334155;
         --theme-primary: #38bdf8;
         --theme-glow: rgba(56, 189, 248, 0.4);
-        --theme-gradient: linear-gradient(135deg, rgba(11, 19, 41, 0.92) 0%, rgba(30, 58, 138, 0.92) 100%);
+        --theme-gradient: linear-gradient(135deg, rgba(11, 19, 41, 0.94) 0%, rgba(30, 58, 138, 0.94) 100%);
     }
 
     * { margin:0; padding:0; box-sizing:border-box; }
@@ -172,7 +172,7 @@
         isolation: isolate;
     }
 
-    /* 🖥️ JAVÍTOTT TELJES KÉPERNYŐS RÉTEGZÉS */
+    /* 🖥️ TELJES KÉPERNYŐS RÉTEGZÉS */
     .tv-screen-wrapper:fullscreen,
     .tv-screen-wrapper:-webkit-full-screen,
     .tv-screen-wrapper:-moz-full-screen,
@@ -200,6 +200,7 @@
     .tv-screen-wrapper:fullscreen .tv-upcoming-drawer,
     .tv-screen-wrapper:-webkit-full-screen .tv-upcoming-drawer {
         z-index: 2147483647 !important;
+        position: absolute !important;
     }
 
     .tv-video-deck {
@@ -400,7 +401,7 @@
         background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.45); padding: 6px 18px; border-radius: 10px;
     }
 
-    /* 🏷️ JOBB FELSŐ KÉPBEN! MUSIC LOGÓ + DISZKRÉT NAPSZAKI ÓRA KAPSZULA */
+    /* 🏷️ JOBB FELSŐ KÉPBEN! MUSIC LOGÓ + NAPSZAKI ÓRA */
     .tv-watermark-wrap {
         position: absolute;
         top: 26px; right: 32px;
@@ -614,7 +615,7 @@
     .nmhh-number { font-family: 'Inter', sans-serif; font-weight: 900; font-size: 1.15rem; color: #ffffff; line-height: 1; text-shadow: 0 2px 4px #000; }
     .nmhh-child-svg { width: 38px; height: 38px; fill: #22c55e; }
 
-    /* 📰 MEGSZÉPÍTETT, LEBEGŐ HÍRKÁRTYA + FIX IDŐJÁRÁS DOBOZ */
+    /* 📰 HÍRKÁRTYA + FIX IDŐJÁRÁS DOBOZ */
     .tv-news-glass-container {
         position: absolute;
         bottom: 16px;
@@ -777,6 +778,7 @@
     .day-name { font-family: 'Space Mono', monospace; font-size: 0.72rem; font-weight: 800; }
     .day-date { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--accent-cyan); }
 
+    /* 📋 2026 TŰPONTOS ADÁSTERV TÁBLÁZAT ÉS ON-AIR KIJELÖLÉS */
     .rundown-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; text-align: left; table-layout: fixed; }
     .rundown-table th { background: var(--card-sub); color: var(--accent-cyan); font-family: 'Space Mono', monospace; padding: 10px 8px; border-bottom: 1px solid var(--border); }
     .rundown-table td { padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.3s; vertical-align: middle; }
@@ -786,7 +788,7 @@
     .rundown-table th:nth-child(3), .rundown-table td:nth-child(3) { width: auto; }
     .rundown-table th:nth-child(4), .rundown-table td:nth-child(4) { width: 130px; }
     .rundown-table th:nth-child(5), .rundown-table td:nth-child(5) { width: 70px; }
-    .rundown-table th:nth-child(6), .rundown-table td:nth-child(6) { width: 110px; }
+    .rundown-table th:nth-child(6), .rundown-table td:nth-child(6) { width: 120px; }
     .rundown-table th:nth-child(7), .rundown-table td:nth-child(7) { width: 80px; }
     .rundown-table th:nth-child(8), .rundown-table td:nth-child(8) { width: 45px; text-align: center; }
 
@@ -795,6 +797,7 @@
         border-left: 4px solid #10b981 !important;
         font-weight: 800 !important;
         color: #ffffff !important;
+        box-shadow: inset 0 0 15px rgba(16, 185, 129, 0.2);
     }
 
     .editable-cell { cursor: pointer; padding: 4px 6px; border-radius: 6px; transition: all 0.2s; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -911,8 +914,8 @@
             <div class="quota-bar-fill" id="quota-bar-fill"></div>
         </div>
         <div style="display:flex; justify-content:space-between; font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--text-muted); flex-wrap:wrap; gap:4px;">
-            <span id="quota-free-remaining">Még 10.240 MB tölthető fel ingyen</span>
-            <span>🛡️ 100% Direct R2 HD MP4 Motor Aktív</span>
+            <span id="quota-free-remaining">Még 10.240 MB tölthető fel ingyen (kb. 146 db 720p60fps videó)</span>
+            <span>🛡️ 100% Direct R2 HD MP4 Motor (8s Crossfade)</span>
         </div>
     </div>
 
@@ -1156,7 +1159,7 @@
                 📋 TV ADÁSTERV: <span id="current-selected-day-label" style="color:#fff;">MA</span> - <span id="rundown-count">0</span> tétel
             </div>
             <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                <button class="btn-act" onclick="autoGenerateDaySchedule(selectedDayIndex, true)">⚡ 24 Órás Újrakeverés</button>
+                <button class="btn-act" onclick="autoGenerateDaySchedule(selectedDayIndex, true)">⚡ 24 Órás Újrakeverés (Valós Hosszakkal)</button>
                 <button class="btn-act" style="color:var(--accent-red);" onclick="clearRundown()">🗑️ Terv Ürítése</button>
             </div>
         </div>
@@ -1196,12 +1199,12 @@
 
     <div class="uploader-card">
         <div style="font-family:'Space Mono',monospace; font-size:0.8rem; font-weight:700; color:var(--accent-cyan);">
-            ☁️ ÚJ VIDEÓKLIP FELTÖLTÉSE AZ R2 TÁROLÓBA (MP4 / WebM) · Duplikáció-védelemmel
+            ☁️ ÚJ VIDEÓKLIP FELTÖLTÉSE AZ R2 TÁROLÓBA (MP4 / WebM) · Duplikáció-védelemmel & Automata Időtartam-Méréssel
         </div>
         <div class="dropzone-box" onclick="document.getElementById('studio-video-input').click()">
             <div style="font-size:1.6rem; margin-bottom:4px;">☁️ ➔ 🎬</div>
             <div style="font-weight:700; font-size:0.85rem;">Húzd ide az MP4 videóklipeket a feltöltéshez!</div>
-            <div style="font-size:0.7rem; color:var(--text-muted); margin-top:3px;">A rendszer azonnal feltölti az R2-be és beilleszti a műsortervbe.</div>
+            <div style="font-size:0.7rem; color:var(--text-muted); margin-top:3px;">A rendszer azonnal feltölti az R2-be, kiolvassa a pontos hosszát és beilleszti az adástervbe.</div>
             <input type="file" id="studio-video-input" accept="video/mp4, video/webm" multiple style="display:none;" onchange="handleVideoUpload(this.files)">
         </div>
     </div>
@@ -1467,7 +1470,9 @@
 
 <script>
     const WORKER_URL = "https://kepbenoszlop.androjid21.workers.dev";
-    const VIDEO_CROSSFADE_SEC = 4.0;
+    
+    // ⏱️ LEGALÁBB 8 MÁSODPERCCEL A KLIPP VÉGE ELŐTT INDULÓ TV-S KERESZTÁTÚSZTATÁS
+    const VIDEO_CROSSFADE_SEC = 8.0;
 
     let r2Library = [];
     let weekSchedules = {};
@@ -1481,6 +1486,9 @@
     let isVideoTransitioning = false;
     let masterVolume = 0.9;
     let transitionLock = false;
+
+    // ⏱️ PERZISZTENS VALÓS IDŐTARTAM GYORSÍTÓTÁR (MINDEN DAL VALÓS HOSSZÁNAK TÁROLÁSÁRA)
+    let clipDurationMap = {};
 
     let audioCtx = null;
     let compressorNode = null;
@@ -1603,6 +1611,32 @@
         return (name || '').toLowerCase().replace(/\.(mp4|webm)$/i, '').replace(/[^a-z0-9áéíóöőúüű]/g, '');
     }
 
+    // ⏱️ VALÓS VIDEÓIDŐTARTAM LEKÉRDEZŐ MOTOR
+    function fetchVideoDuration(url, filename) {
+        return new Promise((resolve) => {
+            if (clipDurationMap[filename] && clipDurationMap[filename] > 0) {
+                return resolve(clipDurationMap[filename]);
+            }
+            const tempVid = document.createElement('video');
+            tempVid.preload = 'metadata';
+            tempVid.src = url;
+            tempVid.onloadedmetadata = function() {
+                const dur = Math.round(tempVid.duration);
+                if (dur && !isNaN(dur) && dur > 0) {
+                    clipDurationMap[filename] = dur;
+                    resolve(dur);
+                } else {
+                    resolve(210);
+                }
+                tempVid.src = '';
+            };
+            tempVid.onerror = function() {
+                resolve(clipDurationMap[filename] || 210);
+                tempVid.src = '';
+            };
+        });
+    }
+
     function getCombinedClipsPool() {
         if (r2Library.length > 0) return r2Library;
         return [
@@ -1659,6 +1693,7 @@
         };
     }
 
+    // 🔴 24 ÓRÁS ADÁSMENET GENERÁLÓ (TŰPONTOS, VALÓS KLIPHOSSZAKKAL)
     function autoGenerateDaySchedule(dayOffset, force = false) {
         const pool = getCombinedClipsPool();
         const dateKey = getSelectedDateKey(dayOffset);
@@ -1671,7 +1706,8 @@
             const clip = getNextRotatedClip();
             if (!clip) break;
 
-            let dur = clip.duration || 210;
+            // ⏱️ Tűpontos kliphossz kiolvasása a perzisztens tárból
+            let dur = clipDurationMap[clip.filename] || clip.duration || 210;
             const endSec = Math.min(86400, startSec + dur);
             const hour = Math.floor(startSec / 3600);
 
@@ -1706,7 +1742,7 @@
     function insertClipAtTime(dateKey, newClip, insertSec, targetCategory = "delelott", rating = "12") {
         if (!weekSchedules[dateKey] || weekSchedules[dateKey].length === 0) autoGenerateDaySchedule(0);
         let schedule = weekSchedules[dateKey] || [];
-        const clipDuration = newClip.duration || 210;
+        const clipDuration = clipDurationMap[newClip.filename] || newClip.duration || 210;
 
         const newItem = {
             id: `clip_${Date.now()}_inserted`,
@@ -1752,7 +1788,7 @@
         saveWeekSchedules();
         renderRundownTable();
 
-        log(`⚡ [BESZÚRVA] "${newClip.title}" @ ${formatSecToHMS(insertSec)}`, 'success');
+        log(`⚡ [BESZÚRVA] "${newClip.title}" (${clipDuration} mp) @ ${formatSecToHMS(insertSec)}`, 'success');
 
         if (dateKey === getSelectedDateKey(0) && isTvBroadcasting) {
             syncToCurrentWallClockTime();
@@ -2006,6 +2042,7 @@
         }
     }
 
+    // 🎚️ 8 MÁSODPERCES PROFI TELEVÍZIÓS KERESZTÁTÚSZTATÁS (CROSSFADE & PRE-ROLL FEED)
     async function executeVideoCrossfade(forceImmediate = false) {
         if (twitchPendingSwitchStreamer) {
             switchToTwitchLiveImmediate(twitchPendingSwitchStreamer);
@@ -2069,10 +2106,12 @@
         
         try {
             await nextDeck.play();
+            log(`⚡ [8s TV CROSSFADE INDUL] ➔ "${newClip.title}"`, 'info');
         } catch(e){}
 
+        // 80 lépéses, 8.0 másodperces finom szinuszos keresztátúsztatás
         let step = 0;
-        const steps = 35;
+        const steps = 80;
         const timer = setInterval(() => {
             step++;
             const p = step / steps;
@@ -2414,6 +2453,8 @@
         it.duration = Math.max(30, (mins * 60) + secs);
         it.rating = rating;
 
+        clipDurationMap[it.filename] = it.duration;
+
         const sched = weekSchedules[editingClipRef.dateKey] || [];
         let startSec = it.startSec;
         for (let i = 0; i < sched.length; i++) {
@@ -2725,7 +2766,7 @@
     }
     function hideStandby() { standbyScreen.classList.remove('active'); }
 
-    /* 📰 HÍREK ÉS IDŐJÁRÁS MEGJELENÍTÉSE A MEGSZÉPÍTETT ALSÓ SÁVBAN */
+    /* 📰 HÍREK ÉS IDŐJÁRÁS MEGJELENÍTÉSE */
     async function fetchLiveNews() {
         try {
             const res = await fetch(`${WORKER_URL}?_t=${Date.now()}`);
@@ -2894,7 +2935,9 @@
                     runTrackPresentationSequence(schedule, false);
                 }
 
+                // ⏱️ 8 MÁSODPERCCEL A VÉGE ELŐTT INDULÓ KERESZTÁTÚSZTATÁS
                 if (remainingSec <= VIDEO_CROSSFADE_SEC && remainingSec >= 0) {
+                    log(`⏱️ 8s maradt a klipből ➔ Finom TV-s keresztátúsztatás indul!`, 'info');
                     executeVideoCrossfade(false);
                 }
             }
@@ -2947,7 +2990,7 @@
 
         document.getElementById('quota-usage-text').textContent = `${totalMB.toFixed(1)} MB / 10.240 MB (${pct}%)`;
         document.getElementById('quota-bar-fill').style.width = `${pct}%`;
-        document.getElementById('quota-free-remaining').textContent = `Még ${freeMB.toFixed(1)} MB tölthető fel ingyen`;
+        document.getElementById('quota-free-remaining').textContent = `Még ${freeMB.toFixed(1)} MB tölthető fel ingyen (kb. ${Math.floor(freeMB/70)} db 70MB-os klip)`;
     }
 
     function openAssignModal(filename) {
@@ -3008,6 +3051,7 @@
         closeAssignModal();
     }
 
+    // 📂 R2 TÁROLÓ ÉS VALÓS KLIPHOSSZAK BETÖLTÉSE
     async function loadR2Library() {
         try {
             const res = await fetch(`${WORKER_URL}/api/radio/list?_t=${Date.now()}`);
@@ -3015,7 +3059,18 @@
                 const list = await res.json();
                 if (Array.isArray(list)) {
                     r2Library = list;
-                    log(`📂 [R2 TÁR] ${list.length} db videóklip betöltve az R2-ből!`, 'success');
+                    log(`📂 [R2 TÁR] ${list.length} db videóklip betöltve!`, 'success');
+
+                    // Háttérben lekérjük a valós hosszakat ha még nem ismertek
+                    for (const item of list) {
+                        if (!clipDurationMap[item.filename]) {
+                            fetchVideoDuration(item.url, item.filename).then(dur => {
+                                item.duration = dur;
+                            });
+                        } else {
+                            item.duration = clipDurationMap[item.filename];
+                        }
+                    }
                 }
             }
         } catch(e){}
@@ -3119,6 +3174,7 @@
         await loadR2Library();
     }
 
+    // 📤 MP4 FELTÖLTŐ AUTOMATIKUS VALÓS IDŐTARTAM KIOLVASÁSSAL
     async function handleVideoUpload(files) {
         if (!files || files.length === 0) return;
 
@@ -3126,6 +3182,19 @@
             const file = files[i];
             const cleanName = file.name.replace(/[^a-zA-Z0-9_\-áéíóöőúüűÁÉÍÓÖŐÚÜŰ\.]/g, '_').replace(/_+/g, '_');
             
+            // Kiolvassuk a pontos másodpercet a böngészőben feltöltés előtt
+            const blobUrl = URL.createObjectURL(file);
+            const tempVid = document.createElement('video');
+            tempVid.preload = 'metadata';
+            tempVid.src = blobUrl;
+            tempVid.onloadedmetadata = function() {
+                const exactDur = Math.round(tempVid.duration);
+                if (exactDur && exactDur > 0) {
+                    clipDurationMap[cleanName] = exactDur;
+                }
+                URL.revokeObjectURL(blobUrl);
+            };
+
             const isColliding = r2Library.some(it => it.filename === cleanName || getNormalizedTrackKey(it.title) === getNormalizedTrackKey(cleanName));
             if (isColliding) {
                 log(`⚠️ [ÜTKÖZÉS] A(z) "${cleanName}" már szerepel az R2-ben! Felülírás folyamatban...`, 'warn');
@@ -3168,6 +3237,7 @@
             rating_on_time: ratingTimerOnTime,
             rating_off_time: ratingTimerOffTime,
             video_enhanced: isVideoEnhanced,
+            durations: clipDurationMap,
             updatedAt: new Date().toISOString()
         };
         try {
@@ -3188,6 +3258,7 @@
                     if (cloud.rating_on_time !== undefined) ratingTimerOnTime = cloud.rating_on_time;
                     if (cloud.rating_off_time !== undefined) ratingTimerOffTime = cloud.rating_off_time;
                     if (cloud.video_enhanced !== undefined) isVideoEnhanced = cloud.video_enhanced;
+                    if (cloud.durations && typeof cloud.durations === "object") clipDurationMap = cloud.durations;
                     applySavedPositions(cloud);
                     applyLogoVisibility();
                     applyAgeRating(currentAgeRating);
