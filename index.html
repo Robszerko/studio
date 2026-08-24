@@ -4,31 +4,34 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<title>KÉPBEN! MUSIC TELEVISION · Master Broadcast Studio</title>
+<title>KÉPBEN! MUSIC TELEVISION · Master Broadcast Studio 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700;800&family=Syne:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
     :root {
-        --bg-dark: #050811;
-        --card-bg: #0f172a;
-        --card-sub: #1e293b;
+        --bg-dark: #040711;
+        --card-bg: #0b1120;
+        --card-sub: #131d31;
         --accent-cyan: #38bdf8;
-        --accent-green: #22c55e;
-        --accent-red: #ef4444;
+        --accent-green: #10b981;
+        --accent-neon-green: #22c55e;
+        --accent-red: #f43f5e;
         --accent-amber: #f59e0b;
         --accent-purple: #c084fc;
+        --accent-magenta: #f43f5e;
         --text-main: #f8fafc;
         --text-muted: #94a3b8;
-        --border: #334155;
+        --border: #1e293b;
         --theme-primary: #38bdf8;
-        --theme-gradient: linear-gradient(135deg, rgba(11, 19, 41, 0.90) 0%, rgba(30, 58, 138, 0.90) 100%);
+        --theme-glow: rgba(56, 189, 248, 0.4);
+        --theme-gradient: linear-gradient(135deg, rgba(8, 14, 30, 0.95) 0%, rgba(14, 28, 64, 0.95) 100%);
     }
 
     * { margin:0; padding:0; box-sizing:border-box; }
 
     body {
-        background: radial-gradient(circle at 50% 0%, #1e293b 0%, var(--bg-dark) 80%);
+        background: radial-gradient(circle at 50% 0%, #0f172a 0%, var(--bg-dark) 75%);
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         color: var(--text-main);
         min-height: 100vh;
@@ -47,82 +50,105 @@
         gap: 18px;
     }
 
+    /* 🎙️ 2026 CYBER MASTER FEJLÉC */
     .master-header {
-        background: linear-gradient(135deg, #1e3a8a 0%, #0369a1 100%);
+        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0369a1 100%);
         border-radius: 20px;
         padding: 16px 24px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.4);
-        border: 1px solid rgba(255,255,255,0.15);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.15);
+        border: 1.5px solid rgba(56,189,248,0.25);
         flex-wrap: wrap;
         gap: 12px;
+        position: relative;
+        overflow: hidden;
+    }
+    .master-header::before {
+        content: '';
+        position: absolute;
+        top: 0; left: -100%; width: 100%; height: 2px;
+        background: linear-gradient(90deg, transparent, #38bdf8, #c084fc, transparent);
+        animation: headerScan 4s infinite linear;
+    }
+    @keyframes headerScan {
+        0% { left: -100%; }
+        100% { left: 100%; }
     }
 
     .brand-title {
-        font-family: 'Space Mono', monospace;
-        font-weight: 800;
-        font-size: 1.2rem;
+        font-family: 'Syne', 'Space Mono', sans-serif;
+        font-weight: 900;
+        font-size: 1.3rem;
         letter-spacing: -0.5px;
         display: flex;
         align-items: center;
         gap: 8px;
+        text-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
     }
 
     .kb-icon-mini {
-        width: 24px; height: 24px;
+        width: 26px; height: 26px;
         stroke: #38bdf8;
-        stroke-width: 2;
+        stroke-width: 2.2;
         fill: none;
         stroke-linecap: round;
         stroke-linejoin: round;
-        display: inline-block;
-        vertical-align: middle;
+        filter: drop-shadow(0 0 8px #38bdf8);
     }
 
     .clock-display {
-        background: rgba(0,0,0,0.5);
-        border: 1px solid rgba(255,255,255,0.15);
-        padding: 6px 14px;
+        background: rgba(4, 7, 17, 0.75);
+        border: 1px solid rgba(56,189,248,0.3);
+        padding: 6px 16px;
         border-radius: 12px;
         font-family: 'Space Mono', monospace;
-        font-weight: 700;
-        font-size: 1.15rem;
+        font-weight: 800;
+        font-size: 1.2rem;
         color: var(--accent-cyan);
+        box-shadow: 0 0 15px rgba(56,189,248,0.2);
     }
 
     .tv-live-badge {
         font-family: 'Space Mono', monospace;
         font-size: 0.75rem;
         font-weight: 800;
-        padding: 4px 14px;
+        padding: 5px 14px;
         border-radius: 20px;
-        background: rgba(239, 68, 68, 0.2);
+        background: rgba(244, 63, 94, 0.15);
         color: var(--accent-red);
-        border: 1px solid rgba(239, 68, 68, 0.4);
+        border: 1px solid rgba(244, 63, 94, 0.4);
         display: flex;
         align-items: center;
         gap: 6px;
+        letter-spacing: 0.5px;
     }
     .tv-live-badge.live {
-        background: rgba(34, 197, 94, 0.2);
-        color: var(--accent-green);
-        border-color: var(--accent-green);
+        background: rgba(34, 197, 94, 0.15);
+        color: var(--accent-neon-green);
+        border-color: rgba(34, 197, 94, 0.5);
+        box-shadow: 0 0 12px rgba(34, 197, 94, 0.3);
     }
     
     .live-dot-static {
         width: 9px; height: 9px;
         border-radius: 50%;
-        background: #ef4444;
+        background: #f43f5e;
         display: inline-block;
         flex-shrink: 0;
     }
     .tv-live-badge.live .live-dot-static {
         background: #22c55e;
-        box-shadow: 0 0 6px #22c55e;
+        box-shadow: 0 0 8px #22c55e;
+        animation: pulseDot 1.2s infinite ease-in-out alternate;
+    }
+    @keyframes pulseDot {
+        0% { transform: scale(0.85); opacity: 0.7; }
+        100% { transform: scale(1.15); opacity: 1; }
     }
 
+    /* ⚡ KVÓTA & BIZTONSÁGI FOGYASZTÁSMÉRŐ PANEL */
     .quota-monitor-card {
         background: var(--card-bg);
         border: 1px solid var(--border);
@@ -131,7 +157,7 @@
         display: flex;
         flex-direction: column;
         gap: 8px;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
     }
     .quota-header-row {
         display: flex;
@@ -143,17 +169,20 @@
     .quota-bar-bg {
         width: 100%;
         height: 8px;
-        background: #1e293b;
+        background: #0f172a;
         border-radius: 4px;
         overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.05);
     }
     .quota-bar-fill {
         height: 100%;
         width: 0%;
-        background: linear-gradient(90deg, #22c55e 0%, #eab308 70%, #ef4444 100%);
+        background: linear-gradient(90deg, #10b981 0%, #38bdf8 60%, #f43f5e 100%);
         transition: width 0.4s ease;
+        box-shadow: 0 0 10px rgba(56,189,248,0.5);
     }
 
+    /* 📺 DUAL-DECK 16:9 PROFI TV KÉPERNYŐ KERET */
     .tv-screen-wrapper {
         position: relative;
         width: 100%;
@@ -161,7 +190,7 @@
         background: #000000;
         border-radius: 20px;
         overflow: hidden;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 0 1.5px rgba(56, 189, 248, 0.2);
         border: 1.5px solid var(--border);
         transform: translateZ(0);
         backface-visibility: hidden;
@@ -225,9 +254,10 @@
     }
 
     .tv-video-deck.enhanced-mode {
-        filter: contrast(1.04) saturate(1.06);
+        filter: contrast(1.05) saturate(1.08);
     }
 
+    /* 📺 MONOSZKÓP RÉTEG */
     .tv-monoscope-layer {
         position: absolute;
         top: 0; left: 0;
@@ -242,6 +272,7 @@
     .tv-monoscope-layer.active { display: flex; }
     .monoscope-svg { width: 100%; height: 100%; object-fit: contain; }
 
+    /* ⚡ TECHNIKAI SZÜNET & VISSZASZÁMLÁLÓ BUMPER KÉPERNYŐ */
     .tv-interstitial-screen {
         position: absolute;
         top: 0; left: 0;
@@ -251,7 +282,7 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        background: radial-gradient(circle at 50% 50%, #0b1329 0%, #050811 85%);
+        background: radial-gradient(circle at 50% 50%, #0b1329 0%, #040711 85%);
         color: #fff;
         padding: 24px;
         text-align: center;
@@ -265,18 +296,18 @@
         opacity: 1;
     }
     .interstitial-card {
-        background: rgba(15, 23, 42, 0.88);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
+        background: rgba(11, 17, 32, 0.92);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
         border: 1.5px solid rgba(56, 189, 248, 0.45);
         border-radius: 20px;
-        padding: 20px 32px;
+        padding: 24px 36px;
         max-width: 580px;
-        box-shadow: 0 16px 45px rgba(0, 0, 0, 0.85);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 25px rgba(56,189,248,0.25);
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
     }
     .interstitial-header {
         font-family: 'Space Mono', monospace;
@@ -287,37 +318,40 @@
         align-items: center;
         gap: 8px;
         letter-spacing: 0.5px;
+        text-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
     }
     .interstitial-sub {
-        font-size: 0.82rem;
+        font-size: 0.85rem;
         font-weight: 600;
         color: #cbd5e1;
     }
     .interstitial-countdown-badge {
         font-family: 'Space Mono', monospace;
-        font-size: 1.35rem;
+        font-size: 1.4rem;
         font-weight: 900;
         color: #facc15;
         background: rgba(250, 204, 21, 0.12);
         border: 1.5px solid rgba(250, 204, 21, 0.4);
-        padding: 4px 18px;
+        padding: 6px 22px;
         border-radius: 12px;
         letter-spacing: 1px;
+        box-shadow: 0 0 15px rgba(250, 204, 21, 0.25);
     }
     .interstitial-next-track {
-        font-size: 0.82rem;
+        font-size: 0.85rem;
         font-weight: 700;
         color: #ffffff;
-        background: rgba(30, 41, 59, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        padding: 6px 14px;
-        border-radius: 8px;
+        background: rgba(30, 41, 59, 0.75);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        padding: 8px 16px;
+        border-radius: 10px;
         max-width: 100%;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
 
+    /* 📡 TWITCH LIVE ALERT BANNER */
     .tv-twitch-alert-banner {
         position: absolute;
         top: 20px;
@@ -327,14 +361,14 @@
         display: none;
         align-items: center;
         justify-content: space-between;
-        background: rgba(15, 23, 42, 0.85);
-        backdrop-filter: blur(14px) saturate(160%);
-        -webkit-backdrop-filter: blur(14px) saturate(160%);
-        border: 1.5px solid rgba(192, 132, 252, 0.5);
+        background: rgba(11, 17, 32, 0.88);
+        backdrop-filter: blur(16px) saturate(160%);
+        -webkit-backdrop-filter: blur(16px) saturate(160%);
+        border: 1.5px solid rgba(192, 132, 252, 0.6);
         border-left: 5px solid var(--accent-purple);
-        border-radius: 12px;
-        padding: 8px 16px;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.75);
+        border-radius: 14px;
+        padding: 10px 18px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85), 0 0 15px rgba(192,132,252,0.3);
         color: #fff;
         opacity: 0;
         transform: translateY(-15px);
@@ -348,9 +382,10 @@
     }
     .twa-left { display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
     .twa-title { font-family: 'Space Mono', monospace; font-weight: 900; font-size: 0.85rem; color: #c084fc; display: flex; align-items: center; gap: 8px; }
-    .twa-desc { font-size: 0.74rem; color: #e2e8f0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 2px #000; }
+    .twa-desc { font-size: 0.76rem; color: #e2e8f0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 2px #000; }
     .twa-badge { font-family: 'Space Mono', monospace; font-size: 0.80rem; font-weight: 800; color: #facc15; background: rgba(250, 204, 21, 0.15); border: 1px solid rgba(250, 204, 21, 0.4); padding: 4px 10px; border-radius: 8px; flex-shrink: 0; }
 
+    /* ⏳ VÁRAKOZÓ / SZÜNET KÉPERNYŐ */
     .tv-standby-screen {
         position: absolute;
         top: 0; left: 0;
@@ -360,7 +395,7 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        background: #090d16;
+        background: #060a14;
         overflow: hidden;
         user-select: none;
     }
@@ -374,21 +409,23 @@
         align-items: center;
         gap: 14px;
         text-align: center;
-        padding: 24px 32px;
-        background: rgba(15, 23, 42, 0.92);
-        backdrop-filter: blur(14px);
+        padding: 28px 36px;
+        background: rgba(11, 17, 32, 0.92);
+        backdrop-filter: blur(16px);
         border: 1.5px solid rgba(56, 189, 248, 0.4);
         border-radius: 20px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.85);
         max-width: 620px;
     }
-    .standby-brand { font-family: 'Space Mono', monospace; font-weight: 900; font-size: 1.8rem; color: #fff; letter-spacing: -0.5px; }
+    .standby-brand { font-family: 'Syne', sans-serif; font-weight: 900; font-size: 2rem; color: #fff; letter-spacing: -0.5px; }
     .standby-msg { font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
     .standby-time-badge {
-        font-family: 'Space Mono', monospace; font-size: 1.1rem; font-weight: 800; color: var(--accent-cyan);
-        background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.45); padding: 6px 18px; border-radius: 10px;
+        font-family: 'Space Mono', monospace; font-size: 1.15rem; font-weight: 800; color: var(--accent-cyan);
+        background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.45); padding: 6px 20px; border-radius: 10px;
+        box-shadow: 0 0 15px rgba(56,189,248,0.25);
     }
 
+    /* 🏷️ JOBB FELSŐ LOGÓ + NAPSZAKI ÓRA */
     .tv-watermark-wrap {
         position: absolute;
         top: 26px; right: 32px;
@@ -400,7 +437,7 @@
         pointer-events: none;
         transform-origin: top right;
         transition: top 0.15s ease, right 0.15s ease, transform 0.15s ease, opacity 0.25s ease;
-        opacity: 0.94;
+        opacity: 0.96;
     }
 
     .tv-watermark-clean {
@@ -411,17 +448,17 @@
     .tv-watermark-clean .kb-icon-mini { 
         stroke: #38bdf8 !important; 
         width: 24px; height: 24px; 
-        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+        filter: drop-shadow(0 0 8px rgba(56,189,248,0.8));
     }
     .tv-watermark-text-clean {
-        font-family: 'Space Mono', monospace; 
-        font-weight: 800; 
-        font-size: 1.05rem; 
+        font-family: 'Syne', sans-serif; 
+        font-weight: 900; 
+        font-size: 1.1rem; 
         color: #ffffff;
         letter-spacing: -0.4px; 
         display: flex; 
         align-items: center;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.9);
+        text-shadow: 0 0 12px rgba(0,0,0,0.9), 0 0 20px rgba(56,189,248,0.4);
     }
 
     .tv-logo-capsule-clock {
@@ -429,15 +466,14 @@
         font-weight: 800;
         font-size: 0.78rem;
         color: var(--theme-primary);
-        background: rgba(10, 18, 36, 0.65);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        border: 1px solid var(--theme-primary);
+        background: rgba(6, 11, 25, 0.75);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1.5px solid var(--theme-primary);
         padding: 2px 8px;
         border-radius: 6px;
         letter-spacing: 0.8px;
-        text-shadow: 0 1px 3px rgba(0,0,0,0.95);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        box-shadow: 0 0 10px var(--theme-glow);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -448,7 +484,7 @@
         display: none;
         align-items: center;
         gap: 4px;
-        background: #ef4444;
+        background: #f43f5e;
         color: #ffffff;
         font-family: 'Space Mono', monospace;
         font-weight: 900;
@@ -456,15 +492,16 @@
         padding: 2px 7px;
         border-radius: 4px;
         letter-spacing: 0.6px;
-        box-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
-        animation: livePulse 1.4s infinite alternate;
+        box-shadow: 0 0 12px rgba(244, 63, 94, 0.9);
+        animation: livePulse 1.2s infinite alternate;
     }
     .tv-live-on-air-tag.active { display: inline-flex; }
     @keyframes livePulse {
         0% { opacity: 0.75; transform: scale(0.96); }
-        100% { opacity: 1; transform: scale(1.02); filter: drop-shadow(0 0 6px #ef4444); }
+        100% { opacity: 1; transform: scale(1.04); filter: drop-shadow(0 0 8px #f43f5e); }
     }
 
+    /* 🔥 2026 ULTRA-MODERN LOWER-THIRD BANNER (HOLOGRAPHIC CYBER-MTV DESIGN) */
     .tv-lower-third-banner {
         position: absolute;
         bottom: 84px;
@@ -472,114 +509,153 @@
         z-index: 9999;
         display: flex;
         flex-direction: column;
-        gap: 3px;
-        max-width: 560px;
+        gap: 4px;
+        max-width: 580px;
         width: calc(100% - 120px);
         pointer-events: none;
         user-select: none;
-        transform: translate3d(-125%, 0, 0);
+        transform: translate3d(-135%, 0, 0) skewX(-4deg);
         opacity: 0;
-        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s linear;
+        transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
         will-change: transform, opacity;
     }
     .tv-lower-third-banner.banner-show {
-        transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0) skewX(0deg);
         opacity: 1;
     }
 
     .lt-header-bar {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        background: rgba(7, 13, 26, 0.88);
-        backdrop-filter: blur(10px);
-        padding: 4px 10px;
-        border-radius: 6px;
-        border-left: 4px solid var(--theme-primary);
+        gap: 10px;
+        background: rgba(6, 11, 24, 0.92);
+        backdrop-filter: blur(16px) saturate(180%);
+        -webkit-backdrop-filter: blur(16px) saturate(180%);
+        padding: 5px 12px;
+        border-radius: 8px;
+        border-left: 4.5px solid var(--theme-primary);
+        border-top: 1px solid rgba(255,255,255,0.2);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.6), 0 0 15px var(--theme-glow);
         width: fit-content;
     }
     .lt-show-badge {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
         font-family: 'Space Mono', monospace;
-        font-size: 0.66rem;
+        font-size: 0.70rem;
         font-weight: 800;
         color: var(--theme-primary);
-        letter-spacing: 0.3px;
+        letter-spacing: 0.5px;
         text-transform: uppercase;
     }
-    .lt-show-badge .kb-icon-mini { width: 14px; height: 14px; stroke: var(--theme-primary); }
+    .lt-show-badge .kb-icon-mini { width: 15px; height: 15px; stroke: var(--theme-primary); }
 
+    /* 🎚️ 2026 RGB NEON EQUALIZER BARS */
     .lt-live-eq {
         display: flex;
         align-items: flex-end;
-        gap: 2px;
-        height: 12px;
+        gap: 2.5px;
+        height: 14px;
         margin-left: 2px;
     }
     .lt-eq-bar {
-        width: 2.5px;
-        height: 12px;
-        background: var(--theme-primary);
-        border-radius: 1px;
-        animation: eqPulse 1.2s ease-in-out infinite alternate;
+        width: 3px;
+        height: 14px;
+        background: linear-gradient(180deg, #f43f5e 0%, #38bdf8 100%);
+        border-radius: 2px;
+        animation: eqPulse2026 1s ease-in-out infinite alternate;
+        box-shadow: 0 0 6px rgba(56, 189, 248, 0.8);
     }
-    .lt-eq-bar:nth-child(1) { animation-delay: 0.1s; }
-    .lt-eq-bar:nth-child(2) { animation-delay: 0.3s; }
-    .lt-eq-bar:nth-child(3) { animation-delay: 0.2s; }
-    .lt-eq-bar:nth-child(4) { animation-delay: 0.4s; }
-    @keyframes eqPulse {
-        0% { transform: scaleY(0.25); opacity: 0.6; }
-        100% { transform: scaleY(1); opacity: 1; }
+    .lt-eq-bar:nth-child(1) { animation-delay: 0.1s; height: 60%; }
+    .lt-eq-bar:nth-child(2) { animation-delay: 0.35s; height: 100%; }
+    .lt-eq-bar:nth-child(3) { animation-delay: 0.2s; height: 40%; }
+    .lt-eq-bar:nth-child(4) { animation-delay: 0.45s; height: 85%; }
+    .lt-eq-bar:nth-child(5) { animation-delay: 0.25s; height: 70%; }
+    @keyframes eqPulse2026 {
+        0% { transform: scaleY(0.2); opacity: 0.5; }
+        100% { transform: scaleY(1.1); opacity: 1; }
     }
 
+    /* 🏷️ 2026 HOLOGRAPHIC STATUS BADGE */
     .lt-status-badge {
         font-family: 'Space Mono', monospace;
-        font-size: 0.62rem;
+        font-size: 0.65rem;
         font-weight: 900;
-        padding: 1px 7px;
-        border-radius: 4px;
+        padding: 2px 8px;
+        border-radius: 5px;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.8px;
         margin-left: 4px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.5);
     }
-    .badge-most { background: #22c55e; color: #050811; }
-    .badge-kovetkezik { background: #f59e0b; color: #050811; }
-    .badge-kesobb { background: #c084fc; color: #050811; }
+    .badge-most {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: #ffffff;
+        box-shadow: 0 0 12px rgba(16, 185, 129, 0.7);
+        border: 1px solid rgba(255,255,255,0.4);
+    }
+    .badge-kovetkezik {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: #000000;
+        box-shadow: 0 0 12px rgba(245, 158, 11, 0.7);
+        border: 1px solid rgba(255,255,255,0.4);
+    }
+    .badge-kesobb {
+        background: linear-gradient(135deg, #c084fc 0%, #9333ea 100%);
+        color: #ffffff;
+        box-shadow: 0 0 12px rgba(192, 132, 252, 0.7);
+        border: 1px solid rgba(255,255,255,0.4);
+    }
 
+    /* 🎴 2026 LOWER-THIRD TARTALOM DOBOZ (HOLOGRAPHIC GLASS) */
     .lt-content-box {
         background: var(--theme-gradient);
-        backdrop-filter: blur(14px);
-        border-left: 4px solid var(--theme-primary);
-        border-radius: 8px;
-        padding: 6px 12px;
-        border-top: 1px solid rgba(255,255,255,0.22);
+        backdrop-filter: blur(20px) saturate(190%);
+        -webkit-backdrop-filter: blur(20px) saturate(190%);
+        border-left: 4.5px solid var(--theme-primary);
+        border-radius: 12px;
+        padding: 8px 16px;
+        border-top: 1.5px solid rgba(255,255,255,0.25);
+        border-right: 1px solid rgba(255,255,255,0.1);
+        border-bottom: 1px solid rgba(255,255,255,0.1);
         display: flex;
         flex-direction: column;
         gap: 2px;
         max-width: 100%;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.7), 0 0 25px var(--theme-glow);
+        position: relative;
+        overflow: hidden;
+    }
+    .lt-content-box::after {
+        content: '';
+        position: absolute;
+        top: 0; right: 0; bottom: 0; width: 60px;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06));
+        pointer-events: none;
     }
     .lt-artist-row {
         font-family: 'Space Mono', monospace;
-        font-size: 0.78rem;
+        font-size: 0.82rem;
         font-weight: 800;
         color: var(--accent-cyan);
-        letter-spacing: 0.2px;
+        letter-spacing: 0.5px;
         text-transform: uppercase;
         line-height: 1.2;
+        text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
     }
     .lt-track-row {
-        font-size: 0.92rem;
-        font-weight: 800;
+        font-family: 'Syne', 'Inter', sans-serif;
+        font-size: 1.05rem;
+        font-weight: 900;
         color: #ffffff;
-        letter-spacing: -0.1px;
+        letter-spacing: -0.2px;
         line-height: 1.25;
-        text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+        text-shadow: 0 2px 6px rgba(0,0,0,0.9), 0 0 15px rgba(255,255,255,0.3);
     }
-    .lt-track-row.font-shrink { font-size: 0.78rem; }
+    .lt-track-row.font-shrink { font-size: 0.85rem; }
 
+    /* 🟡🔴 100%-BAN ÁTLÁTSZÓ BELSEJŰ NMHH KORHATÁR KARIKA */
     .tv-age-rating-container {
         position: absolute;
         bottom: 18px; right: 28px;
@@ -595,11 +671,12 @@
         width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
         background: transparent !important;
     }
-    .nmhh-ring.ring-yellow { border: 4.5px solid #facc15; }
-    .nmhh-ring.ring-red { border: 4.5px solid #ef4444; }
+    .nmhh-ring.ring-yellow { border: 4.5px solid #facc15; box-shadow: 0 0 10px rgba(250,204,21,0.5); }
+    .nmhh-ring.ring-red { border: 4.5px solid #ef4444; box-shadow: 0 0 10px rgba(239,68,68,0.6); }
     .nmhh-number { font-family: 'Inter', sans-serif; font-weight: 900; font-size: 1.15rem; color: #ffffff; line-height: 1; text-shadow: 0 2px 4px #000; }
     .nmhh-child-svg { width: 38px; height: 38px; fill: #22c55e; }
 
+    /* 📰 LEBEGŐ HÍRKÁRTYA + FIX IDŐJÁRÁS DOBOZ */
     .tv-news-glass-container {
         position: absolute;
         bottom: 16px;
@@ -618,13 +695,13 @@
         display: flex;
         align-items: center;
         gap: 8px;
-        background: rgba(5, 10, 22, 0.38);
-        backdrop-filter: blur(10px) saturate(140%);
-        -webkit-backdrop-filter: blur(10px) saturate(140%);
-        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(6, 11, 24, 0.45);
+        backdrop-filter: blur(12px) saturate(150%);
+        -webkit-backdrop-filter: blur(12px) saturate(150%);
+        border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 12px;
         padding: 6px 10px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        box-shadow: 0 4px 18px rgba(0,0,0,0.5);
         flex-shrink: 0;
         width: 175px;
         height: 52px;
@@ -633,24 +710,24 @@
     .glass-weather-icon { font-size: 1.3rem; line-height: 1; flex-shrink: 0; }
     .glass-weather-col { display: flex; flex-direction: column; line-height: 1.1; overflow: hidden; }
     .glass-weather-city { font-family: 'Space Mono', monospace; font-size: 0.62rem; font-weight: 800; color: #ffffff; text-shadow: 0 1px 3px #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .glass-weather-temp { font-family: 'Space Mono', monospace; font-size: 0.82rem; font-weight: 900; color: var(--accent-cyan); text-shadow: 0 1px 3px #000; }
+    .glass-weather-temp { font-family: 'Space Mono', monospace; font-size: 0.82rem; font-weight: 900; color: var(--accent-cyan); text-shadow: 0 0 8px rgba(56,189,248,0.6); }
 
     .glass-news-card {
         display: flex;
         flex-direction: column;
         justify-content: center;
         gap: 2px;
-        background: rgba(5, 10, 22, 0.38);
-        backdrop-filter: blur(12px) saturate(150%);
-        -webkit-backdrop-filter: blur(12px) saturate(150%);
-        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(6, 11, 24, 0.45);
+        backdrop-filter: blur(14px) saturate(160%);
+        -webkit-backdrop-filter: blur(14px) saturate(160%);
+        border: 1px solid rgba(255, 255, 255, 0.15);
         border-left: 3.5px solid var(--accent-amber);
         border-radius: 12px;
         padding: 6px 14px;
         height: 52px;
         flex: 1;
         min-width: 0;
-        box-shadow: 0 4px 18px rgba(0,0,0,0.4);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         opacity: 0;
         transform: translateY(6px);
         transition: opacity 0.35s ease, transform 0.35s ease;
@@ -679,12 +756,12 @@
         position: absolute;
         top: 50px; left: 20px;
         width: 340px; max-width: 48vw;
-        background: rgba(10, 16, 30, 0.92);
-        backdrop-filter: blur(12px);
+        background: rgba(6, 11, 24, 0.94);
+        backdrop-filter: blur(14px);
         border-left: 4px solid var(--theme-primary);
         border-radius: 12px;
         padding: 10px 14px;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.7);
         z-index: 9999;
         transform: translate3d(-125%, 0, 0);
         opacity: 0;
@@ -762,24 +839,26 @@
     .day-name { font-family: 'Space Mono', monospace; font-size: 0.72rem; font-weight: 800; }
     .day-date { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--accent-cyan); }
 
+    /* 📋 2026 TŰPONTOS ADÁSTERV TÁBLÁZAT ÉS ON-AIR KIJELÖLÉS */
     .rundown-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; text-align: left; table-layout: fixed; }
     .rundown-table th { background: var(--card-sub); color: var(--accent-cyan); font-family: 'Space Mono', monospace; padding: 10px 8px; border-bottom: 1px solid var(--border); }
     .rundown-table td { padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.3s; vertical-align: middle; }
     
-    .rundown-table th:nth-child(1), .rundown-table td:nth-child(1) { width: 90px; }
+    .rundown-table th:nth-child(1), .rundown-table td:nth-child(1) { width: 95px; }
     .rundown-table th:nth-child(2), .rundown-table td:nth-child(2) { width: 130px; }
     .rundown-table th:nth-child(3), .rundown-table td:nth-child(3) { width: auto; }
-    .rundown-table th:nth-child(4), .rundown-table td:nth-child(4) { width: 140px; }
+    .rundown-table th:nth-child(4), .rundown-table td:nth-child(4) { width: 130px; }
     .rundown-table th:nth-child(5), .rundown-table td:nth-child(5) { width: 70px; }
     .rundown-table th:nth-child(6), .rundown-table td:nth-child(6) { width: 110px; }
     .rundown-table th:nth-child(7), .rundown-table td:nth-child(7) { width: 80px; }
     .rundown-table th:nth-child(8), .rundown-table td:nth-child(8) { width: 45px; text-align: center; }
 
     .rundown-table tr.current-on-air-row td {
-        background: rgba(34, 197, 94, 0.22) !important;
-        border-left: 4px solid var(--accent-green) !important;
+        background: linear-gradient(90deg, rgba(16, 185, 129, 0.25) 0%, rgba(56, 189, 248, 0.15) 100%) !important;
+        border-left: 4px solid #10b981 !important;
         font-weight: 800 !important;
         color: #ffffff !important;
+        box-shadow: inset 0 0 15px rgba(16, 185, 129, 0.2);
     }
 
     .editable-cell { cursor: pointer; padding: 4px 6px; border-radius: 6px; transition: all 0.2s; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -812,9 +891,39 @@
     .btn-del-sm { background: none; border: none; color: var(--accent-red); cursor: pointer; opacity: 0.75; }
     .btn-del-sm:hover { opacity: 1; }
 
+    /* ⚠️ DUPLIKÁCIÓ JELZŐ SÁV ÉS GOMBOK */
+    .duplicate-alert-badge {
+        font-family: 'Space Mono', monospace;
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: #facc15;
+        background: rgba(250, 204, 21, 0.15);
+        border: 1px solid rgba(250, 204, 21, 0.5);
+        padding: 2px 6px;
+        border-radius: 4px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        box-shadow: 0 0 8px rgba(250,204,21,0.3);
+    }
+    .duplicate-clean-btn {
+        background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
+        color: #000;
+        font-weight: 900;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.75rem;
+        padding: 6px 14px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 0 12px rgba(234, 179, 8, 0.4);
+    }
+    .duplicate-clean-btn:hover { background: #fde047; }
+
     .position-floating-panel {
         position: fixed; bottom: 24px; left: 24px; right: auto; width: 390px; max-width: calc(100vw - 48px);
-        background: #0f172a; border: 1.5px solid var(--accent-cyan); border-radius: 18px; padding: 16px 18px;
+        background: #0b1120; border: 1.5px solid var(--accent-cyan); border-radius: 18px; padding: 16px 18px;
         display: none; flex-direction: column; gap: 12px; box-shadow: 0 16px 40px rgba(0,0,0,0.85); z-index: 99999; max-height: 85vh; overflow-y: auto;
     }
     .position-floating-panel.active { display: flex; }
@@ -825,7 +934,7 @@
     }
     .modal-overlay.active { display: flex; }
     .modal-card {
-        background: #0f172a; border: 1px solid var(--border); border-radius: 20px; width: 100%; max-width: 540px; padding: 22px;
+        background: #0b1120; border: 1px solid var(--border); border-radius: 20px; width: 100%; max-width: 540px; padding: 22px;
         display: flex; flex-direction: column; gap: 14px; box-shadow: 0 16px 40px rgba(0,0,0,0.7); max-height: 90vh; overflow-y: auto;
     }
     .log-box {
@@ -844,7 +953,7 @@
                 <circle cx="12" cy="12" r="3"/>
                 <circle cx="12" cy="12" r="8" opacity="0.5"/>
             </svg>
-            <span>KÉPBEN<span style="color:#ef4444;">!</span><span style="color:#38bdf8; font-weight:800; margin-left:1px;">MUSIC</span> <span style="font-weight:400; color:#94a3b8; font-size:0.9rem;">TELEVISION</span></span>
+            <span>KÉPBEN<span style="color:#f43f5e;">!</span><span style="color:#38bdf8; font-weight:800; margin-left:1px;">MUSIC</span> <span style="font-weight:400; color:#94a3b8; font-size:0.9rem;">TELEVISION</span></span>
         </div>
         <div class="clock-display" id="master-clock">--:--:--</div>
         <div class="tv-live-badge" id="master-live-badge">
@@ -964,11 +1073,12 @@
             </div>
         </div>
 
+        <!-- 🔥 2026 CYBER LOWER-THIRD BANNER -->
         <div class="tv-lower-third-banner" id="tv-lower-third-banner">
             <div class="lt-header-bar">
                 <div class="lt-show-badge">
                     <span id="lt-show-title">☀️ KÉPBEN! DÉLELŐTT</span>
-                    <div class="lt-live-eq"><div class="lt-eq-bar"></div><div class="lt-eq-bar"></div><div class="lt-eq-bar"></div><div class="lt-eq-bar"></div></div>
+                    <div class="lt-live-eq"><div class="lt-eq-bar"></div><div class="lt-eq-bar"></div><div class="lt-eq-bar"></div><div class="lt-eq-bar"></div><div class="lt-eq-bar"></div></div>
                 </div>
                 <span class="lt-status-badge badge-most" id="lt-status-badge">MOST</span>
             </div>
@@ -1011,7 +1121,7 @@
                     <circle cx="12" cy="12" r="3"/>
                     <circle cx="12" cy="12" r="8" opacity="0.5"/>
                 </svg>
-                <span class="tv-watermark-text-clean">KÉPBEN<span style="color:#ef4444;">!</span><span style="color:#38bdf8; margin-left:1px;">MUSIC</span></span>
+                <span class="tv-watermark-text-clean">KÉPBEN<span style="color:#f43f5e;">!</span><span style="color:#38bdf8; margin-left:1px;">MUSIC</span></span>
             </div>
             <div class="tv-logo-capsule-clock" id="tv-logo-capsule-clock">--:--:--</div>
             <span class="tv-live-on-air-tag" id="tv-live-on-air-tag">🔴 ÉLŐ</span>
@@ -1101,6 +1211,7 @@
         <div class="calendar-days-row" id="calendar-days-container"></div>
     </div>
 
+    <!-- 📋 TŰPONTOS ADÁSTERV TÁBLÁZAT ÉS ON-AIR DETEKTOR -->
     <div class="rundown-panel">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
             <div style="font-family:'Space Mono',monospace; font-size:0.85rem; font-weight:700; color:var(--accent-cyan);">
@@ -1111,7 +1222,7 @@
                 <button class="btn-act" style="color:var(--accent-red);" onclick="clearRundown()">🗑️ Terv Ürítése</button>
             </div>
         </div>
-        <div style="max-height:300px; overflow-y:auto;">
+        <div style="max-height:320px; overflow-y:auto;">
             <table class="rundown-table">
                 <thead>
                     <tr><th>ADÁSKEZDET</th><th>MŰSOR</th><th>CÍM / ELŐADÓ</th><th>MINŐSÉG / FORRÁS</th><th>KORHATÁR</th><th>PONTOS HOSSZ</th><th>ADÁSVÉG</th><th>MŰVELET</th></tr>
@@ -1121,18 +1232,25 @@
         </div>
     </div>
 
+    <!-- 📂 VIDEÓTÁR DUPLIKÁCIÓ FIGYELŐVEL ÉS TISZTÍTÓVAL -->
     <div class="library-panel">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
             <div style="font-family:'Space Mono',monospace; font-size:0.85rem; font-weight:700; color:var(--accent-green);">
                 📂 VIDEÓKLIP TÁR (<span id="library-count">0</span> db 100% Reklámmentes R2 MP4)
             </div>
             <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button class="duplicate-clean-btn" id="btn-clean-duplicates" style="display:none;" onclick="cleanAllR2Duplicates()">
+                    🧹 Duplikációk Tisztítása (1 Példány Megtartása)
+                </button>
                 <button class="btn-act" onclick="loadR2Library()">🔄 Tár Frissítése</button>
             </div>
         </div>
+        <div id="library-duplicate-alert-bar" style="display:none; background:rgba(250,204,21,0.12); border:1px solid rgba(250,204,21,0.35); padding:8px 14px; border-radius:10px; font-family:'Space Mono',monospace; font-size:0.75rem; color:#facc15; font-weight:700;">
+            ⚠️ Figyelem: Azonos című vagy nevű klipek találhatók az R2-ben! Kattints a fenti sárga gombra az automatikus tisztításhoz.
+        </div>
         <div style="max-height:260px; overflow-y:auto;">
             <table class="rundown-table">
-                <thead><tr><th style="width:auto;">CÍM</th><th style="width:230px;">TÍPUS / MÉRET</th><th style="width:140px;">BESZÚRÁS</th><th style="width:45px; text-align:center;">TÖRLÉS</th></tr></thead>
+                <thead><tr><th style="width:auto;">CÍM</th><th style="width:230px;">TÍPUS / MÉRET & ÁLLAPOT</th><th style="width:140px;">BESZÚRÁS</th><th style="width:45px; text-align:center;">TÖRLÉS</th></tr></thead>
                 <tbody id="library-tbody"></tbody>
             </table>
         </div>
@@ -1140,7 +1258,7 @@
 
     <div class="uploader-card">
         <div style="font-family:'Space Mono',monospace; font-size:0.8rem; font-weight:700; color:var(--accent-cyan);">
-            ☁️ ÚJ VIDEÓKLIP FELTÖLTÉSE AZ R2 TÁROLÓBA (MP4 / WebM) · 100% Reklámmentes TV Adás
+            ☁️ ÚJ VIDEÓKLIP FELTÖLTÉSE AZ R2 TÁROLÓBA (MP4 / WebM) · Duplikáció-védelemmel
         </div>
         <div class="dropzone-box" onclick="document.getElementById('studio-video-input').click()">
             <div style="font-size:1.6rem; margin-bottom:4px;">☁️ ➔ 🎬</div>
@@ -1544,6 +1662,10 @@
         return { artist: "KÉPBEN! SLÁGER", title: clean };
     }
 
+    function getNormalizedTrackKey(name) {
+        return (name || '').toLowerCase().replace(/\.(mp4|webm)$/i, '').replace(/[^a-z0-9áéíóöőúüű]/g, '');
+    }
+
     function getCombinedClipsPool() {
         if (r2Library.length > 0) return r2Library;
         return [
@@ -1563,7 +1685,7 @@
             const prevKey = getSelectedDateKey(dayOffset - o);
             if (weekSchedules[prevKey]) {
                 weekSchedules[prevKey].forEach(t => {
-                    const norm = (t.title || t.filename || '').toLowerCase().replace(/[^a-z0-9áéíóöőúüű]/g, '');
+                    const norm = getNormalizedTrackKey(t.title || t.filename);
                     if (norm) recent3DaysTrackIds.add(norm);
                 });
             }
@@ -1582,7 +1704,7 @@
         function generateDeck() {
             let baseItems = [...pool];
             let filtered = baseItems.filter(item => {
-                const norm = (item.title || item.filename || '').toLowerCase().replace(/[^a-z0-9áéíóöőúüű]/g, '');
+                const norm = getNormalizedTrackKey(item.title || item.filename);
                 return !recent3DaysTrackIds.has(norm);
             });
             if (filtered.length < 3) filtered = baseItems;
@@ -2165,6 +2287,7 @@
         }
     }
 
+    /* 🔥 2026 CYBER LOWER-THIRD TRIGGER */
     function triggerLowerThirdBanner(type, rawTrackTitle, showCat) {
         if (!isTvBroadcasting || !isLogoVisible) return;
         const showConfig = tvDaypartConfig[showCat] || tvDaypartConfig.delelott;
@@ -2177,7 +2300,7 @@
         ltArtistRow.textContent = parsed.artist;
         ltTrackRow.textContent = parsed.title;
 
-        if (parsed.title.length > 36 || parsed.artist.length > 28) ltTrackRow.classList.add('font-shrink');
+        if (parsed.title.length > 34 || parsed.artist.length > 26) ltTrackRow.classList.add('font-shrink');
         else ltTrackRow.classList.remove('font-shrink');
 
         lowerThirdBanner.classList.add('banner-show');
@@ -2259,8 +2382,8 @@
             return `
                 <tr id="rundown-row-${idx}" class="${isCurrentOnAir ? 'current-on-air-row' : ''}">
                     <td>
-                        <strong style="color:${isCurrentOnAir ? '#22c55e' : (isStreamItem ? 'var(--accent-red)' : 'var(--accent-cyan)')}; font-family:'Space Mono',monospace;">
-                            ${isCurrentOnAir ? '🔴 ' : ''}${item.startTimeStr}
+                        <strong style="color:${isCurrentOnAir ? '#10b981' : (isStreamItem ? 'var(--accent-red)' : 'var(--accent-cyan)')}; font-family:'Space Mono',monospace;">
+                            ${isCurrentOnAir ? '🔴 MOST ' : ''}${item.startTimeStr}
                         </strong>
                     </td>
                     <td><span class="badge-cat cat-${item.cat}">${showTitle}</span></td>
@@ -2962,12 +3085,32 @@
         updateQuotaUsageUI();
     }
 
+    /* 📂 DUPLIKÁCIÓ DETEKTORRAL ELLÁTOTT VIDEÓTÁR */
     function renderLibraryTable() {
         const tbody = document.getElementById('library-tbody');
         const pool = getCombinedClipsPool();
         document.getElementById('library-count').textContent = r2Library.length;
 
+        const titleMap = new Map();
+        r2Library.forEach(item => {
+            const norm = getNormalizedTrackKey(item.title || item.filename);
+            if (!titleMap.has(norm)) titleMap.set(norm, []);
+            titleMap.get(norm).push(item);
+        });
+
+        let duplicatesFound = 0;
+
         tbody.innerHTML = pool.map(item => {
+            const norm = getNormalizedTrackKey(item.title || item.filename);
+            const duplicates = titleMap.get(norm) || [];
+            const isDup = duplicates.length > 1;
+
+            if (isDup) duplicatesFound++;
+
+            let dupBadge = isDup 
+                ? `<span class="duplicate-alert-badge">⚠️ Ütközés (${duplicates.length}x)</span>` 
+                : `<span style="color:#10b981; font-size:0.68rem; font-family:'Space Mono',monospace;">● Egyedi</span>`;
+
             const qualityBadge = `<span style="font-family:'Space Mono',monospace; font-weight:700; color:#38bdf8; font-size:0.75rem;">🎬 R2 MP4 (${item.size || 'HD'})</span>`;
 
             return `
@@ -2976,6 +3119,7 @@
                     <td>
                         <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
                             ${qualityBadge}
+                            ${dupBadge}
                         </div>
                     </td>
                     <td><button class="btn-add-sm" onclick="openAssignModal('${item.filename}')">+ Adásba szúrás 🎯</button></td>
@@ -2983,6 +3127,49 @@
                 </tr>
             `;
         }).join('');
+
+        const cleanBtn = document.getElementById('btn-clean-duplicates');
+        const alertBar = document.getElementById('library-duplicate-alert-bar');
+        if (duplicatesFound > 0) {
+            cleanBtn.style.display = 'inline-block';
+            alertBar.style.display = 'block';
+            alertBar.textContent = `⚠️ Figyelem: ${duplicatesFound} db duplikált tétel található az R2-ben! Kattints a sárga gombra az 1 tiszta példány megtartásához.`;
+        } else {
+            cleanBtn.style.display = 'none';
+            alertBar.style.display = 'none';
+        }
+    }
+
+    /* 🧹 AUTOMATA DUPLIKÁCIÓ TISZTÍTÓ */
+    async function cleanAllR2Duplicates() {
+        if (!confirm("Biztosan törölni szeretnéd az összes duplikált videót? Minden azonos című dalból pontosan 1 példány marad az R2 tárolóban, a felesleges másolatok végleg törlődnek.")) return;
+
+        log("🧹 [TISZTÍTÁS] Duplikációk szűrése és törlése az R2-ből...", "warn");
+        const titleMap = new Map();
+
+        r2Library.forEach(item => {
+            const norm = getNormalizedTrackKey(item.title || item.filename);
+            if (!titleMap.has(norm)) titleMap.set(norm, []);
+            titleMap.get(norm).push(item);
+        });
+
+        let deletedCount = 0;
+
+        for (const [norm, items] of titleMap.entries()) {
+            if (items.length > 1) {
+                const toDelete = items.slice(1);
+                for (const del of toDelete) {
+                    try {
+                        await fetch(`${WORKER_URL}/api/radio/delete?filename=${encodeURIComponent(del.filename)}`, { method: 'DELETE' });
+                        deletedCount++;
+                        log(`🗑️ [DUPLIKÁCIÓ TÖRÖLVE] ${del.filename}`, 'success');
+                    } catch(e){}
+                }
+            }
+        }
+
+        await loadR2Library();
+        alert(`✅ SIKERES TISZTÍTÁS: ${deletedCount} db felesleges duplikáció eltávolítva!`);
     }
 
     async function deleteR2Clip(filename) {
@@ -2996,9 +3183,16 @@
 
     async function handleVideoUpload(files) {
         if (!files || files.length === 0) return;
+
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
-            const cleanName = file.name.replace(/\s+/g, '_');
+            const cleanName = file.name.replace(/[^a-zA-Z0-9_\-áéíóöőúüűÁÉÍÓÖŐÚÜŰ\.]/g, '_').replace(/_+/g, '_');
+            
+            const isColliding = r2Library.some(it => it.filename === cleanName || getNormalizedTrackKey(it.title) === getNormalizedTrackKey(cleanName));
+            if (isColliding) {
+                log(`⚠️ [ÜTKÖZÉS] A(z) "${cleanName}" már szerepel az R2-ben! Felülírás folyamatban...`, 'warn');
+            }
+
             log(`📤 Feltöltés az R2-be: ${cleanName}...`);
             try {
                 await fetch(`${WORKER_URL}/api/radio/upload?filename=${encodeURIComponent(cleanName)}`, {
@@ -3006,7 +3200,9 @@
                     body: file
                 });
                 log(`✅ Sikeresen feltöltve az R2-be: ${cleanName}`, 'success');
-            } catch(e){}
+            } catch(e){
+                log(`❌ Hiba a feltöltéskor: ${e.message}`, 'error');
+            }
         }
         await loadR2Library();
         checkAndAutofillUpcomingDays();
