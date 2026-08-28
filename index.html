@@ -194,7 +194,7 @@
         opacity: 0;
         background: #000;
         pointer-events: none;
-        transition: opacity 0.5s ease;
+        transition: opacity 0.6s ease;
     }
     .tv-live-embed-layer.active {
         opacity: 1;
@@ -202,7 +202,7 @@
         pointer-events: auto;
     }
 
-    /* 🎬 PRO ZENETÉVÉS REDŐNYÖS ÁTÚSZÁS & 1-SZERES 3D GYORS FORGÁS (TISZTA, HOMÁLY NÉLKÜLI KÉP) */
+    /* 🎬 PRO ZENETÉVÉS REDŐNYÖS ÁTÚSZÁS & 1-SZERES GYORS 3D FORGÁS */
     .tv-broadcast-stinger {
         position: absolute;
         top: 0; left: 0; width: 100%; height: 100%;
@@ -259,7 +259,6 @@
         perspective: 1200px;
     }
 
-    /* 🍒 1-SZERES GYORS 3D PÖRGÉS, MAJD TISZTA ÉS ÉLES MEGÁLLÁS */
     .stinger-giant-cherry {
         width: 140px;
         height: 140px;
@@ -271,22 +270,10 @@
     }
 
     @keyframes giantCherrySingleSpin {
-        0% {
-            transform: scale(0.2) rotateY(0deg);
-            opacity: 0;
-        }
-        35% {
-            transform: scale(1.35) rotateY(720deg);
-            opacity: 1;
-        }
-        65% {
-            transform: scale(1.15) rotateY(720deg);
-            opacity: 1;
-        }
-        100% {
-            transform: scale(1.6) rotateY(720deg);
-            opacity: 0;
-        }
+        0% { transform: scale(0.2) rotateY(0deg); opacity: 0; }
+        35% { transform: scale(1.35) rotateY(720deg); opacity: 1; }
+        65% { transform: scale(1.15) rotateY(720deg); opacity: 1; }
+        100% { transform: scale(1.6) rotateY(720deg); opacity: 0; }
     }
 
     .stinger-box {
@@ -765,6 +752,8 @@
     }
     .vu-led-bar-bg { width: 75px; height: 9px; background: #181d2f; border-radius: 3px; overflow: hidden; display: flex; }
     .vu-led-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #22c55e 0%, #facc15 80%, #ff1a53 100%); }
+    .limiter-active-dot { width: 8px; height: 8px; border-radius: 50%; background: #334155; }
+    .limiter-active-dot.lit { background: #ff1a53; box-shadow: 0 0 6px #ff1a53; }
 
     .calendar-panel, .rundown-panel, .library-panel, .uploader-card {
         background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 10px;
@@ -847,10 +836,10 @@
         <video id="tv-video-deck-a" class="tv-video-deck active" playsinline preload="auto" crossorigin="anonymous"></video>
         <video id="tv-video-deck-b" class="tv-video-deck" playsinline preload="auto" crossorigin="anonymous"></video>
 
-        <!-- YOUTUBE EMBED PLAYER RÉTEG -->
+        <!-- YOUTUBE EMBED PLAYER RÉTEG (ELŐTÖLTÉSSEL & ÉLŐ/VIDEÓ STREAM VÁLTÁSSAL) -->
         <div id="tv-live-embed-layer" class="tv-live-embed-layer"></div>
 
-        <!-- 🎬 PRO ZENETÉVÉS REDŐNYÖS ÁTÚSZÁS & 1-SZERES GYORS 3D FORGÁS (TISZTA, HOMÁLYTALAN) -->
+        <!-- 🎬 PRO ZENETÉVÉS REDŐNYÖS ÁTÚSZÁS & 1-SZERES 3D GYORS FORGÁS -->
         <div class="tv-broadcast-stinger" id="tv-broadcast-stinger">
             <div class="stinger-blinds-container">
                 <div class="stinger-blind-blade"></div>
@@ -882,8 +871,8 @@
                 <rect x="142.86" y="0" width="142.86" height="376.875" fill="#c0c000"/>
                 <rect x="285.72" y="0" width="142.86" height="376.875" fill="#00c0c0"/>
                 <rect x="428.58" y="0" width="142.86" height="376.875" fill="#00c000"/>
-                <rect x="571.44" y="0" width="142.86" height="376.875" fill="#c000c0"/>
-                <rect x="714.3" y="0" width="142.86" height="376.875" fill="#c00000"/>
+                <rect x="571.44" y="0" width="142.86" height="376.875" fill="#c0c000"/>
+                <rect x="714.3" y="0" width="142.86" height="376.875" fill="#c0c000"/>
                 <rect x="857.14" y="0" width="142.86" height="376.875" fill="#0000c0"/>
                 <rect x="230" y="210" width="540" height="142" rx="14" fill="#07080f" fill-opacity="0.95" stroke="#ff1a53" stroke-width="3"/>
                 <text x="500" y="254" font-family="'Outfit', sans-serif" font-size="30" font-weight="900" fill="#ffffff" letter-spacing="1.5" text-anchor="middle">CHERRY<tspan fill="#ff1a53">1</tspan> MUSIC</text>
@@ -1003,14 +992,16 @@
             <button class="btn-act" id="btn-logo-toggle" onclick="toggleTvLogo()">📺 Logó: BE</button>
             <button class="btn-act active-toggle" id="btn-ticker-toggle" onclick="toggleTickerManual()">📰 Hírsáv: BE</button>
             <button class="btn-act" id="btn-rating-toggle" onclick="toggleAgeRating()">🟡 Korhatár: BE</button>
+            <button class="btn-act active-toggle" id="btn-agc-toggle" onclick="toggleAudioCompressor()">🎚️ Dinamikus AGC: BE</button>
             <button class="btn-act" style="color:var(--accent-cyan);" onclick="trigger30MinScheduleOverlay(true)">📺 Műsorajánló Teszt</button>
             <button class="btn-act" onclick="togglePositionModal()">⚙️ Pozíciók & Időzítő</button>
             <button class="btn-act" onclick="toggleCustomFullscreen()">⛶ Teljes Képernyő</button>
         </div>
 
-        <div class="audio-monitor-box">
+        <div class="audio-monitor-box" title="Broadcast Audio Leveler & Limiter VU Meter">
             <span style="font-family:'JetBrains Mono',monospace; font-size:0.65rem; color:var(--text-muted);">VU:</span>
             <div class="vu-led-bar-bg"><div class="vu-led-bar-fill" id="vu-led-fill"></div></div>
+            <div class="limiter-active-dot" id="limiter-dot" title="Peak Limiter Aktív"></div>
         </div>
 
         <div style="display:flex; align-items:center; gap:8px;">
@@ -1289,9 +1280,17 @@
     let currentActiveYouTubeId = null;
     let editingClipRef = null;
 
+    // Web Audio API broadcast hangkiegyenlítő lánc
     let audioCtx = null;
+    let compressorNode = null;
+    let limiterNode = null;
+    let autoGainNode = null;
     let masterGainNode = null;
     let analyserNode = null;
+    let isAgcActive = true;
+    let isAudioInitialized = false;
+    let isAudioSourcesConnected = false;
+    let agcMonitorTimer = null;
 
     let isLogoVisible = true;
     let logoCornerMode = 'top-right';
@@ -1361,6 +1360,7 @@
     const guideListContainer = document.getElementById('guide-list-container');
     const unmuteBanner = document.getElementById('unmute-banner');
     const vuLedFill = document.getElementById('vu-led-fill');
+    const limiterDot = document.getElementById('limiter-dot');
 
     const tvDaypartConfig = {
         ejjel: {
@@ -1907,7 +1907,7 @@
         }, 7000);
     }
 
-    /* 🎬 PRO STINGER WIPE TRIGGER (1-SZERES GYORS PÖRGÉS & REDŐNYOZÁS) */
+    /* 🎬 PRO STINGER WIPE TRIGGER (1-SZERES FORGÁS & REDŐNYÖZÉS) */
     function triggerBroadcastStinger(trackTitle) {
         if (!tvBroadcastStinger) return;
         const parsed = parseArtistAndTitle(trackTitle);
@@ -1965,7 +1965,7 @@
                                 },
                                 'onStateChange': onYouTubeStateChange,
                                 'onError': function() {
-                                    log("⚠️ YouTube tartalom hiba, vissza a klippekre!", "warn");
+                                    log("⚠️ YouTube stream hiba, vissza zenei adásra!", "warn");
                                     onYouTubeStreamEnded();
                                 }
                             }
@@ -2217,7 +2217,7 @@
         executeVideoCrossfade(true);
     }
 
-    /* 🎬 PRO ÁTÚSZÁS: 1-SZERES REDŐNY & FORGÁS, TISZTA ÉS HOMÁLYTALAN MEGJELENÉS */
+    /* 🎬 PRO ÁTÚSZÁS & REDŐNY SZINKRONIZÁLVA */
     async function executeVideoCrossfade(forceImmediate = false) {
         if (isLiveOnAir && !forceImmediate) return;
         const todayKey = getSelectedDateKey(0);
@@ -2242,13 +2242,10 @@
         const nextDeckName = (activeDeckName === 'A') ? 'B' : 'A';
 
         hideColorBarScreen();
-        
-        // 🎬 1. Redőny és 1-szeres 3D forgó óriás logó indítása
         triggerBroadcastStinger(newClip.title);
 
         const ytId = extractYouTubeVideoId(newClip.url);
 
-        // 🎬 2. Pontosan a redőny lezárásakor (0.75 mp) történik meg a videócsere a háttérben
         setTimeout(() => {
             if (ytId || newClip.isStream) {
                 currentDeck.pause();
@@ -2312,7 +2309,6 @@
             isVideoTransitioning = false;
             transitionLock = false;
 
-            // 🎬 3. A redőny kitárulása után indul a tiszta alsó cím felirat
             setTimeout(() => {
                 runIntroTrackBanner(newClip);
             }, 1400);
@@ -2434,6 +2430,11 @@
             ratingOffTime = settings.rating_off_time;
             if (document.getElementById('inp-rating-off-time')) document.getElementById('inp-rating-off-time').value = ratingOffTime;
         }
+        if (settings?.is_agc_active !== undefined) {
+            isAgcActive = Boolean(settings.is_agc_active);
+            const btn = document.getElementById('btn-agc-toggle');
+            if (btn) btn.className = isAgcActive ? "btn-act active-toggle" : "btn-act";
+        }
         updatePositionsUI();
     }
 
@@ -2548,35 +2549,117 @@
         evaluateAgeRatingVisibility();
     }
 
+    /* 🎚️ WEB AUDIO BROADCAST HANGKIEGYENLÍTŐ LÁNC (ADAPTÍV LOUDNESS & PEAK LIMITER) */
     function setupAudioNodes() {
         try {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // 1. Multistage Broadcast Kompresszor
+                compressorNode = audioCtx.createDynamicsCompressor();
+                compressorNode.threshold.setValueAtTime(-24, audioCtx.currentTime);
+                compressorNode.knee.setValueAtTime(30, audioCtx.currentTime);
+                compressorNode.ratio.setValueAtTime(10, audioCtx.currentTime);
+                compressorNode.attack.setValueAtTime(0.003, audioCtx.currentTime);
+                compressorNode.release.setValueAtTime(0.25, audioCtx.currentTime);
+
+                // 2. Automatikus Erősítésszabályzó (AGC) Gain Node
+                autoGainNode = audioCtx.createGain();
+                autoGainNode.gain.setValueAtTime(1.0, audioCtx.currentTime);
+
+                // 3. Peak Lookahead Limiter (Túlvezérlés elleni védelem)
+                limiterNode = audioCtx.createDynamicsCompressor();
+                limiterNode.threshold.setValueAtTime(-1.5, audioCtx.currentTime);
+                limiterNode.knee.setValueAtTime(0.0, audioCtx.currentTime);
+                limiterNode.ratio.setValueAtTime(20.0, audioCtx.currentTime);
+                limiterNode.attack.setValueAtTime(0.001, audioCtx.currentTime);
+                limiterNode.release.setValueAtTime(0.05, audioCtx.currentTime);
+
+                // 4. Analizátor & Master Hangerő
+                analyserNode = audioCtx.createAnalyser();
+                analyserNode.fftSize = 256;
+
                 masterGainNode = audioCtx.createGain();
                 masterGainNode.gain.setValueAtTime(masterVolume, audioCtx.currentTime);
-                analyserNode = audioCtx.createAnalyser();
-                masterGainNode.connect(analyserNode);
-                analyserNode.connect(audioCtx.destination);
+
+                // Lánc összeállítása:
+                compressorNode.connect(autoGainNode);
+                autoGainNode.connect(limiterNode);
+                limiterNode.connect(analyserNode);
+                analyserNode.connect(masterGainNode);
+                masterGainNode.connect(audioCtx.destination);
+
                 startAgcLevelMonitor();
+                isAudioInitialized = true;
             }
+
+            // Videó Deckek forrásainak bekötése a Web Audio láncba (egyszeri csatolás)
+            if (!isAudioSourcesConnected && audioCtx && deckA && deckB) {
+                try {
+                    const sourceA = audioCtx.createMediaElementSource(deckA);
+                    const sourceB = audioCtx.createMediaElementSource(deckB);
+                    sourceA.connect(compressorNode);
+                    sourceB.connect(compressorNode);
+                    isAudioSourcesConnected = true;
+                } catch(e){}
+            }
+
             if (audioCtx.state === 'suspended') audioCtx.resume();
         } catch(e){}
     }
 
     function startAgcLevelMonitor() {
-        if (!analyserNode) return;
+        if (agcMonitorTimer) clearInterval(agcMonitorTimer);
         const dataArr = new Uint8Array(analyserNode.frequencyBinCount);
-        setInterval(() => {
+        
+        agcMonitorTimer = setInterval(() => {
             if (!isTvBroadcasting) {
                 if (vuLedFill) vuLedFill.style.width = '0%';
+                if (limiterDot) limiterDot.classList.remove('lit');
                 return;
             }
+            
             analyserNode.getByteFrequencyData(dataArr);
+            let sum = 0;
             let peak = 0;
-            for (let i = 0; i < dataArr.length; i++) if (dataArr[i] > peak) peak = dataArr[i];
+            for (let i = 0; i < dataArr.length; i++) {
+                sum += dataArr[i];
+                if (dataArr[i] > peak) peak = dataArr[i];
+            }
+            let avgRms = sum / dataArr.length;
+
             const vuPct = Math.min(100, Math.round((peak / 255) * 100));
             if (vuLedFill) vuLedFill.style.width = `${vuPct}%`;
+            
+            if (limiterDot) {
+                if (peak > 232) limiterDot.classList.add('lit');
+                else limiterDot.classList.remove('lit');
+            }
+
+            // 🎚️ ADAPTÍV AGC: Ha halk a klip, finoman emel; ha túl hangos, finoman csökkent
+            if (isAgcActive && autoGainNode && audioCtx) {
+                if (avgRms > 0 && avgRms < 42) {
+                    autoGainNode.gain.linearRampToValueAtTime(1.55, audioCtx.currentTime + 0.2); // +3.8 dB emelés halk klipeknél
+                } else if (avgRms > 92) {
+                    autoGainNode.gain.linearRampToValueAtTime(0.72, audioCtx.currentTime + 0.2); // -2.8 dB csillapítás túl hangos klipeknél
+                } else {
+                    autoGainNode.gain.linearRampToValueAtTime(1.0, audioCtx.currentTime + 0.2);
+                }
+            }
         }, 100);
+    }
+
+    function toggleAudioCompressor() {
+        isAgcActive = !isAgcActive;
+        const btn = document.getElementById('btn-agc-toggle');
+        if (btn) {
+            btn.className = isAgcActive ? "btn-act active-toggle" : "btn-act";
+            btn.textContent = isAgcActive ? "🎚️ Dinamikus AGC: BE" : "🎚️ Dinamikus AGC: KI";
+        }
+        if (!isAgcActive && autoGainNode && audioCtx) {
+            autoGainNode.gain.setValueAtTime(1.0, audioCtx.currentTime);
+        }
+        syncBroadcastSettingsToCloud();
     }
 
     function handleUserUnmuteClick() {
@@ -2651,7 +2734,7 @@
         return [{ title: "Cherry1 Demo Stream", filename: "demo.mp4", url: BACKUP_DEMO_STREAM, duration: 240 }];
     }
 
-    /* 🎲 24 ÓRÁS VALÓS SHUFFLE (GARANTÁLT DUPLIKÁCIÓMENTESSÉGGEL) */
+    /* 🎲 24 ÓRÁS VALÓS SHUFFLE */
     function autoGenerateDaySchedule(dayOffset, force = false) {
         const dateKey = getSelectedDateKey(dayOffset);
         if (!force && weekSchedules[dateKey] && weekSchedules[dateKey].length > 0) {
@@ -3091,7 +3174,6 @@
         await loadR2Library();
     }
 
-    /* 🎬 KÖZVETLEN R2 LEJÁTSZÁS */
     function playImmediateVideo(srcOrFilename) {
         const activeDeck = (activeDeckName === 'A') ? deckA : deckB;
         if (!activeDeck) return;
@@ -3197,6 +3279,7 @@
             rating_on_time: ratingOnTime,
             rating_off_time: ratingOffTime,
             volume: masterVolume,
+            is_agc_active: isAgcActive,
             durations: clipDurationMap,
             ticker_visible: isNewsGlassManualEnabled,
             updatedAt: new Date().toISOString()
@@ -3227,6 +3310,14 @@
             if (cloud.logo_visible !== undefined) isLogoVisible = cloud.logo_visible;
             if (cloud.logo_corner) logoCornerMode = cloud.logo_corner;
             if (cloud.durations) clipDurationMap = cloud.durations;
+            if (cloud.is_agc_active !== undefined) {
+                isAgcActive = Boolean(cloud.is_agc_active);
+                const btn = document.getElementById('btn-agc-toggle');
+                if (btn) {
+                    btn.className = isAgcActive ? "btn-act active-toggle" : "btn-act";
+                    btn.textContent = isAgcActive ? "🎚️ Dinamikus AGC: BE" : "🎚️ Dinamikus AGC: KI";
+                }
+            }
             if (cloud.volume !== undefined) {
                 masterVolume = cloud.volume;
                 const txt = document.getElementById('tv-vol-text');
