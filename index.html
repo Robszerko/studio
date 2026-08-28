@@ -194,7 +194,7 @@
         opacity: 0;
         background: #000;
         pointer-events: none;
-        transition: opacity 0.6s ease;
+        transition: opacity 0.5s ease;
     }
     .tv-live-embed-layer.active {
         opacity: 1;
@@ -202,7 +202,7 @@
         pointer-events: auto;
     }
 
-    /* COLORBARS & MONOSZKÓP */
+    /* COLORBARS */
     .tv-colorbar-layer {
         position: absolute;
         top: 0; left: 0;
@@ -241,7 +241,7 @@
         box-shadow: 0 10px 25px rgba(0,0,0,0.8);
     }
 
-    /* 🍒 1. CHERRY1 ANIMÁLT VÍZJEL (TELJESEN TISZTA, HÁTTÉR NÉLKÜLI RÉTEG) */
+    /* 🍒 1. CHERRY1 ANIMÁLT VÍZJEL */
     .tv-watermark-anchor {
         position: absolute;
         top: 24px; right: 28px;
@@ -705,7 +705,7 @@
         <video id="tv-video-deck-a" class="tv-video-deck active" playsinline preload="auto" crossorigin="anonymous"></video>
         <video id="tv-video-deck-b" class="tv-video-deck" playsinline preload="auto" crossorigin="anonymous"></video>
 
-        <!-- YOUTUBE EMBED PLAYER RÉTEG (ELŐTÖLTÉSSEL & ÉLŐ STREAM VÁLTÁSSAL) -->
+        <!-- YOUTUBE EMBED PLAYER RÉTEG -->
         <div id="tv-live-embed-layer" class="tv-live-embed-layer"></div>
 
         <!-- COLORBARS & MONOSZKÓP -->
@@ -948,20 +948,6 @@
                     <option value="recorded">🎬 FELVÉTEL (Video Clip)</option>
                 </select>
             </div>
-            <div id="box-yt-end-mode">
-                <label style="font-size:0.65rem; color:var(--text-muted);">VISSZAVÁLTÁS MÓDJA:</label>
-                <select id="sel-yt-end-mode" style="width:100%; background:#090d16; color:#fff; border:1px solid var(--border); border-radius:6px; padding:6px 8px; font-family:'JetBrains Mono',monospace; font-size:0.75rem;" onchange="toggleDurationInputs(this.value)">
-                    <option value="auto_end">⚡ Amikor véget ér az élő adás</option>
-                    <option value="fixed_time">⏱️ Megadott időtartam után</option>
-                </select>
-            </div>
-        </div>
-
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-            <div>
-                <label style="font-size:0.65rem; color:var(--text-muted);">MELYIK NAPRA?</label>
-                <select id="modal-yt-day-select" style="width:100%; background:#090d16; color:#fff; border:1px solid var(--border); border-radius:6px; padding:6px 8px; font-family:'JetBrains Mono',monospace; font-size:0.75rem;"></select>
-            </div>
             <div>
                 <label style="font-size:0.65rem; color:var(--text-muted);">KORHATÁR BESOROLÁS:</label>
                 <select id="modal-yt-rating-select" style="width:100%; background:#090d16; color:#fff; border:1px solid var(--border); border-radius:6px; padding:6px 8px; font-family:'JetBrains Mono',monospace; font-size:0.75rem;">
@@ -977,13 +963,18 @@
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
             <div>
+                <label style="font-size:0.65rem; color:var(--text-muted);">MELYIK NAPRA?</label>
+                <select id="modal-yt-day-select" style="width:100%; background:#090d16; color:#fff; border:1px solid var(--border); border-radius:6px; padding:6px 8px; font-family:'JetBrains Mono',monospace; font-size:0.75rem;"></select>
+            </div>
+            <div>
                 <label style="font-size:0.65rem; color:var(--text-muted);">PONTOS ADÁSKEZDET:</label>
                 <input type="time" id="inp-yt-start-time" value="14:00" step="1" style="width:100%; background:#090d16; color:#fff; border:1px solid var(--border); border-radius:6px; padding:4px 8px; font-family:'JetBrains Mono',monospace; font-size:0.75rem;">
             </div>
-            <div id="box-yt-duration-inputs">
-                <label style="font-size:0.65rem; color:var(--text-muted);">TERVEZETT HOSSZ (PERC):</label>
-                <input type="number" id="inp-yt-dur-min" value="30" min="1" max="360" style="width:100%; background:#090d16; color:#fff; border:1px solid var(--border); border-radius:6px; padding:4px 8px; font-family:'JetBrains Mono',monospace; font-size:0.75rem;">
-            </div>
+        </div>
+
+        <div id="box-yt-duration-inputs" style="display:none; flex-direction:column; gap:4px;">
+            <label style="font-size:0.65rem; color:var(--text-muted);">FELVÉTEL HOSSZA (PERC):</label>
+            <input type="number" id="inp-yt-dur-min" value="4" min="1" max="360" style="width:100%; background:#090d16; color:#fff; border:1px solid var(--border); border-radius:6px; padding:4px 8px; font-family:'JetBrains Mono',monospace; font-size:0.75rem;">
         </div>
     </div>
 
@@ -1061,6 +1052,9 @@
     let isVideoTransitioning = false;
     let masterVolume = 0.9;
     let transitionLock = false;
+
+    let isLiveOnAir = false;
+    let currentActiveYouTubeId = null;
 
     let audioCtx = null;
     let masterGainNode = null;
@@ -1249,16 +1243,9 @@
 
     function updateYouTubeFormFields() {
         const selType = document.getElementById('sel-yt-content-type');
-        const boxEndMode = document.getElementById('box-yt-end-mode');
-        if (selType && boxEndMode) {
-            boxEndMode.style.display = (selType.value === 'live') ? 'block' : 'none';
-        }
-    }
-
-    function toggleDurationInputs(val) {
         const durBox = document.getElementById('box-yt-duration-inputs');
-        if (durBox) {
-            durBox.style.display = (val === 'auto_end') ? 'none' : 'grid';
+        if (selType && durBox) {
+            durBox.style.display = (selType.value === 'live') ? 'none' : 'flex';
         }
     }
 
@@ -1268,10 +1255,7 @@
         document.documentElement.style.setProperty('--theme-primary', conf.primaryColor);
         document.documentElement.style.setProperty('--theme-gradient', conf.gradient);
 
-        const curClip = weekSchedules[getSelectedDateKey(0)]?.[currentClipIndex];
-        const isYt = curClip && (extractYouTubeVideoId(curClip.url) || curClip.isStream);
-
-        if (conf.hideTicker || isYt) {
+        if (conf.hideTicker || isLiveOnAir) {
             if (newsGlassContainer) newsGlassContainer.style.opacity = '0';
         } else if (isNewsGlassManualEnabled && isTvBroadcasting && !colorbarLayer?.classList.contains('active')) {
             if (newsGlassContainer) newsGlassContainer.style.opacity = '1';
@@ -1386,7 +1370,7 @@
 
     function updateNowPlayingPill(title, show = true) {
         const curClip = weekSchedules[getSelectedDateKey(0)]?.[currentClipIndex];
-        const isYt = curClip && (extractYouTubeVideoId(curClip.url) || curClip.isStream);
+        const isYt = curClip && (extractYouTubeVideoId(curClip.url) || curClip.isStream || isLiveOnAir);
 
         if (!title || !show || !isTvBroadcasting || colorbarLayer?.classList.contains('active') || lowerThirdBanner?.classList.contains('banner-show') || isYt) {
             if (nowPlayingPill) nowPlayingPill.classList.remove('pill-show');
@@ -1431,7 +1415,7 @@
     }
 
     function runIntroTrackBanner(clip) {
-        const isYt = clip && (extractYouTubeVideoId(clip.url) || clip.isStream);
+        const isYt = clip && (extractYouTubeVideoId(clip.url) || clip.isStream || isLiveOnAir);
         if (!isTvBroadcasting || !isLogoVisible || colorbarLayer?.classList.contains('active') || !clip || isYt) return;
         hideLowerThirdImmediate();
 
@@ -1452,6 +1436,7 @@
     }
 
     function runOutroTrackSequence(schedule) {
+        if (isLiveOnAir) return;
         const curClip = schedule[currentClipIndex];
         const isYt = curClip && (extractYouTubeVideoId(curClip.url) || curClip.isStream);
         if (!isTvBroadcasting || !isLogoVisible || colorbarLayer?.classList.contains('active') || schedule.length === 0 || isYt) return;
@@ -1658,6 +1643,7 @@
 
     /* 🚀 1 PERCCEL KORÁBBI HÁTTÉR ELŐTÖLTÉS (PRE-BUFFERING) YOUTUBE-HOZ */
     function checkAndPreloadUpcomingYouTube(curSec, schedule) {
+        if (isLiveOnAir) return;
         const nextIdx = (currentClipIndex + 1) % schedule.length;
         const nextClip = schedule[nextIdx];
         if (!nextClip) return;
@@ -1665,9 +1651,10 @@
         const timeUntilNext = nextClip.startSec - curSec;
         const ytId = extractYouTubeVideoId(nextClip.url);
 
-        if (ytId && timeUntilNext <= 60 && timeUntilNext > 0 && !isYtPreloaded) {
+        if (ytId && timeUntilNext <= 60 && timeUntilNext > 0 && !isYtPreloaded && currentActiveYouTubeId !== ytId) {
             isYtPreloaded = true;
-            log(`⚡ [YOUTUBE ELŐTÖLTÉS] 1 perccel korábban némán elindítva a háttérben: "${nextClip.title}"`, 'info');
+            currentActiveYouTubeId = ytId;
+            log(`⚡ [YOUTUBE ELŐTÖLTÉS] 1 perccel korábban csendben elindítva a háttérben: "${nextClip.title}"`, 'info');
             
             if (liveEmbedLayer) {
                 liveEmbedLayer.innerHTML = `<div id="yt-player-target" style="width:100%; height:100%;"></div>`;
@@ -1687,7 +1674,11 @@
                                     e.target.mute();
                                     e.target.playVideo();
                                 },
-                                'onStateChange': onYouTubeStateChange
+                                'onStateChange': onYouTubeStateChange,
+                                'onError': function() {
+                                    log("⚠️ YouTube stream hiba, vissza zenei adásra!", "warn");
+                                    onYouTubeStreamEnded();
+                                }
                             }
                         });
                     } catch(e){}
@@ -1696,7 +1687,7 @@
         }
     }
 
-    /* ⏱️ ÓRA, MÁSODPERCRE PONTOS AZONNALI CSÚSZTATÁS */
+    /* ⏱️ ÓRA, MÁSODPERCRE PONTOS VALÓSIDEJŰ TRIGGER */
     function updateClock() {
         const now = new Date();
         const timeStr = now.toLocaleTimeString('hu-HU');
@@ -1726,24 +1717,33 @@
             const schedule = weekSchedules[todayKey] || [];
             const curSec = h * 3600 + m * 60 + s;
 
-            checkAndPreloadUpcomingYouTube(curSec, schedule);
+            // Ha nem élő adás fut, figyeljük az adásmenetet
+            if (!isLiveOnAir) {
+                checkAndPreloadUpcomingYouTube(curSec, schedule);
 
-            const expectedIdx = schedule.findIndex(item => curSec >= item.startSec && curSec < item.endSec);
+                const expectedIdx = schedule.findIndex(item => curSec >= item.startSec && curSec < item.endSec);
 
-            if (expectedIdx !== -1 && expectedIdx !== currentClipIndex) {
-                log(`⚡ [PONTOS IDŐPONT ELÉRVE] Azonnali átkapcsolás: "${schedule[expectedIdx].title}"`, 'success');
-                syncToCurrentWallClockTime();
-            } else if (expectedIdx !== -1) {
-                const curClip = schedule[expectedIdx];
-                const remainingSec = curClip.endSec - curSec;
+                if (expectedIdx !== -1 && expectedIdx !== currentClipIndex) {
+                    log(`⚡ [PONTOS IDŐPONT ELÉRVE] Váltás a(z) "${schedule[expectedIdx].title}" tételre!`, 'success');
+                    syncToCurrentWallClockTime();
+                } else if (expectedIdx !== -1) {
+                    const curClip = schedule[expectedIdx];
+                    const remainingSec = curClip.endSec - curSec;
 
-                if (remainingSec <= 20 && remainingSec > (VIDEO_CROSSFADE_SEC + 1) && !isOutroSequenceTriggered) {
-                    isOutroSequenceTriggered = true;
-                    runOutroTrackSequence(schedule);
+                    if (remainingSec <= 20 && remainingSec > (VIDEO_CROSSFADE_SEC + 1) && !isOutroSequenceTriggered) {
+                        isOutroSequenceTriggered = true;
+                        runOutroTrackSequence(schedule);
+                    }
+
+                    if (remainingSec <= VIDEO_CROSSFADE_SEC && remainingSec >= 0) {
+                        executeVideoCrossfade(false);
+                    }
                 }
-
-                if (remainingSec <= VIDEO_CROSSFADE_SEC && remainingSec >= 0) {
-                    executeVideoCrossfade(false);
+            } else {
+                // ÉLŐ ADÁS ALATT: A háttér deck A/B némán fut tovább
+                const activeDeck = (activeDeckName === 'A') ? deckA : deckB;
+                if (activeDeck && !activeDeck.muted) {
+                    activeDeck.muted = true;
                 }
             }
         }
@@ -1784,14 +1784,17 @@
 
             const ytId = extractYouTubeVideoId(clip.url);
             if (ytId || clip.isStream) {
+                // 🎬 GHOST DECK: A háttérben a videódeck némán futhat tovább a másodpercekhez szinkronizálva
                 if (activeDeck) {
                     activeDeck.muted = true;
                 }
 
-                if (clip.isLive && liveOnAirTag) {
-                    liveOnAirTag.classList.add('active');
-                } else if (liveOnAirTag) {
-                    liveOnAirTag.classList.remove('active');
+                if (clip.isLive) {
+                    isLiveOnAir = true;
+                    if (liveOnAirTag) liveOnAirTag.classList.add('active');
+                } else {
+                    isLiveOnAir = false;
+                    if (liveOnAirTag) liveOnAirTag.classList.remove('active');
                 }
 
                 if (newsGlassContainer) newsGlassContainer.style.opacity = '0';
@@ -1802,13 +1805,14 @@
                     liveEmbedLayer.classList.add('active');
                     liveEmbedLayer.style.opacity = '1';
 
-                    if (ytPlayerInstance && typeof ytPlayerInstance.unMute === 'function') {
+                    if (ytPlayerInstance && currentActiveYouTubeId === ytId && typeof ytPlayerInstance.unMute === 'function') {
                         try {
                             ytPlayerInstance.unMute();
                             ytPlayerInstance.setVolume(Math.round(masterVolume * 100));
                             ytPlayerInstance.playVideo();
                         } catch(e){}
                     } else {
+                        currentActiveYouTubeId = ytId;
                         liveEmbedLayer.innerHTML = `<div id="yt-player-target" style="width:100%; height:100%;"></div>`;
                         if (window.YT && window.YT.Player) {
                             try {
@@ -1827,7 +1831,11 @@
                                             e.target.setVolume(Math.round(masterVolume * 100));
                                             e.target.playVideo();
                                         },
-                                        'onStateChange': onYouTubeStateChange
+                                        'onStateChange': onYouTubeStateChange,
+                                        'onError': function() {
+                                            log("⚠️ YouTube stream hiba, vissza a klippekre!", "warn");
+                                            onYouTubeStreamEnded();
+                                        }
                                     }
                                 });
                             } catch(e){}
@@ -1838,6 +1846,8 @@
                 }
                 log(`🔴 [YOUTUBE ADÁS AKTÍV] "${clip.title}" (${clip.isLive ? 'ÉLŐ' : 'FELVÉTEL'})`, 'warn');
             } else {
+                isLiveOnAir = false;
+                currentActiveYouTubeId = null;
                 if (liveOnAirTag) liveOnAirTag.classList.remove('active');
                 if (liveEmbedLayer) {
                     liveEmbedLayer.classList.remove('active');
@@ -1886,23 +1896,38 @@
         }
     }
 
-    /* 🔴 YOUTUBE LIVE AUTO-ENDED DETEKTOR ÉS VISSZAKAPCSOLÁS AZ R2-RE */
+    /* 🔴 YOUTUBE STREAM VÉGE ÉS AZONNALI VISSZAVÁLTÁS AZ R2-RE */
     function onYouTubeStateChange(event) {
         if (event.data === 0) { // 0 = YT.PlayerState.ENDED
-            log("🔴 [ÉLŐ ADÁS BEFEJEZŐDÖTT] Visszatérés a zenei klippekhez!", "success");
-            if (liveEmbedLayer) {
-                liveEmbedLayer.classList.remove('active');
-                liveEmbedLayer.style.opacity = '0';
-                liveEmbedLayer.innerHTML = '';
-                ytPlayerInstance = null;
-            }
-            if (liveOnAirTag) liveOnAirTag.classList.remove('active');
-            executeVideoCrossfade(true);
+            onYouTubeStreamEnded();
         }
+    }
+
+    function onYouTubeStreamEnded() {
+        log("🔴 [ÉLŐ / YOUTUBE ADÁS BEFEJEZŐDÖTT] Azonnali visszakapcsolás a zenei klippekre!", "success");
+        isLiveOnAir = false;
+        currentActiveYouTubeId = null;
+        if (liveEmbedLayer) {
+            liveEmbedLayer.classList.remove('active');
+            liveEmbedLayer.style.opacity = '0';
+            liveEmbedLayer.innerHTML = '';
+            ytPlayerInstance = null;
+        }
+        if (liveOnAirTag) liveOnAirTag.classList.remove('active');
+
+        // Visszakapcsolás a pontos pillanatnyi másodpercre az R2 adásban
+        const now = new Date();
+        const curSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+        const todayKey = getSelectedDateKey(0);
+        let schedule = weekSchedules[todayKey] || [];
+
+        // Újrakeverjük és elcsúsztatjuk a hátralévő időt a valós másodperctől
+        autoGenerateDaySchedule(0, true);
     }
 
     /* 🎬 8 MÁSODPERCES KERESZTÁTÚSZTATÁS */
     async function executeVideoCrossfade(forceImmediate = false) {
+        if (isLiveOnAir) return;
         const todayKey = getSelectedDateKey(0);
         const schedule = weekSchedules[todayKey] || [];
         if (isVideoTransitioning || transitionLock || schedule.length === 0) return;
@@ -1932,19 +1957,25 @@
             currentDeck.style.opacity = '0';
             currentDeck.classList.remove('active');
 
-            if (newClip.isLive && liveOnAirTag) liveOnAirTag.classList.add('active');
-            else if (liveOnAirTag) liveOnAirTag.classList.remove('active');
+            if (newClip.isLive) {
+                isLiveOnAir = true;
+                if (liveOnAirTag) liveOnAirTag.classList.add('active');
+            } else {
+                isLiveOnAir = false;
+                if (liveOnAirTag) liveOnAirTag.classList.remove('active');
+            }
             
             if (liveEmbedLayer) {
                 liveEmbedLayer.classList.add('active');
                 liveEmbedLayer.style.opacity = '1';
-                if (ytPlayerInstance && typeof ytPlayerInstance.unMute === 'function') {
+                if (ytPlayerInstance && currentActiveYouTubeId === ytId && typeof ytPlayerInstance.unMute === 'function') {
                     try {
                         ytPlayerInstance.unMute();
                         ytPlayerInstance.setVolume(Math.round(masterVolume * 100));
                         ytPlayerInstance.playVideo();
                     } catch(e){}
                 } else {
+                    currentActiveYouTubeId = ytId;
                     liveEmbedLayer.innerHTML = `<iframe style="width:100%; height:100%; border:none;" src="https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&controls=0&rel=0" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
                 }
             }
@@ -2027,6 +2058,7 @@
             if (deckA) { deckA.pause(); deckA.style.opacity = '0'; }
             if (deckB) { deckB.pause(); deckB.style.opacity = '0'; }
             if (liveEmbedLayer) { liveEmbedLayer.classList.remove('active'); liveEmbedLayer.innerHTML = ''; }
+            isLiveOnAir = false;
             showColorBarScreen();
             log("⏸️ TV adás leállítva.");
         }
@@ -2099,7 +2131,7 @@
         ratingOffTime = document.getElementById('inp-rating-off-time')?.value || "22:00";
         syncBroadcastSettingsToCloud();
         togglePositionModal();
-        log("☁️ Pozíciók és időzítés sikeresen elmentve a felhőbe!", 'success');
+        log("☁️ Pozíciók és időzítés elmentve a felhőbe!", 'success');
     }
 
     function applySavedPositions(settings) {
@@ -2136,7 +2168,7 @@
 
     function toggleTickerManual() {
         isNewsGlassManualEnabled = !isNewsGlassManualEnabled;
-        if (newsGlassContainer) newsGlassContainer.style.opacity = isNewsGlassManualEnabled ? '1' : '0';
+        if (newsGlassContainer) newsGlassContainer.style.opacity = isNewsGlassManualEnabled && !isLiveOnAir ? '1' : '0';
         const btn = document.getElementById('btn-ticker-toggle');
         if (btn) btn.className = isNewsGlassManualEnabled ? "btn-act active-toggle" : "btn-act";
         syncBroadcastSettingsToCloud();
@@ -2177,7 +2209,7 @@
             return;
         }
 
-        if (!isTvBroadcasting || colorbarLayer?.classList.contains('active') || currentAgeRating === 'none') {
+        if (!isTvBroadcasting || colorbarLayer?.classList.contains('active') || currentAgeRating === 'none' || isLiveOnAir) {
             ageRatingContainer.classList.remove('rating-visible');
             return;
         }
@@ -2380,10 +2412,9 @@
             startSec: insertSec,
             endSec: insertSec + clipDuration,
             startTimeStr: formatSecToHMS(insertSec),
-            endTimeStr: formatSecToHMS(insertSec + clipDuration),
+            endTimeStr: newClip.isLive ? "ÉLŐ VÉGÉIG" : formatSecToHMS(insertSec + clipDuration),
             isStream: Boolean(newClip.isStream),
-            isLive: Boolean(newClip.isLive),
-            endMode: newClip.endMode || 'fixed_time'
+            isLive: Boolean(newClip.isLive)
         };
 
         let newSchedule = [];
@@ -2445,15 +2476,15 @@
         const dayIdx = parseInt(document.getElementById('modal-yt-day-select')?.value) || 0;
         const rating = document.getElementById('modal-yt-rating-select')?.value || '12';
         const timeInput = document.getElementById('inp-yt-start-time')?.value || "14:00";
-        const minVal = parseInt(document.getElementById('inp-yt-dur-min')?.value) || 30;
+        const minVal = parseInt(document.getElementById('inp-yt-dur-min')?.value) || 4;
         const isLive = (document.getElementById('sel-yt-content-type')?.value === 'live');
-        const endMode = document.getElementById('sel-yt-end-mode')?.value || 'auto_end';
 
         if (!url) return alert("Kérlek adj meg egy YouTube linket!");
 
         const timeParts = timeInput.split(':').map(Number);
         const startSec = (timeParts[0] || 0) * 3600 + (timeParts[1] || 0) * 60 + (timeParts[2] || 0);
-        const totalDuration = isLive && endMode === 'auto_end' ? 7200 : Math.max(30, minVal * 60);
+        // Élő adásnál nyitott idősáv, felvételnél megadott perc
+        const totalDuration = isLive ? 14400 : Math.max(30, minVal * 60);
         const dateKey = getSelectedDateKey(dayIdx);
 
         const cleanTitle = customTitle ? customTitle : (isLive ? "YouTube Élő Adás" : "YouTube Videó");
@@ -2465,8 +2496,7 @@
             rating: rating,
             duration: totalDuration,
             isStream: true,
-            isLive: isLive,
-            endMode: endMode
+            isLive: isLive
         };
 
         insertClipWithChainShift(dateKey, customClip, startSec, getDaypartKeyForHour(Math.floor(startSec / 3600)));
@@ -2508,6 +2538,7 @@
             else if (isYt) badgeType = '<span style="color:#38bdf8; font-weight:800;">🎬 YT VIDEÓ</span>';
 
             const displayTitle = parsed.title ? `🎬 <strong>${parsed.artist}</strong> – ${parsed.title}` : `🎬 <strong>${parsed.artist}</strong>`;
+            const durStr = item.isLive ? 'ÉLŐ' : `${Math.floor(item.duration/60)}:${String(item.duration%60).padStart(2,'0')}`;
 
             return `
                 <tr id="rundown-row-${idx}" style="${isCurrentOnAir ? 'background:rgba(255,26,83,0.18); font-weight:800;' : ''}">
@@ -2516,7 +2547,7 @@
                     <td>${displayTitle}</td>
                     <td>${badgeType}</td>
                     <td><span style="color:#facc15; font-weight:800; font-family:\'JetBrains Mono\',monospace;">${item.rating || '12'}</span></td>
-                    <td>${Math.floor(item.duration/60)}:${String(item.duration%60).padStart(2,'0')}</td>
+                    <td>${durStr}</td>
                     <td style="color:var(--text-muted);">${item.endTimeStr}</td>
                     <td style="text-align:center;"><button class="btn-del-sm" onclick="removeRundownItem('${item.id}')">❌</button></td>
                 </tr>
