@@ -652,6 +652,9 @@
     .rundown-table th { background: var(--card-sub); color: var(--cherry-red); padding: 8px; border-bottom: 1px solid var(--border); }
     .rundown-table td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
 
+    .editable-cell { cursor: pointer; padding: 4px 6px; border-radius: 6px; transition: all 0.2s; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .editable-cell:hover { background: rgba(255, 26, 83, 0.15); color: #fff; }
+
     .dropzone-box {
         background: var(--card-sub); border: 2px dashed var(--cherry-red); border-radius: 12px; padding: 16px; text-align: center; cursor: pointer;
     }
@@ -663,6 +666,16 @@
         display: none; flex-direction: column; gap: 12px; z-index: 99999; max-height: 85vh; overflow-y: auto;
     }
     .position-floating-panel.active { display: flex; }
+
+    .modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.8);
+        display: none; align-items: center; justify-content: center; z-index: 99999; padding: 20px;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-card {
+        background: #0d101a; border: 1.5px solid var(--cherry-red); border-radius: 20px; width: 100%; max-width: 500px; padding: 20px;
+        display: flex; flex-direction: column; gap: 12px; box-shadow: 0 16px 40px rgba(0,0,0,0.8);
+    }
 
     .log-box {
         background: #000; border: 1px solid var(--border); border-radius: 10px; padding: 10px; font-family: 'JetBrains Mono', monospace;
@@ -878,7 +891,7 @@
         </div>
         <div style="max-height:280px; overflow-y:auto;">
             <table class="rundown-table">
-                <thead><tr><th>ADÁSKEZDET</th><th>MŰSOR</th><th>CÍM / ELŐADÓ</th><th>TÍPUS & ÁLLAPOT</th><th>KORHATÁR</th><th>HOSSZ</th><th>ADÁSVÉG</th><th>MŰVELET</th></tr></thead>
+                <thead><tr><th>ADÁSKEZDET</th><th>MŰSOR</th><th>CÍM / ELŐADÓ (Kattints a szerkesztéshez)</th><th>TÍPUS & ÁLLAPOT</th><th>KORHATÁR</th><th>HOSSZ</th><th>ADÁSVÉG</th><th>MŰVELET</th></tr></thead>
                 <tbody id="rundown-tbody"></tbody>
             </table>
         </div>
@@ -921,6 +934,55 @@
     <div class="log-box" id="studio-log"></div>
 </div>
 
+<!-- ✏️ MŰSOR / DAL SZERKESZTŐ MODAL -->
+<div class="modal-overlay" id="edit-track-modal">
+    <div class="modal-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
+            <div style="font-family:'Outfit',sans-serif; font-size:0.9rem; font-weight:800; color:var(--cherry-red);">
+                ✏️ DAL / ADÁS CÍMÉNEK JAVÍTÁSA
+            </div>
+            <button class="btn-del-sm" onclick="closeEditTrackModal()">✖</button>
+        </div>
+
+        <div>
+            <label style="font-size:0.65rem; color:var(--text-muted); display:block; margin-bottom:3px;">ELŐADÓ:</label>
+            <input type="text" id="inp-edit-artist" style="width:100%; background:#090d16; color:#fff; border:1px solid var(--border); border-radius:6px; padding:6px 8px; font-family:'Outfit',sans-serif; font-size:0.82rem; outline:none; font-weight:700;">
+        </div>
+
+        <div>
+            <label style="font-size:0.65rem; color:var(--text-muted); display:block; margin-bottom:3px;">DAL CÍME / ADÁS CÍME:</label>
+            <input type="text" id="inp-edit-title" style="width:100%; background:#090d16; color:#fff; border:1px solid var(--border); border-radius:6px; padding:6px 8px; font-family:'Outfit',sans-serif; font-size:0.82rem; outline:none; font-weight:700;">
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <div>
+                <label style="font-size:0.65rem; color:var(--text-muted);">HOSSZ (PERC):</label>
+                <input type="number" id="inp-edit-dur-min" min="0" max="360" style="width:100%; background:#090d16; color:#fff; border:1px solid var(--border); border-radius:6px; padding:5px 8px; font-family:'JetBrains Mono',monospace; font-size:0.75rem;">
+            </div>
+            <div>
+                <label style="font-size:0.65rem; color:var(--text-muted);">(MÁSODPERC):</label>
+                <input type="number" id="inp-edit-dur-sec" min="0" max="59" style="width:100%; background:#090d16; color:#fff; border:1px solid var(--border); border-radius:6px; padding:5px 8px; font-family:'JetBrains Mono',monospace; font-size:0.75rem;">
+            </div>
+        </div>
+
+        <div>
+            <label style="font-size:0.65rem; color:var(--text-muted); display:block; margin-bottom:3px;">KORHATÁR BESOROLÁS:</label>
+            <select id="inp-edit-rating" style="width:100%; background:#090d16; color:#fff; border:1px solid var(--border); border-radius:6px; padding:6px 8px; font-family:'JetBrains Mono',monospace; font-size:0.75rem;">
+                <option value="12">🟡 12</option>
+                <option value="0">🟢 0 (Gyermekbarát)</option>
+                <option value="6">🟡 6</option>
+                <option value="16">🟡 16</option>
+                <option value="18">🔴 18</option>
+                <option value="none">🚫 Nincs</option>
+            </select>
+        </div>
+
+        <button class="btn-act" style="background:var(--cherry-red); color:#fff; font-size:0.85rem; padding:10px; border:none; font-weight:800;" onclick="saveTrackEdit()">
+            💾 Mentés és Felhő-Szinkronizálás
+        </button>
+    </div>
+</div>
+
 <!-- 🔗 YOUTUBE & ÉLŐ STREAM BESZÚRÓ MODAL -->
 <div class="position-floating-panel" id="youtube-modal">
     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
@@ -961,6 +1023,15 @@
             </div>
         </div>
 
+        <!-- ÉLŐ ADÁS VISSZAVÁLTÁS MÓDJA (VÉGES IDŐ VAGY STREAM VÉGE) -->
+        <div id="box-yt-live-options">
+            <label style="font-size:0.65rem; color:var(--text-muted); display:block; margin-bottom:3px;">ÉLŐ ADÁS VISSZAVÁLTÁS:</label>
+            <select id="sel-yt-end-mode" style="width:100%; background:#090d16; color:#fff; border:1px solid var(--border); border-radius:6px; padding:6px 8px; font-family:'JetBrains Mono',monospace; font-size:0.75rem;" onchange="toggleLiveDurationInputs(this.value)">
+                <option value="auto_end">⚡ Élő adás végéig (amikor leáll a stream)</option>
+                <option value="fixed_time">⏱️ Véges időtartam (megadott idő után azonnali visszakapcsolás)</option>
+            </select>
+        </div>
+
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
             <div>
                 <label style="font-size:0.65rem; color:var(--text-muted);">MELYIK NAPRA?</label>
@@ -972,9 +1043,16 @@
             </div>
         </div>
 
-        <div id="box-yt-duration-inputs" style="display:none; flex-direction:column; gap:4px;">
-            <label style="font-size:0.65rem; color:var(--text-muted);">FELVÉTEL HOSSZA (PERC):</label>
-            <input type="number" id="inp-yt-dur-min" value="4" min="1" max="360" style="width:100%; background:#090d16; color:#fff; border:1px solid var(--border); border-radius:6px; padding:4px 8px; font-family:'JetBrains Mono',monospace; font-size:0.75rem;">
+        <!-- IDŐTARTAM BEVITEL -->
+        <div id="box-yt-duration-inputs" style="display:none; grid-template-columns:1fr 1fr; gap:8px;">
+            <div>
+                <label style="font-size:0.65rem; color:var(--text-muted);">HOSSZ (PERC):</label>
+                <input type="number" id="inp-yt-dur-min" value="30" min="1" max="360" style="width:100%; background:#090d16; color:#fff; border:1px solid var(--border); border-radius:6px; padding:4px 8px; font-family:'JetBrains Mono',monospace; font-size:0.75rem;">
+            </div>
+            <div>
+                <label style="font-size:0.65rem; color:var(--text-muted);">(MÁSODPERC):</label>
+                <input type="number" id="inp-yt-dur-sec" value="0" min="0" max="59" style="width:100%; background:#090d16; color:#fff; border:1px solid var(--border); border-radius:6px; padding:4px 8px; font-family:'JetBrains Mono',monospace; font-size:0.75rem;">
+            </div>
         </div>
     </div>
 
@@ -1055,6 +1133,7 @@
 
     let isLiveOnAir = false;
     let currentActiveYouTubeId = null;
+    let editingClipRef = null;
 
     let audioCtx = null;
     let masterGainNode = null;
@@ -1201,18 +1280,24 @@
         }
     }
 
+    /* 🧹 TISZTÍTÓ ÉS ROBUSTUS CÍMBONTÓ */
     function parseArtistAndTitle(rawTitle) {
         if (!rawTitle) return { artist: "CHERRY1 MUSIC", title: "" };
         let clean = rawTitle.replace(/\.(mp4|webm|mp3)$/i, '')
+            .replace(/_/g, ' ')
             .replace(/^\d+[\.\-\s]+/, '')
             .replace(/\[\s*(?:480p|720p|1080p|4k|hd|hq|official|video|klip|clip).*?\]/gi, '')
             .replace(/\(\s*(?:480p|720p|1080p|4k|hd|hq|official|video|klip|clip|audio|lyric).*?\)/gi, '')
             .replace(/\b(?:480p|720p|1080p|4k|1080i|hd|hq|official music video|official video|videóklip)\b/gi, '')
+            .replace(/\s+/g, ' ')
             .trim();
 
-        let parts = clean.split(/ - | – | · |: /);
+        let parts = clean.split(/\s*[-–—·:]\s*/);
         if (parts.length >= 2) {
-            return { artist: parts[0].trim() || "CHERRY1 MUSIC", title: parts.slice(1).join(' - ').trim() || clean };
+            return {
+                artist: parts[0].trim() || "CHERRY1 MUSIC",
+                title: parts.slice(1).join(' - ').trim() || ""
+            };
         }
         return { artist: clean, title: "" };
     }
@@ -1242,9 +1327,25 @@
 
     function updateYouTubeFormFields() {
         const selType = document.getElementById('sel-yt-content-type');
+        const boxLiveOpts = document.getElementById('box-yt-live-options');
         const durBox = document.getElementById('box-yt-duration-inputs');
-        if (selType && durBox) {
-            durBox.style.display = (selType.value === 'live') ? 'none' : 'flex';
+        const endMode = document.getElementById('sel-yt-end-mode')?.value;
+
+        if (selType && boxLiveOpts && durBox) {
+            if (selType.value === 'live') {
+                boxLiveOpts.style.display = 'block';
+                durBox.style.display = (endMode === 'fixed_time') ? 'grid' : 'none';
+            } else {
+                boxLiveOpts.style.display = 'none';
+                durBox.style.display = 'grid';
+            }
+        }
+    }
+
+    function toggleLiveDurationInputs(val) {
+        const durBox = document.getElementById('box-yt-duration-inputs');
+        if (durBox) {
+            durBox.style.display = (val === 'fixed_time') ? 'grid' : 'none';
         }
     }
 
@@ -1686,7 +1787,7 @@
         }
     }
 
-    /* ⏱️ ÓRA, MÁSODPERCRE PONTOS VALÓSIDEJŰ TRIGGER */
+    /* ⏱️ ÓRA & IDŐZÍTÉSEK */
     function updateClock() {
         const now = new Date();
         const timeStr = now.toLocaleTimeString('hu-HU');
@@ -1738,6 +1839,13 @@
                     }
                 }
             } else {
+                // ⏱️ VÉGES ÉLŐ ADÁS IDŐPONT FIGYELÉSE
+                const curClip = schedule[currentClipIndex];
+                if (curClip && curClip.endMode === 'fixed_time' && curSec >= curClip.endSec) {
+                    log("⏱️ [VÉGES ÉLŐ ADÁS IDŐ LEJÁRT] Azonnali visszakapcsolás a klippekre!", "success");
+                    onYouTubeStreamEnded();
+                }
+
                 const activeDeck = (activeDeckName === 'A') ? deckA : deckB;
                 if (activeDeck && !activeDeck.muted) {
                     activeDeck.muted = true;
@@ -1747,7 +1855,7 @@
     }
     setInterval(updateClock, 1000);
 
-    /* 🎬 ADÁS SZINKRON & LEJÁTSZÁS (R2 MP4 VAGY YOUTUBE) */
+    /* 🎬 ADÁS SZINKRON & LEJÁTSZÁS */
     async function syncToCurrentWallClockTime() {
         if (!isTvBroadcasting || transitionLock) return;
 
@@ -1892,7 +2000,6 @@
         }
     }
 
-    /* 🔴 YOUTUBE STREAM VÉGE ÉS AZONNALI VISSZAVÁLTÁS AZ R2-RE */
     function onYouTubeStateChange(event) {
         if (event.data === 0) {
             onYouTubeStreamEnded();
@@ -1916,7 +2023,7 @@
 
     /* 🎬 8 MÁSODPERCES KERESZTÁTÚSZTATÁS */
     async function executeVideoCrossfade(forceImmediate = false) {
-        if (isLiveOnAir) return;
+        if (isLiveOnAir && !forceImmediate) return;
         const todayKey = getSelectedDateKey(0);
         const schedule = weekSchedules[todayKey] || [];
         if (isVideoTransitioning || transitionLock || schedule.length === 0) return;
@@ -2408,9 +2515,10 @@
             startSec: insertSec,
             endSec: insertSec + clipDuration,
             startTimeStr: formatSecToHMS(insertSec),
-            endTimeStr: newClip.isLive ? "ÉLŐ VÉGÉIG" : formatSecToHMS(insertSec + clipDuration),
+            endTimeStr: newClip.isLive && newClip.endMode === 'auto_end' ? "ÉLŐ VÉGÉIG" : formatSecToHMS(insertSec + clipDuration),
             isStream: Boolean(newClip.isStream),
-            isLive: Boolean(newClip.isLive)
+            isLive: Boolean(newClip.isLive),
+            endMode: newClip.endMode || 'fixed_time'
         };
 
         let newSchedule = [];
@@ -2429,7 +2537,7 @@
                 item.startSec = prev.endSec;
                 item.endSec = item.startSec + item.duration;
                 item.startTimeStr = formatSecToHMS(item.startSec);
-                item.endTimeStr = formatSecToHMS(item.endSec);
+                item.endTimeStr = item.isLive && item.endMode === 'auto_end' ? "ÉLŐ VÉGÉIG" : formatSecToHMS(item.endSec);
             }
 
             newSchedule.push(item);
@@ -2457,6 +2565,7 @@
                 daySelect.appendChild(opt);
             }
         }
+        updateYouTubeFormFields();
         const modal = document.getElementById('youtube-modal');
         if (modal) modal.classList.add('active');
     }
@@ -2472,16 +2581,22 @@
         const dayIdx = parseInt(document.getElementById('modal-yt-day-select')?.value) || 0;
         const rating = document.getElementById('modal-yt-rating-select')?.value || '12';
         const timeInput = document.getElementById('inp-yt-start-time')?.value || "14:00";
-        const minVal = parseInt(document.getElementById('inp-yt-dur-min')?.value) || 4;
+        const minVal = parseInt(document.getElementById('inp-yt-dur-min')?.value) || 30;
+        const secVal = parseInt(document.getElementById('inp-yt-dur-sec')?.value) || 0;
         const isLive = (document.getElementById('sel-yt-content-type')?.value === 'live');
+        const endMode = document.getElementById('sel-yt-end-mode')?.value || 'auto_end';
 
         if (!url) return alert("Kérlek adj meg egy YouTube linket!");
 
         const timeParts = timeInput.split(':').map(Number);
         const startSec = (timeParts[0] || 0) * 3600 + (timeParts[1] || 0) * 60 + (timeParts[2] || 0);
-        const totalDuration = isLive ? 14400 : Math.max(30, minVal * 60);
-        const dateKey = getSelectedDateKey(dayIdx);
 
+        let totalDuration = 14400;
+        if (!isLive || endMode === 'fixed_time') {
+            totalDuration = Math.max(30, (minVal * 60) + secVal);
+        }
+
+        const dateKey = getSelectedDateKey(dayIdx);
         const cleanTitle = customTitle ? customTitle : (isLive ? "YouTube Élő Adás" : "YouTube Videó");
 
         const customClip = {
@@ -2491,11 +2606,68 @@
             rating: rating,
             duration: totalDuration,
             isStream: true,
-            isLive: isLive
+            isLive: isLive,
+            endMode: isLive ? endMode : 'fixed_time'
         };
 
         insertClipWithChainShift(dateKey, customClip, startSec, getDaypartKeyForHour(Math.floor(startSec / 3600)));
         closeYouTubeInsertModal();
+    }
+
+    /* ✏️ DAL / ADÁS CÍMÉNEK SZERKESZTÉSE FELHŐMENTÉSSEL */
+    function openEditTrackModal(itemId, dateKey) {
+        const sched = weekSchedules[dateKey] || [];
+        const item = sched.find(it => it.id === itemId);
+        if (!item) return;
+
+        editingClipRef = { item: item, dateKey: dateKey };
+        const parsed = parseArtistAndTitle(item.title);
+
+        document.getElementById('inp-edit-artist').value = parsed.artist;
+        document.getElementById('inp-edit-title').value = parsed.title;
+        document.getElementById('inp-edit-dur-min').value = Math.floor((item.duration || 210) / 60);
+        document.getElementById('inp-edit-dur-sec').value = (item.duration || 210) % 60;
+        document.getElementById('inp-edit-rating').value = item.rating || "12";
+
+        document.getElementById('edit-track-modal').classList.add('active');
+    }
+
+    function closeEditTrackModal() {
+        document.getElementById('edit-track-modal').classList.remove('active');
+        editingClipRef = null;
+    }
+
+    async function saveTrackEdit() {
+        if (!editingClipRef || !editingClipRef.item) return;
+        const it = editingClipRef.item;
+
+        const artist = document.getElementById('inp-edit-artist').value.trim();
+        const title = document.getElementById('inp-edit-title').value.trim();
+        const mins = parseInt(document.getElementById('inp-edit-dur-min').value) || 0;
+        const secs = parseInt(document.getElementById('inp-edit-dur-sec').value) || 0;
+        const rating = document.getElementById('inp-edit-rating').value;
+
+        if (artist && title) it.title = `${artist} - ${title}`;
+        else if (artist) it.title = artist;
+
+        it.duration = Math.max(30, (mins * 60) + secs);
+        it.rating = rating;
+
+        clipDurationMap[it.filename] = it.duration;
+
+        const sched = weekSchedules[editingClipRef.dateKey] || [];
+        for (let i = 0; i < sched.length; i++) {
+            if (i > 0) sched[i].startSec = sched[i-1].endSec;
+            sched[i].endSec = sched[i].startSec + sched[i].duration;
+            sched[i].startTimeStr = formatSecToHMS(sched[i].startSec);
+            sched[i].endTimeStr = formatSecToHMS(sched[i].endSec);
+        }
+
+        await saveWeekSchedules();
+        renderRundownTable();
+        closeEditTrackModal();
+        log(`💾 [ADÁSMENET MÓDOSÍTVA] "${it.title}" elmentve a felhőbe!`, 'success');
+        if (editingClipRef.dateKey === getSelectedDateKey(0) && isTvBroadcasting) syncToCurrentWallClockTime();
     }
 
     function clearRundown() {
@@ -2533,13 +2705,17 @@
             else if (isYt) badgeType = '<span style="color:#38bdf8; font-weight:800;">🎬 YT VIDEÓ</span>';
 
             const displayTitle = parsed.title ? `🎬 <strong>${parsed.artist}</strong> – ${parsed.title}` : `🎬 <strong>${parsed.artist}</strong>`;
-            const durStr = item.isLive ? 'ÉLŐ' : `${Math.floor(item.duration/60)}:${String(item.duration%60).padStart(2,'0')}`;
+            const durStr = item.isLive && item.endMode === 'auto_end' ? 'ÉLŐ' : `${Math.floor(item.duration/60)}:${String(item.duration%60).padStart(2,'0')}`;
 
             return `
                 <tr id="rundown-row-${idx}" style="${isCurrentOnAir ? 'background:rgba(255,26,83,0.18); font-weight:800;' : ''}">
                     <td><strong style="color:var(--theme-primary); font-family:\'JetBrains Mono\',monospace;">${isCurrentOnAir ? '🔴 MOST ' : ''}${item.startTimeStr}</strong></td>
                     <td><span style="color:#ff1a53;">${tvDaypartConfig[item.cat]?.title || 'Cherry1'}</span></td>
-                    <td>${displayTitle}</td>
+                    <td>
+                        <span class="editable-cell" onclick="openEditTrackModal('${item.id}', '${dateKey}')" title="Kattints a szerkesztéshez">
+                            ${displayTitle} ✏️
+                        </span>
+                    </td>
                     <td>${badgeType}</td>
                     <td><span style="color:#facc15; font-weight:800; font-family:\'JetBrains Mono\',monospace;">${item.rating || '12'}</span></td>
                     <td>${durStr}</td>
@@ -2666,6 +2842,8 @@
         } else if (alertBox) {
             alertBox.style.display = 'none';
         }
+
+        autoGenerateDaySchedule(0, false);
     }
 
     async function cleanAllR2Duplicates() {
