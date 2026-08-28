@@ -202,7 +202,7 @@
         pointer-events: auto;
     }
 
-    /* 🎬 PRO ZENETÉVÉS REDŐNYÖS ÁTÚSZÁS & 3D GYORS FORGÓ ÓRIÁS CHERRY LOGÓ */
+    /* 🎬 PRO ZENETÉVÉS REDŐNYÖS ÁTÚSZÁS & 1-SZERES 3D GYORS FORGÁS (TISZTA, HOMÁLY NÉLKÜLI KÉP) */
     .tv-broadcast-stinger {
         position: absolute;
         top: 0; left: 0; width: 100%; height: 100%;
@@ -218,7 +218,6 @@
         opacity: 1;
     }
 
-    /* 7 Lamellás Redőny Függöny (Szinkronizálva az átváltással) */
     .stinger-blinds-container {
         position: absolute;
         top: 0; left: 0; width: 100%; height: 100%;
@@ -229,24 +228,24 @@
     }
     .stinger-blind-blade {
         flex: 1;
-        background: linear-gradient(90deg, rgba(8, 10, 18, 0.98) 0%, rgba(255, 26, 83, 0.95) 50%, rgba(8, 10, 18, 0.98) 100%);
+        background: linear-gradient(90deg, #090c16 0%, #ff1a53 50%, #090c16 100%);
         transform: scaleX(0);
         transform-origin: left;
-        border-bottom: 1.5px solid rgba(255, 255, 255, 0.25);
-        box-shadow: 0 0 20px rgba(255, 26, 83, 0.6);
+        border-bottom: 1.5px solid rgba(255, 255, 255, 0.4);
+        box-shadow: 0 0 15px rgba(255, 26, 83, 0.8);
     }
-    .stinger-active .stinger-blind-blade:nth-child(1) { animation: bladeShutterWave 2.8s cubic-bezier(0.2, 0.9, 0.2, 1) forwards 0.00s; }
-    .stinger-active .stinger-blind-blade:nth-child(2) { animation: bladeShutterWave 2.8s cubic-bezier(0.2, 0.9, 0.2, 1) forwards 0.04s; }
-    .stinger-active .stinger-blind-blade:nth-child(3) { animation: bladeShutterWave 2.8s cubic-bezier(0.2, 0.9, 0.2, 1) forwards 0.08s; }
-    .stinger-active .stinger-blind-blade:nth-child(4) { animation: bladeShutterWave 2.8s cubic-bezier(0.2, 0.9, 0.2, 1) forwards 0.12s; }
-    .stinger-active .stinger-blind-blade:nth-child(5) { animation: bladeShutterWave 2.8s cubic-bezier(0.2, 0.9, 0.2, 1) forwards 0.16s; }
-    .stinger-active .stinger-blind-blade:nth-child(6) { animation: bladeShutterWave 2.8s cubic-bezier(0.2, 0.9, 0.2, 1) forwards 0.20s; }
-    .stinger-active .stinger-blind-blade:nth-child(7) { animation: bladeShutterWave 2.8s cubic-bezier(0.2, 0.9, 0.2, 1) forwards 0.24s; }
+    .stinger-active .stinger-blind-blade:nth-child(1) { animation: bladeShutterWaveOnce 2.2s cubic-bezier(0.2, 0.9, 0.2, 1) forwards 0.00s; }
+    .stinger-active .stinger-blind-blade:nth-child(2) { animation: bladeShutterWaveOnce 2.2s cubic-bezier(0.2, 0.9, 0.2, 1) forwards 0.03s; }
+    .stinger-active .stinger-blind-blade:nth-child(3) { animation: bladeShutterWaveOnce 2.2s cubic-bezier(0.2, 0.9, 0.2, 1) forwards 0.06s; }
+    .stinger-active .stinger-blind-blade:nth-child(4) { animation: bladeShutterWaveOnce 2.2s cubic-bezier(0.2, 0.9, 0.2, 1) forwards 0.09s; }
+    .stinger-active .stinger-blind-blade:nth-child(5) { animation: bladeShutterWaveOnce 2.2s cubic-bezier(0.2, 0.9, 0.2, 1) forwards 0.12s; }
+    .stinger-active .stinger-blind-blade:nth-child(6) { animation: bladeShutterWaveOnce 2.2s cubic-bezier(0.2, 0.9, 0.2, 1) forwards 0.15s; }
+    .stinger-active .stinger-blind-blade:nth-child(7) { animation: bladeShutterWaveOnce 2.2s cubic-bezier(0.2, 0.9, 0.2, 1) forwards 0.18s; }
 
-    @keyframes bladeShutterWave {
+    @keyframes bladeShutterWaveOnce {
         0% { transform: scaleX(0); transform-origin: left; opacity: 0; }
-        25% { transform: scaleX(1); transform-origin: left; opacity: 1; }
-        55% { transform: scaleX(1); transform-origin: right; opacity: 1; }
+        30% { transform: scaleX(1); transform-origin: left; opacity: 1; }
+        60% { transform: scaleX(1); transform-origin: right; opacity: 1; }
         100% { transform: scaleX(0); transform-origin: right; opacity: 0; }
     }
 
@@ -256,40 +255,37 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 14px;
+        gap: 12px;
         perspective: 1200px;
     }
 
-    /* 🍒 Nagy méretű, kristálytiszta 3D forgó logó */
+    /* 🍒 1-SZERES GYORS 3D PÖRGÉS, MAJD TISZTA ÉS ÉLES MEGÁLLÁS */
     .stinger-giant-cherry {
         width: 140px;
         height: 140px;
-        filter: drop-shadow(0 0 35px #ff1a53) drop-shadow(0 0 70px rgba(255, 26, 83, 0.95));
+        filter: drop-shadow(0 0 25px #ff1a53) drop-shadow(0 0 45px rgba(255, 26, 83, 0.9));
         transform-origin: center center;
     }
     .stinger-active .stinger-giant-cherry {
-        animation: giantCherrySpinPro 2.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        animation: giantCherrySingleSpin 2.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    @keyframes giantCherrySpinPro {
+    @keyframes giantCherrySingleSpin {
         0% {
-            transform: scale(0.15) rotateY(0deg) rotate(-35deg);
+            transform: scale(0.2) rotateY(0deg);
             opacity: 0;
-            filter: drop-shadow(0 0 10px #ff1a53) brightness(3);
         }
-        30% {
-            transform: scale(1.45) rotateY(720deg) rotate(0deg);
+        35% {
+            transform: scale(1.35) rotateY(720deg);
             opacity: 1;
-            filter: drop-shadow(0 0 50px #ff1a53) brightness(1.4);
         }
-        60% {
-            transform: scale(1.15) rotateY(1080deg) rotate(5deg);
+        65% {
+            transform: scale(1.15) rotateY(720deg);
             opacity: 1;
         }
         100% {
-            transform: scale(1.9) rotateY(1440deg) rotate(25deg);
+            transform: scale(1.6) rotateY(720deg);
             opacity: 0;
-            filter: blur(16px) brightness(2.2);
         }
     }
 
@@ -299,38 +295,37 @@
         align-items: center;
         gap: 4px;
         padding: 12px 38px;
-        background: rgba(10, 14, 26, 0.92);
-        backdrop-filter: blur(20px);
+        background: rgba(10, 14, 26, 0.95);
         border: 2px solid var(--cherry-red);
         border-radius: 20px;
-        box-shadow: 0 0 45px var(--cherry-glow);
+        box-shadow: 0 0 35px var(--cherry-glow);
         transform: scale(0.8);
         opacity: 0;
     }
     .stinger-active .stinger-box {
-        animation: stingerBoxRevealPro 2.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.15s;
+        animation: stingerBoxRevealSolid 2.2s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.1s;
     }
-    @keyframes stingerBoxRevealPro {
-        0% { transform: scale(0.6) translateY(20px); opacity: 0; }
-        30% { transform: scale(1.1) translateY(0); opacity: 1; }
-        60% { transform: scale(1) translateY(0); opacity: 1; }
-        100% { transform: scale(1.25) translateY(-15px); opacity: 0; filter: blur(10px); }
+    @keyframes stingerBoxRevealSolid {
+        0% { transform: scale(0.7) translateY(20px); opacity: 0; }
+        35% { transform: scale(1.05) translateY(0); opacity: 1; }
+        65% { transform: scale(1) translateY(0); opacity: 1; }
+        100% { transform: scale(1.2) translateY(-10px); opacity: 0; }
     }
 
     .stinger-title {
         font-family: 'Syne', sans-serif;
         font-size: 1.55rem;
         font-weight: 900;
-        color: #fff;
+        color: #ffffff;
         letter-spacing: 2.5px;
     }
     .stinger-title span { color: var(--cherry-red); }
     .stinger-sub {
         font-family: 'JetBrains Mono', monospace;
-        font-size: 0.78rem;
+        font-size: 0.80rem;
         font-weight: 800;
         color: var(--accent-cyan);
-        letter-spacing: 3px;
+        letter-spacing: 2px;
         text-transform: uppercase;
     }
 
@@ -610,7 +605,7 @@
         text-shadow: 0 1px 3px rgba(0,0,0,0.9);
     }
 
-    /* NMHH KORHATÁR KARIKA (MINDEN PLATFORMON PONTOSAN MÉRETARÁNYOS) */
+    /* NMHH KORHATÁR KARIKA */
     .tv-age-rating-container {
         position: absolute; bottom: 16px; right: 26px; z-index: 9999;
         display: flex; align-items: center; justify-content: center; pointer-events: none;
@@ -852,10 +847,10 @@
         <video id="tv-video-deck-a" class="tv-video-deck active" playsinline preload="auto" crossorigin="anonymous"></video>
         <video id="tv-video-deck-b" class="tv-video-deck" playsinline preload="auto" crossorigin="anonymous"></video>
 
-        <!-- YOUTUBE EMBED PLAYER RÉTEG (ELŐTÖLTÉSSEL & ÉLŐ/VIDEÓ STREAM VÁLTÁSSAL) -->
+        <!-- YOUTUBE EMBED PLAYER RÉTEG -->
         <div id="tv-live-embed-layer" class="tv-live-embed-layer"></div>
 
-        <!-- 🎬 PRO ZENETÉVÉS REDŐNYÖS ÁTÚSZÁS & 3D FORGÓ ÓRIÁS CHERRY LOGÓ -->
+        <!-- 🎬 PRO ZENETÉVÉS REDŐNYÖS ÁTÚSZÁS & 1-SZERES GYORS 3D FORGÁS (TISZTA, HOMÁLYTALAN) -->
         <div class="tv-broadcast-stinger" id="tv-broadcast-stinger">
             <div class="stinger-blinds-container">
                 <div class="stinger-blind-blade"></div>
@@ -888,7 +883,7 @@
                 <rect x="285.72" y="0" width="142.86" height="376.875" fill="#00c0c0"/>
                 <rect x="428.58" y="0" width="142.86" height="376.875" fill="#00c000"/>
                 <rect x="571.44" y="0" width="142.86" height="376.875" fill="#c000c0"/>
-                <rect x="714.3" y="0" width="142.86" height="376.875" fill="#c0c000"/>
+                <rect x="714.3" y="0" width="142.86" height="376.875" fill="#c00000"/>
                 <rect x="857.14" y="0" width="142.86" height="376.875" fill="#0000c0"/>
                 <rect x="230" y="210" width="540" height="142" rx="14" fill="#07080f" fill-opacity="0.95" stroke="#ff1a53" stroke-width="3"/>
                 <text x="500" y="254" font-family="'Outfit', sans-serif" font-size="30" font-weight="900" fill="#ffffff" letter-spacing="1.5" text-anchor="middle">CHERRY<tspan fill="#ff1a53">1</tspan> MUSIC</text>
@@ -1475,6 +1470,7 @@
         return match ? match[1] : null;
     }
 
+    /* 🔍 AUTOMATIKUS YOUTUBE CÍM ÉS HOSSZ KINYERŐ */
     async function detectYouTubeContentType(url) {
         const selType = document.getElementById('sel-yt-content-type');
         const inpTitle = document.getElementById('inp-yt-title');
@@ -1911,7 +1907,7 @@
         }, 7000);
     }
 
-    /* 🎬 PRO STINGER WIPE TRIGGER (Szinkronizálva az átváltással) */
+    /* 🎬 PRO STINGER WIPE TRIGGER (1-SZERES GYORS PÖRGÉS & REDŐNYOZÁS) */
     function triggerBroadcastStinger(trackTitle) {
         if (!tvBroadcastStinger) return;
         const parsed = parseArtistAndTitle(trackTitle);
@@ -1921,7 +1917,7 @@
         tvBroadcastStinger.classList.add('stinger-active');
         setTimeout(() => {
             tvBroadcastStinger.classList.remove('stinger-active');
-        }, 2800);
+        }, 2200);
     }
 
     /* 🚀 1 PERCCEL KORÁBBI ELŐTÖLTÉS YOUTUBE-HOZ */
@@ -1956,10 +1952,20 @@
                                 'onReady': function(e) {
                                     e.target.mute();
                                     e.target.playVideo();
+                                    try {
+                                        const dur = Math.round(e.target.getDuration());
+                                        if (dur && dur > 0 && !nextClip.isLive) {
+                                            nextClip.duration = dur;
+                                            nextClip.endSec = nextClip.startSec + dur;
+                                            nextClip.endTimeStr = formatSecToHMS(nextClip.endSec);
+                                            saveWeekSchedules();
+                                            renderRundownTable();
+                                        }
+                                    } catch(err){}
                                 },
                                 'onStateChange': onYouTubeStateChange,
                                 'onError': function() {
-                                    log("⚠️ YouTube stream hiba, vissza zenei adásra!", "warn");
+                                    log("⚠️ YouTube tartalom hiba, vissza a klippekre!", "warn");
                                     onYouTubeStreamEnded();
                                 }
                             }
@@ -2012,10 +2018,9 @@
                     const curClip = schedule[expectedIdx];
                     const remainingSec = curClip.endSec - curSec;
 
-                    // 2.8 mp-cel a vége előtt elindítjuk a zenei TV stinger átúszást
-                    if (remainingSec <= 3 && remainingSec > 0 && !isVideoTransitioning) {
+                    if (remainingSec <= 2.2 && remainingSec > 0 && !isVideoTransitioning) {
                         executeVideoCrossfade(false);
-                    } else if (remainingSec <= 20 && remainingSec > 3 && !isOutroSequenceTriggered) {
+                    } else if (remainingSec <= 20 && remainingSec > 2.2 && !isOutroSequenceTriggered) {
                         isOutroSequenceTriggered = true;
                         runOutroTrackSequence(schedule);
                     }
@@ -2115,6 +2120,16 @@
                                             e.target.unMute();
                                             e.target.setVolume(Math.round(masterVolume * 100));
                                             e.target.playVideo();
+                                            try {
+                                                const dur = Math.round(e.target.getDuration());
+                                                if (dur && dur > 0 && !clip.isLive) {
+                                                    clip.duration = dur;
+                                                    clip.endSec = clip.startSec + dur;
+                                                    clip.endTimeStr = formatSecToHMS(clip.endSec);
+                                                    saveWeekSchedules();
+                                                    renderRundownTable();
+                                                }
+                                            } catch(err){}
                                         },
                                         'onStateChange': onYouTubeStateChange,
                                         'onError': function() {
@@ -2202,7 +2217,7 @@
         executeVideoCrossfade(true);
     }
 
-    /* 🎬 PRO ÁTÚSZÁS & REDŐNY SZINKRONIZÁLVA A VIDEÓVÁLTÁSSAL */
+    /* 🎬 PRO ÁTÚSZÁS: 1-SZERES REDŐNY & FORGÁS, TISZTA ÉS HOMÁLYTALAN MEGJELENÉS */
     async function executeVideoCrossfade(forceImmediate = false) {
         if (isLiveOnAir && !forceImmediate) return;
         const todayKey = getSelectedDateKey(0);
@@ -2228,12 +2243,12 @@
 
         hideColorBarScreen();
         
-        // 🎬 1. Redőny és 3D forgó óriás logó animáció indítása
+        // 🎬 1. Redőny és 1-szeres 3D forgó óriás logó indítása
         triggerBroadcastStinger(newClip.title);
 
         const ytId = extractYouTubeVideoId(newClip.url);
 
-        // 🎬 2. Pontosan a redőny lefedésekor (0.95 mp) történik meg a videócsere a háttérben
+        // 🎬 2. Pontosan a redőny lezárásakor (0.75 mp) történik meg a videócsere a háttérben
         setTimeout(() => {
             if (ytId || newClip.isStream) {
                 currentDeck.pause();
@@ -2276,7 +2291,6 @@
                 ytPlayerInstance = null;
             }
 
-            // Új videó indítása teljes hangerővel a lefedett redőny mögött
             if (nextDeck) {
                 nextDeck.src = newClip.url || `${R2_PUBLIC_DOMAIN}/${encodeURIComponent(newClip.filename)}`;
                 nextDeck.currentTime = 0;
@@ -2298,12 +2312,12 @@
             isVideoTransitioning = false;
             transitionLock = false;
 
-            // 🎬 3. A redőny kitárulása után indul a cím felirat
+            // 🎬 3. A redőny kitárulása után indul a tiszta alsó cím felirat
             setTimeout(() => {
                 runIntroTrackBanner(newClip);
-            }, 1800);
+            }, 1400);
 
-        }, 950);
+        }, 750);
     }
 
     function toggleTvBroadcast() {
@@ -2622,7 +2636,22 @@
         });
     }
 
-    /* 🎲 24 ÓRÁS VALÓS SHUFFLE */
+    /* 🛡️ SZIGORÚAN DUPLIKÁCIÓMENTES KLIP-POOL LEKÉRÉSE */
+    function getStrictUniqueClipsPool() {
+        if (r2Library.length > 0) {
+            const uniqueMap = new Map();
+            r2Library.forEach(item => {
+                const norm = getNormalizedTrackKey(item.title || item.filename);
+                if (!uniqueMap.has(norm)) {
+                    uniqueMap.set(norm, item);
+                }
+            });
+            return Array.from(uniqueMap.values());
+        }
+        return [{ title: "Cherry1 Demo Stream", filename: "demo.mp4", url: BACKUP_DEMO_STREAM, duration: 240 }];
+    }
+
+    /* 🎲 24 ÓRÁS VALÓS SHUFFLE (GARANTÁLT DUPLIKÁCIÓMENTESSÉGGEL) */
     function autoGenerateDaySchedule(dayOffset, force = false) {
         const dateKey = getSelectedDateKey(dayOffset);
         if (!force && weekSchedules[dateKey] && weekSchedules[dateKey].length > 0) {
@@ -2632,16 +2661,25 @@
 
         let schedule = [];
         let startSec = 0;
-        const pool = r2Library.length > 0 ? [...r2Library] : [{ title: "Cherry1 Demo Stream", filename: "demo.mp4", url: BACKUP_DEMO_STREAM, duration: 240 }];
+        const pool = getStrictUniqueClipsPool();
 
-        for (let i = pool.length - 1; i > 0; i--) {
+        let deck = [...pool];
+        for (let i = deck.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
-            [pool[i], pool[j]] = [pool[j], pool[i]];
+            [deck[i], deck[j]] = [deck[j], deck[i]];
         }
 
         let pIdx = 0;
         while (startSec < 86400) {
-            const clip = pool[pIdx % pool.length];
+            if (pIdx >= deck.length) {
+                pIdx = 0;
+                for (let i = deck.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [deck[i], deck[j]] = [deck[j], deck[i]];
+                }
+            }
+
+            const clip = deck[pIdx];
             let dur = clipDurationMap[clip.filename] || clip.duration || 210;
             const endSec = Math.min(86400, startSec + dur);
             const hour = Math.floor(startSec / 3600);
@@ -2668,7 +2706,7 @@
         weekSchedules[dateKey] = schedule;
         saveWeekSchedules();
         renderRundownTable();
-        log(`🎲 [24 ÓRÁS ADÁSTERV] ${schedule.length} db tétel másodpercre pontosan újrakeverve!`, 'success');
+        log(`🎲 [24 ÓRÁS ADÁSTERV] ${schedule.length} db tétel szigorúan duplikációmentesen újrakeverve!`, 'success');
         if (isTvBroadcasting) syncToCurrentWallClockTime();
     }
 
@@ -2756,15 +2794,21 @@
         const rating = document.getElementById('modal-yt-rating-select')?.value || '12';
         const timeInput = document.getElementById('inp-yt-start-time')?.value || "14:00";
         const minVal = parseInt(document.getElementById('inp-yt-dur-min')?.value) || 4;
+        const secVal = parseInt(document.getElementById('inp-yt-dur-sec')?.value) || 0;
         const isLive = (document.getElementById('sel-yt-content-type')?.value === 'live');
+        const endMode = document.getElementById('sel-yt-end-mode')?.value || 'auto_end';
 
         if (!url) return alert("Kérlek adj meg egy YouTube linket!");
 
         const timeParts = timeInput.split(':').map(Number);
         const startSec = (timeParts[0] || 0) * 3600 + (timeParts[1] || 0) * 60 + (timeParts[2] || 0);
-        const totalDuration = isLive ? 14400 : Math.max(30, minVal * 60);
-        const dateKey = getSelectedDateKey(dayIdx);
 
+        let totalDuration = 14400;
+        if (!isLive || endMode === 'fixed_time') {
+            totalDuration = Math.max(30, (minVal * 60) + secVal);
+        }
+
+        const dateKey = getSelectedDateKey(dayIdx);
         const cleanTitle = customTitle ? customTitle : (isLive ? "YouTube Élő Adás" : "YouTube Videó");
 
         const customClip = {
@@ -2774,7 +2818,8 @@
             rating: rating,
             duration: totalDuration,
             isStream: true,
-            isLive: isLive
+            isLive: isLive,
+            endMode: isLive ? endMode : 'fixed_time'
         };
 
         insertClipWithChainShift(dateKey, customClip, startSec, getDaypartKeyForHour(Math.floor(startSec / 3600)));
@@ -3046,7 +3091,7 @@
         await loadR2Library();
     }
 
-    /* 🎬 KÖZVETLEN R2 LEJÁTSZÁS (DUPLA FALLBACK) */
+    /* 🎬 KÖZVETLEN R2 LEJÁTSZÁS */
     function playImmediateVideo(srcOrFilename) {
         const activeDeck = (activeDeckName === 'A') ? deckA : deckB;
         if (!activeDeck) return;
