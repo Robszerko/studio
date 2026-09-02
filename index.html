@@ -124,7 +124,7 @@
     }
     .tv-live-badge.live .live-dot-static { background: #ff1155; box-shadow: 0 0 8px #ff1155; }
 
-    /* 📺 TV KÉPERNYŐ CONTAINER */
+    /* 📺 TV KÉPERNYŐ CONTAINER & RELATÍV CONTAINER QUERY SKÁLÁZÁS */
     .tv-screen-wrapper {
         container-type: inline-size;
         container-name: tvScreen;
@@ -377,7 +377,7 @@
     .nmhh-ring.ring-red { border: 0.35cqw solid #ef4444; }
     .nmhh-number { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: clamp(0.85rem, 1.6cqw, 1.4rem); color: #ffffff; }
 
-    /* 🎴 CHERRY1 KLIPP CÍMKÁRTYA (NAGY ANIMÁLT LOGÓVAL) */
+    /* 🎴 CHERRY1 KLIPP CÍMKÁRTYA */
     .tv-action-zone-container {
         position: absolute; bottom: 2cqw; left: 2.2cqw; z-index: 9998;
         display: flex; align-items: center; gap: 1.2cqw; max-width: 65cqw; pointer-events: none;
@@ -463,6 +463,16 @@
         background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);
         border-radius: 6px; padding: 2px 8px; cursor: pointer; font-weight: 800; font-size: 0.75rem;
     }
+
+    /* 🔊 VALÓS DSP VU METER ÉS LIMITER */
+    .audio-monitor-box {
+        display: flex; align-items: center; gap: 8px; background: #06070c;
+        border: 1px solid var(--border); border-radius: 10px; padding: 6px 12px;
+    }
+    .vu-led-bar-bg { width: 80px; height: 9px; background: #181d2f; border-radius: 3px; overflow: hidden; display: flex; }
+    .vu-led-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #22c55e 0%, #facc15 75%, #ff1155 100%); transition: width 0.08s ease; }
+    .limiter-active-dot { width: 8px; height: 8px; border-radius: 50%; background: #334155; }
+    .limiter-active-dot.lit { background: #ff1155; box-shadow: 0 0 8px #ff1155; }
 
     .calendar-panel, .rundown-panel, .library-panel {
         background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 10px;
@@ -614,7 +624,7 @@
             <div class="mag-weather-grid-view" id="mag-weather-grid-view"></div>
         </div>
 
-        <!-- 🎴 CHERRY1 KLIPP CÍMKÁRTYA (NAGY LOGÓVAL, TV-RE SKÁLÁZVA) -->
+        <!-- 🎴 CHERRY1 KLIPP CÍMKÁRTYA -->
         <div class="tv-action-zone-container">
             <div class="tv-lower-third-banner" id="tv-lower-third-banner">
                 <svg class="lt-brand-draw-box" viewBox="0 0 70 100">
@@ -657,7 +667,7 @@
             <span class="wm-sub-music-badge" id="wm-sub-music-badge">MUSIC</span>
         </div>
 
-        <!-- 🟡 PERZISZTENS KORHATÁR -->
+        <!-- 🟡 PERZISZTENS KORHATÁRKARIKA -->
         <div class="tv-age-rating-container" id="tv-age-rating-container">
             <div class="nmhh-ring ring-yellow" id="nmhh-ring-box"><span class="nmhh-number" id="nmhh-number-text">12</span></div>
         </div>
@@ -668,7 +678,7 @@
                 <rect x="142.86" y="0" width="142.86" height="376.875" fill="#c0c000"/>
                 <rect x="285.72" y="0" width="142.86" height="376.875" fill="#00c0c0"/>
                 <rect x="428.58" y="0" width="142.86" height="376.875" fill="#00c000"/>
-                <rect x="571.44" y="0" width="142.86" height="376.875" fill="#c0c000"/>
+                <rect x="571.44" y="0" width="142.86" height="376.875" fill="#c000c0"/>
                 <rect x="714.3" y="0" width="142.86" height="376.875" fill="#c00000"/>
                 <rect x="857.14" y="0" width="142.86" height="376.875" fill="#0000c0"/>
                 <rect x="230" y="210" width="540" height="142" rx="14" fill="#07080f" fill-opacity="0.95" stroke="#ff1155" stroke-width="3"/>
@@ -688,6 +698,13 @@
             <button class="btn-act" onclick="togglePositionModal()">⚙️ Pozíciók, Híradók & Idősávok</button>
             <button class="btn-act" onclick="toggleCustomFullscreen()">⛶ Teljes Képernyő</button>
         </div>
+
+        <div class="audio-monitor-box" title="Broadcast DSP Real-Time Leveler & Peak Limiter">
+            <span style="font-family:'JetBrains Mono',monospace; font-size:0.65rem; color:var(--text-muted);">VU:</span>
+            <div class="vu-led-bar-bg"><div class="vu-led-bar-fill" id="vu-led-fill"></div></div>
+            <div class="limiter-active-dot" id="limiter-dot" title="Brickwall Limiter Active"></div>
+        </div>
+
         <div style="display:flex; align-items:center; gap:8px;">
             <span>🔊</span>
             <input type="range" style="width:80px; accent-color:var(--cherry-red);" min="0" max="1" step="0.05" value="0.9" oninput="setTvVolume(this.value)">
@@ -742,7 +759,7 @@
     <div class="log-box" id="studio-log"></div>
 </div>
 
-<!-- ⚙️ BEÁLLÍTÁSOK, POZÍCIÓK & HÍRADÓ KAPCSOLÓK -->
+<!-- ⚙️ BEÁLLÍTÁSOK, POZÍCIÓK & HÍRADÓ PANEL -->
 <div class="position-floating-panel" id="position-modal">
     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
         <div style="font-family:'Outfit',sans-serif; font-size:0.85rem; font-weight:800; color:var(--cherry-red);">⚙️ POZÍCIÓK, HÍRADÓK & IDŐSÁVOK</div>
@@ -776,7 +793,7 @@
 
     <!-- 🍒 2. LOGÓ POZÍCIÓ -->
     <div style="background:var(--card-sub); padding:10px; border-radius:10px; display:flex; flex-direction:column; gap:6px;">
-        <span style="font-size:0.75rem; font-weight:800; color:var(--cherry-red);">🍒 CHERRY1 LOGÓ POZÍCIÓ & MÉRET:</span>
+        <span style="font-size:0.75rem; font-weight:800; color:var(--cherry-red);">🍒 CHERRY1 LOGÓ POZÍCIÓ & MÉRET (MINDEN KÉPERNYŐRE SKÁLÁZVA):</span>
         <div style="display:flex; gap:6px;">
             <button class="btn-act" id="btn-set-top-right" style="flex:1;" onclick="setLogoCorner('top-right')">Jobb Felső</button>
             <button class="btn-act" id="btn-set-top-left" style="flex:1;" onclick="setLogoCorner('top-left')">Bal Felső</button>
@@ -833,6 +850,18 @@
     let masterVolume = 0.9;
     let playbackSessionId = 0;
 
+    /* 🎚️ VALÓS BROADCAST DSP AUDIO ENGINE CSOMÓPONTOK */
+    let audioCtx = null;
+    let preGainNode = null;
+    let autoGainNode = null;
+    let compressorNode = null;
+    let limiterNode = null;
+    let analyserNode = null;
+    let masterGainNode = null;
+    let sourceA = null, sourceB = null, sourceNews = null;
+    let isDspInitialized = false;
+    let dspMonitorTimer = null;
+
     let logoCornerMode = 'top-right';
     let currentAgeRating = "12";
     let currentRatingOpacity = "0.95";
@@ -856,17 +885,12 @@
     let isHourlyNewsRunning = false;
     let isStationClockVisible = false;
     let lastClockTickSecond = -1;
-    let newsSyncRaf = null;
     let isMidnightEdition = false;
-    let audioCtx = null;
-    let masterGainNode = null;
-    let sourceA = null, sourceB = null, sourceNews = null;
 
     let introTriggeredForTrack = false;
     let outroStep = 0;
     let outroStepTimer = null;
 
-    // Fázisalapú híridőzítő változói
     let activeNewsStoriesList = [];
     let newsPhaseTimer = null;
     let newsPhaseIndex = -1;
@@ -923,6 +947,8 @@
     const magNewsBodyGrid = document.getElementById('mag-news-body-grid');
     const magWeatherGridView = document.getElementById('mag-weather-grid-view');
     const unmuteBanner = document.getElementById('unmute-banner');
+    const vuLedFill = document.getElementById('vu-led-fill');
+    const limiterDot = document.getElementById('limiter-dot');
 
     const tvDaypartConfig = {
         ejjel: { title: "🌙 CHERRY1 NIGHT", primaryColor: "#a855f7", gradient: "linear-gradient(135deg, rgba(20, 10, 40, 0.85) 0%, rgba(88, 28, 135, 0.85) 100%)" },
@@ -976,6 +1002,120 @@
     function getCanonicalStreamUrl(filename, existingUrl) {
         if (!filename) return existingUrl || BACKUP_DEMO_STREAM;
         return `${WORKER_URL}/api/radio/stream?filename=${encodeURIComponent(filename)}`;
+    }
+
+    /* 🎚️ VALÓS BROADCAST DSP AUDIO MOTOR ÉS DINAMIKUS AGC */
+    function setupAudioNodes() {
+        try {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+                // 1. Pre-Gain csomópont
+                preGainNode = audioCtx.createGain();
+                preGainNode.gain.setValueAtTime(0.85, audioCtx.currentTime);
+
+                // 2. Dinamikus AGC szintszabályzó erősítő
+                autoGainNode = audioCtx.createGain();
+                autoGainNode.gain.setValueAtTime(1.0, audioCtx.currentTime);
+
+                // 3. Broadcast kompresszor
+                compressorNode = audioCtx.createDynamicsCompressor();
+                compressorNode.threshold.setValueAtTime(-18, audioCtx.currentTime);
+                compressorNode.knee.setValueAtTime(6, audioCtx.currentTime);
+                compressorNode.ratio.setValueAtTime(3.5, audioCtx.currentTime);
+                compressorNode.attack.setValueAtTime(0.015, audioCtx.currentTime);
+                compressorNode.release.setValueAtTime(0.180, audioCtx.currentTime);
+
+                // 4. Brickwall Peak Limiter (-0.5 dBFS)
+                limiterNode = audioCtx.createDynamicsCompressor();
+                limiterNode.threshold.setValueAtTime(-0.5, audioCtx.currentTime);
+                limiterNode.knee.setValueAtTime(0.0, audioCtx.currentTime);
+                limiterNode.ratio.setValueAtTime(20.0, audioCtx.currentTime);
+                limiterNode.attack.setValueAtTime(0.002, audioCtx.currentTime);
+                limiterNode.release.setValueAtTime(0.060, audioCtx.currentTime);
+
+                // 5. Valós idejű spektrum & RMS analizátor
+                analyserNode = audioCtx.createAnalyser();
+                analyserNode.fftSize = 512;
+                analyserNode.smoothingTimeConstant = 0.6;
+
+                // 6. Master hangerő csomópont
+                masterGainNode = audioCtx.createGain();
+                masterGainNode.gain.setValueAtTime(masterVolume, audioCtx.currentTime);
+
+                // Csomópontok láncolása
+                preGainNode.connect(autoGainNode);
+                autoGainNode.connect(compressorNode);
+                compressorNode.connect(limiterNode);
+                limiterNode.connect(analyserNode);
+                analyserNode.connect(masterGainNode);
+                masterGainNode.connect(audioCtx.destination);
+
+                startRealtimeAgcLoop();
+                isDspInitialized = true;
+            }
+
+            if (deckA && deckB && newsBgVideo && audioCtx && !sourceA && !sourceB) {
+                try {
+                    sourceA = audioCtx.createMediaElementSource(deckA);
+                    sourceB = audioCtx.createMediaElementSource(deckB);
+                    sourceNews = audioCtx.createMediaElementSource(newsBgVideo);
+                    sourceA.connect(preGainNode);
+                    sourceB.connect(preGainNode);
+                    sourceNews.connect(preGainNode);
+                } catch(e){}
+            }
+
+            if (audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
+        } catch(e){}
+    }
+
+    function startRealtimeAgcLoop() {
+        if (!analyserNode) return;
+        const timeData = new Float32Array(analyserNode.fftSize);
+
+        dspMonitorTimer = setInterval(() => {
+            if (!isTvBroadcasting || !analyserNode) {
+                if (vuLedFill) vuLedFill.style.width = '0%';
+                if (limiterDot) limiterDot.classList.remove('lit');
+                return;
+            }
+
+            analyserNode.getFloatTimeDomainData(timeData);
+
+            // Valós RMS energia kiszámítása
+            let sumSquares = 0;
+            let peak = 0;
+            for (let i = 0; i < timeData.length; i++) {
+                const absVal = Math.abs(timeData[i]);
+                if (absVal > peak) peak = absVal;
+                sumSquares += timeData[i] * timeData[i];
+            }
+
+            const rms = Math.sqrt(sumSquares / timeData.length);
+            const dbRms = 20 * Math.log10(Math.max(0.0001, rms));
+
+            // Cél szint: -16 dBFS (Broadcast Standard). Automata erősítés állítás.
+            const targetDb = -16.0;
+            const diffDb = targetDb - dbRms;
+
+            if (autoGainNode && audioCtx) {
+                let targetGain = Math.pow(10, diffDb / 20);
+                // Korlátok: legfeljebb +7 dB emelés halk daloknál, és -9 dB csillapítás hangos daloknál
+                targetGain = Math.min(2.2, Math.max(0.35, targetGain));
+
+                const rampTime = (diffDb < 0) ? 0.08 : 0.40; // Gyors lenyomás, finom emelés
+                autoGainNode.gain.setTargetAtTime(targetGain, audioCtx.currentTime, rampTime);
+            }
+
+            // Élő VU Meter skálázás és Limiter LED
+            const vuPct = Math.min(100, Math.round(peak * 115));
+            if (vuLedFill) vuLedFill.style.width = `${vuPct}%`;
+            if (limiterDot) {
+                if (peak >= 0.94) limiterDot.classList.add('lit');
+                else limiterDot.classList.remove('lit');
+            }
+        }, 50);
     }
 
     function buildClockFaceTicks() {
@@ -1046,7 +1186,7 @@
         lowerThirdBanner.classList.add('comb-out');
     }
 
-    /* ⏱️ VALÓS IDŐS MOTOR: TRACK GRAPHICS & CHAIN ENGINE */
+    /* ⏱️ VALÓS IDŐS MOTOR: HÁRMAS BIZTONSÁGI ZÁRRAL */
     function attachDeckTimeMonitor(deckElement) {
         deckElement.ontimeupdate = () => {
             if (!isTvBroadcasting || isHourlyNewsRunning || colorbarLayer?.classList.contains('active')) return;
@@ -1060,12 +1200,12 @@
             if (!curClip || curClip.isNews) return;
 
             const curTime = deckElement.currentTime || 0;
-            const duration = (deckElement.duration && !isNaN(deckElement.duration) && deckElement.duration > 0)
-                ? deckElement.duration
-                : (curClip.duration || 210);
+            const hasValidDuration = (deckElement.duration && !isNaN(deckElement.duration) && deckElement.duration > 30.0 && deckElement.readyState >= 2);
+            const duration = hasValidDuration ? deckElement.duration : (curClip.duration || 210);
 
             const remaining = duration - curTime;
 
+            // 1. KEZDÉS: +5. másodpercnél megjelenik, 8 mp-ig marad
             if (curTime >= 5.0 && curTime < 13.0 && !introTriggeredForTrack) {
                 introTriggeredForTrack = true;
                 setLowerThirdData("MOST:", curClip.title, false, null);
@@ -1078,7 +1218,8 @@
                 }, 8000);
             }
 
-            if (remaining <= 22.0 && remaining > 0 && outroStep === 0) {
+            // 2. BEFEJEZÉS BIZTONSÁGI ZÁR: Csak akkor indulhat el ha a dalból már legalább 20 mp eltelt és érvényes a hossz
+            if (curTime >= 20.0 && remaining <= 22.0 && remaining > 0 && outroStep === 0 && hasValidDuration) {
                 startOutroTrackSequence(schedule, curClip, playbackSessionId);
             }
         };
@@ -1149,13 +1290,17 @@
 
         resetTrackGraphicsState();
 
-        const nextIdx = (currentClipIndex + 1) % schedule.length;
-        currentClipIndex = nextIdx;
-        let newClip = schedule[nextIdx];
-
         const currentDeck = (activeDeckName === 'A') ? deckA : deckB;
         const nextDeck = (activeDeckName === 'A') ? deckB : deckA;
         const nextDeckName = (activeDeckName === 'A') ? 'B' : 'A';
+
+        // Leköszönő deck eseménymentesítése
+        currentDeck.ontimeupdate = null;
+        currentDeck.onended = null;
+
+        const nextIdx = (currentClipIndex + 1) % schedule.length;
+        currentClipIndex = nextIdx;
+        let newClip = schedule[nextIdx];
 
         hideColorBarScreen();
         triggerBroadcastStinger(newClip.title);
@@ -1166,6 +1311,8 @@
         nextDeck.muted = false;
         nextDeck.volume = 0.0;
         try { await nextDeck.play(); } catch(e){}
+
+        attachDeckTimeMonitor(nextDeck);
 
         nextDeck.style.opacity = '1';
         nextDeck.classList.add('active');
@@ -1305,7 +1452,6 @@
         if (!isHourlyNewsRunning) return;
         newsPhaseIndex++;
 
-        // Ha az összes hír lement, jön az Időjárás Zárókártya (25 mp)
         if (newsPhaseIndex >= activeNewsStoriesList.length) {
             launchNewsWeatherView();
             return;
@@ -1327,7 +1473,6 @@
             magNewsBodyGrid.classList.add('comb-in');
         }
 
-        // Kifésülés a dia vége előtt 1 másodperccel
         setTimeout(() => {
             if (magNewsBodyGrid && isHourlyNewsRunning) {
                 magNewsBodyGrid.classList.remove('comb-in');
@@ -1516,6 +1661,8 @@
                 activeDeck.style.opacity = '1';
                 activeDeck.classList.add('active');
 
+                attachDeckTimeMonitor(activeDeck);
+
                 if (activeDeck.src !== videoSrc) {
                     activeDeck.src = videoSrc;
                     activeDeck.onloadedmetadata = () => { startPlay(); activeDeck.onloadedmetadata = null; };
@@ -1684,7 +1831,7 @@
         log("☁️ Beállítások mentve az R2 Felhőbe!", 'success');
     }
 
-    /* 🎲 24 ÓRÁS RANDOM SHUFFLE (ANTI-REPEAT SPACING) */
+    /* 🎲 24 ÓRÁS RANDOM SHUFFLE */
     function autoGenerateDaySchedule(dayOffset, force = false) {
         const dateKey = getSelectedDateKey(dayOffset);
         if (!force && weekSchedules[dateKey] && weekSchedules[dateKey].length > 0) {
@@ -2031,26 +2178,6 @@
         return d.toISOString().split('T')[0];
     }
 
-    function setupAudioNodes() {
-        try {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                masterGainNode = audioCtx.createGain();
-                masterGainNode.gain.setValueAtTime(masterVolume, audioCtx.currentTime);
-                masterGainNode.connect(audioCtx.destination);
-            }
-            if (deckA && deckB && newsBgVideo && audioCtx && !sourceA && !sourceB) {
-                sourceA = audioCtx.createMediaElementSource(deckA);
-                sourceB = audioCtx.createMediaElementSource(deckB);
-                sourceNews = audioCtx.createMediaElementSource(newsBgVideo);
-                sourceA.connect(masterGainNode);
-                sourceB.connect(masterGainNode);
-                sourceNews.connect(masterGainNode);
-            }
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-        } catch(e){}
-    }
-
     function setTvVolume(val) {
         masterVolume = parseFloat(val);
         if (masterGainNode && audioCtx) masterGainNode.gain.setValueAtTime(masterVolume, audioCtx.currentTime);
@@ -2072,7 +2199,6 @@
         }
     }
 
-    // 🖥️ FULLSCREEN ESEMÉNYFIGYELŐ
     function handleFullscreenChangeEvent() {
         setTimeout(() => {
             updatePositionsUI();
