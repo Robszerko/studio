@@ -194,7 +194,7 @@
     }
     .tv-external-deck.active { opacity: 1; z-index: 3; }
 
-    /* 🛡️ HÍRHÁTTÉR: KÖTELEZŐ CORS BEÁLLÍTÁSSAL */
+    /* 🛡️ HÍRHÁTTÉR */
     .tv-news-bg-video {
         position: absolute; top: 0; left: 0; width: 100%; height: 100%;
         object-fit: cover; background: #05070e; z-index: 4; opacity: 0;
@@ -410,7 +410,7 @@
         transform: translateZ(100px); -webkit-transform: translateZ(100px);
     }
 
-    /* 🍒 FORRADALMI: LOGÓBA INTEGRÁLT BROADCAST ZENEKÁRTYA */
+    /* 🍒 LOGÓBA INTEGRÁLT BROADCAST ZENEKÁRTYA */
     .tv-watermark-anchor {
         position: absolute;
         top: var(--logo-top-val, 2.5cqw);
@@ -904,13 +904,13 @@
     <div class="library-panel">
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <div style="font-family:'Outfit',sans-serif; font-size:0.9rem; font-weight:800; color:var(--accent-green);">
-                📂 R2 VIDEÓKLIP TÁR (<span id="library-count">0</span> db Zenei Videó)
+                📂 R2 & HUGGING FACE VIDEÓKLIP TÁR (<span id="library-count">0</span> db Zenei Videó)
             </div>
-            <button class="btn-act" onclick="loadR2Library()">🔄 Frissítés</button>
+            <button class="btn-act" onclick="loadR2Library(true)">🔄 Frissítés (Új tárolók beolvasása)</button>
         </div>
         <div style="max-height:220px; overflow-y:auto;">
             <table class="rundown-table">
-                <thead><tr><th>CÍM (KATTINTS AZ ÁTÍRÁSHOZ)</th><th>TÍPUS</th><th>MŰVELET</th></tr></thead>
+                <thead><tr><th>CÍM (KATTINTS AZ ÁTÍRÁSHOZ)</th><th>FORRÁS</th><th>MŰVELET</th></tr></thead>
                 <tbody id="library-tbody"></tbody>
             </table>
         </div>
@@ -1117,7 +1117,7 @@
     const STORAGE_KEY_EXT_LIB = "cherry1_broadcast_ext_lib_v10";
 
     let r2Library = [];
-    let externalLibrary = []; // 📂 Mentett külső koncertek és streamek listája
+    let externalLibrary = [];
     let trackMetadataMap = {};
     let weekSchedules = {};
     let selectedDayIndex = 0;
@@ -1804,7 +1804,6 @@
         isVideoTransitioning = true;
         transitionLock = true;
         playbackSessionId++;
-
         resetTrackGraphicsState();
 
         const currentDeck = getActiveVideoElement();
@@ -1815,7 +1814,6 @@
         currentClipIndex = nextIdx;
         let newClip = schedule[nextIdx];
 
-        // Ha az új szám külső koncert / stream, a dedikált deckre váltunk
         let nextDeck, nextDeckName;
         if (newClip.isSpecialLink) {
             nextDeck = deckExt;
@@ -1913,7 +1911,6 @@
         // 1. Átkapcsolás a beállított koncertre pontos másodpercben
         const scheduledLinkNowIdx = schedule.findIndex(it => it.isSpecialLink && curSec >= it.startSec && curSec < it.endSec);
         if (scheduledLinkNowIdx !== -1 && currentClipIndex !== scheduledLinkNowIdx) {
-            // 3 másodperccel előtte lehalkítás
             if (curSec === schedule[scheduledLinkNowIdx].startSec - 3 && !isSwitchFading) {
                 isSwitchFading = true;
                 let v = activeDeck.volume;
@@ -2411,7 +2408,6 @@
         const schedule = weekSchedules[todayKey] || [];
         const curClip = schedule[currentClipIndex];
 
-        // 🔍 MEGNÉZZÜK, VAN-E KÖVETKEZŐ KONCERT A KÖZELBEN (10 percen belül)
         const upcomingConcert = schedule.find(it => it.isSpecialLink && it.startSec > curSec && (it.startSec - curSec) <= 600);
 
         let isNewsDue = false;
@@ -2893,7 +2889,6 @@
             return;
         }
 
-        // Automatikusan elmentjük a külső könyvtárba is, hogy megmaradjon a jövőre
         saveToExternalLibraryOnly();
 
         const dateKey = getSelectedDateKey(dayOffset);
@@ -3147,8 +3142,8 @@
                 ? `📰 <strong>${item.title}</strong>` 
                 : (item.isSpecialLink ? `🌟 <strong>${item.title}</strong>` : (parsed.title ? `🎬 <strong>${parsed.artist}</strong> – ${parsed.title}` : `🎬 <strong>${parsed.artist}</strong>`));
 
-            const typeLabel = item.isNews ? '📰 HÍRADÓ' : (item.isSpecialLink ? (item.isLiveStream ? '🔴 ÉLŐ STREAM' : '🌟 KONCERT') : '🎬 R2 MP4');
-            const typeColor = item.isNews ? '#38bdf8' : (item.isSpecialLink ? '#f59e0b' : 'var(--cherry-red)');
+            const typeLabel = item.isNews ? '📰 HÍRADÓ' : (item.isSpecialLink ? (item.isLiveStream ? '🔴 ÉLŐ STREAM' : '🌟 KONCERT') : (item.source === 'huggingface' ? '🤗 HF MP4' : '🎬 R2 MP4'));
+            const typeColor = item.isNews ? '#38bdf8' : (item.isSpecialLink ? '#f59e0b' : (item.source === 'huggingface' ? '#a855f7' : 'var(--cherry-red)'));
 
             return `
                 <tr id="${isCurrentOnAir ? 'rundown-active-item' : ''}" class="${isCurrentOnAir ? 'rundown-row-active' : ''}">
@@ -3227,12 +3222,13 @@
         renderRundownTable();
     }
 
-    /* 📂 R2 TÁR & CÍMSZERKESZTÉS */
-    async function loadR2Library() {
+    /* 📂 R2 & HUGGING FACE TÁR BETÖLTÉSE */
+    async function loadR2Library(forceRefresh = false) {
         const meta = await safeFetchJson(`${WORKER_URL}/api/radio/metadata?_t=${Date.now()}`);
         if (meta && typeof meta === 'object') trackMetadataMap = meta;
 
-        const list = await safeFetchJson(`${WORKER_URL}/api/radio/list?_t=${Date.now()}`);
+        const refreshParam = forceRefresh ? '&refresh=1' : '';
+        const list = await safeFetchJson(`${WORKER_URL}/api/radio/list?_t=${Date.now()}${refreshParam}`);
         if (list && Array.isArray(list) && list.length > 0) {
             r2Library = list.filter(it => !/(news|hirado|background|loop|bg)/i.test(it.filename || it.title))
                             .map(item => {
@@ -3245,7 +3241,7 @@
                                 };
                             });
 
-            log(`📂 [R2 TÁR] ${r2Library.length} db zenei videóklip betöltve!`, 'success');
+            log(`📂 [MŰSORTÁR] ${r2Library.length} db zenei videóklip sikeresen betöltve (R2 + Hugging Face)!`, 'success');
             for (const item of r2Library) {
                 readActualVideoDuration(item.url, item.filename).then(dur => { item.duration = dur; });
             }
@@ -3262,12 +3258,16 @@
 
         tbody.innerHTML = r2Library.map(item => {
             const parsed = parseArtistAndTitle(item.title);
+            const sourceBadge = (item.source === 'huggingface') 
+                ? `<span style="color:#a855f7; font-size:0.7rem; font-weight:800;">🤗 HF (${item.repo || 'Dataset'})</span>` 
+                : `<span style="color:#22c55e; font-size:0.7rem; font-weight:800;">● R2 MP4</span>`;
+
             return `
                 <tr>
                     <td style="cursor:pointer;" onclick="editLibraryTrackTitle('${item.filename}')" title="Kattints az átíráshoz">
                         🎬 <strong>${parsed.artist}</strong> ${parsed.title ? `– ${parsed.title}` : ''} <span style="font-size:0.7rem; color:var(--cherry-red);">✏️</span>
                     </td>
-                    <td><span style="color:#22c55e; font-size:0.7rem;">● R2 MP4</span></td>
+                    <td>${sourceBadge}</td>
                     <td><button class="btn-act" onclick="playImmediateVideo('${item.filename}')">▶ Lejátszás</button></td>
                 </tr>
             `;
@@ -3563,7 +3563,7 @@
         } catch(e){}
 
         await loadR2Library();
-        await loadExternalLibrary(); // 📂 Mentett külső koncertek betöltése
+        await loadExternalLibrary();
 
         const cloud = await safeFetchJson(`${WORKER_URL}/api/radio/settings?_t=${Date.now()}`);
         if (cloud) applyLoadedBroadcastSettings(cloud);
