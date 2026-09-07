@@ -185,7 +185,7 @@
     .tv-video-deck.aspect-mode-zoom { object-fit: cover !important; }
     .tv-video-deck.aspect-mode-contain { object-fit: contain !important; }
 
-    /* 🛡️ DEDIKÁLT KÜLSŐ MŰSOR DECK (CORS-MENTES NATÍV HANGGAL) */
+    /* 🛡️ DEDIKÁLT KÜLSŐ MŰSOR DECK */
     .tv-external-deck {
         position: absolute; top: 0; left: 0; width: 100%; height: 100%;
         object-fit: contain; background: transparent; z-index: 2; opacity: 0;
@@ -194,7 +194,7 @@
     }
     .tv-external-deck.active { opacity: 1; z-index: 3; }
 
-    /* 🛡️ HÍRHÁTTÉR: KÖTELEZŐ CORS BEÁLLÍTÁSSAL */
+    /* 🛡️ HÍRHÁTTÉR */
     .tv-news-bg-video {
         position: absolute; top: 0; left: 0; width: 100%; height: 100%;
         object-fit: cover; background: #05070e; z-index: 4; opacity: 0;
@@ -255,7 +255,7 @@
     .clock-title-text { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: clamp(0.9rem, 1.3cqw, 1.2rem); color: #fff; }
     .clock-sub-text { font-family: 'JetBrains Mono', monospace; font-size: clamp(0.65rem, 0.9cqw, 0.82rem); font-weight: 800; color: var(--accent-cyan); }
 
-    /* 📰 TELJES KÉPERNYŐS HÍRMAGAZIN */
+    /* 📰 TELJES HÍRMAGAZIN */
     .tv-hourly-news-magazine {
         position: absolute; top: 0; left: 0; width: 100%; height: 100%;
         z-index: 99985; background: transparent !important; display: none;
@@ -325,7 +325,7 @@
     }
     .tv-epg-guide-banner.comb-in { display: flex; animation: epgSlideInUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     .tv-epg-guide-banner.comb-out { display: flex; animation: epgSlideOutDown 0.65s cubic-bezier(0.7, 0, 0.84, 0) forwards; }
-    @keyframes epgSlideInUp { 0% { transform: translate3d(0, 35px, 0); opacity: 0; } 100% { transform: translate3d(0, 0, 0); opacity: 1; } }
+    @keyframes epgSlideInUp { 0% { transform: translate3d(0, 35px, 0); opacity: 0; } 100% { transform: translate3d(0, 0, 0); } }
     @keyframes epgSlideOutDown { 0% { transform: translate3d(0, 0, 0); opacity: 1; } 100% { transform: translate3d(0, 35px, 0); opacity: 0; } }
 
     .epg-top-bar { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 0.6cqw; }
@@ -363,7 +363,7 @@
     }
     .tv-bottom-news-crawler.comb-in { display: flex; animation: crawlerSlideUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     .tv-bottom-news-crawler.comb-out { display: flex; animation: crawlerSlideDown 0.65s cubic-bezier(0.7, 0, 0.84, 0) forwards; }
-    @keyframes crawlerSlideUp { 0% { transform: translate3d(0, 30px, 0); opacity: 0; } 100% { transform: translate3d(0, 0, 0); opacity: 1; } }
+    @keyframes crawlerSlideUp { 0% { transform: translate3d(0, 30px, 0); opacity: 0; } 100% { transform: translate3d(0, 0, 0); } }
     @keyframes crawlerSlideDown { 0% { transform: translate3d(0, 0, 0); opacity: 1; } 100% { transform: translate3d(0, 30px, 0); opacity: 0; } }
 
     .bnc-logo-box {
@@ -410,14 +410,13 @@
         transform: translateZ(100px); -webkit-transform: translateZ(100px);
     }
 
-    /* 🍒 FORRADALMI: RÖGZÍTETT LOGÓ & BALRA TERJESZKEDŐ ZENEKÁRTYA */
+    /* 🍒 RÖGZÍTETT LOGÓ & BALRA TERJESZKEDŐ ZENEKÁRTYA */
     .tv-watermark-anchor {
         position: absolute;
         top: var(--logo-top-val, 2.5cqw);
         right: var(--logo-side-val, 2.8cqw);
         display: flex;
         align-items: center;
-        gap: 0;
         user-select: none;
         pointer-events: none;
         transform-origin: top right;
@@ -431,18 +430,16 @@
         right: auto;
         left: var(--logo-side-val, 2.8cqw);
         transform-origin: top left;
-        flex-direction: row;
-    }
-    .tv-watermark-anchor.pos-top-right {
-        left: auto;
-        right: var(--logo-side-val, 2.8cqw);
-        transform-origin: top right;
-        flex-direction: row-reverse; /* A kártya a logótól balra helyezkedik el */
     }
 
-    /* LOGÓ OSZLOP (NEM MOZDUL EL!) */
+    /* LOGÓ OSZLOP (MOZDULATLAN A SAROKBAN) */
     .wm-logo-col {
-        display: flex; flex-direction: column; align-items: center; flex-shrink: 0; position: relative; z-index: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 2;
     }
     .c1-master-logo-svg {
         width: 4.2cqw; min-width: 34px; max-width: 65px; height: auto; aspect-ratio: 70/100;
@@ -463,42 +460,70 @@
     .wm-logo-col.is-live .wm-sub-music-badge { display: none !important; }
     .wm-logo-col.is-live .wm-sub-live-badge { display: inline-block !important; }
 
-    /* 🎴 BALRA KITERJEDŐ, FÉSÜLŐS ANIMÁCIÓS ZENEI KAPSZULA */
+    /* 🎴 BALRA KITERJEDŐ, FÉSÜLŐS ANIMÁCIÓS ZENEI KAPSZULA (ABSZOLÚT RÖGZÍTVE A LOGÓHOZ) */
     .wm-track-card-capsule {
+        position: absolute;
+        top: 50%;
         display: flex;
         align-items: center;
         opacity: 0;
         pointer-events: none;
-        margin-right: 0.8cqw; /* Pont a logó bal széléig ér a csík */
+        white-space: nowrap;
         overflow: hidden;
-    }
-    .pos-top-left .wm-track-card-capsule {
-        margin-right: 0;
-        margin-left: 0.8cqw;
+        z-index: 1;
     }
 
-    .wm-track-card-capsule.open {
+    /* Ha jobb felső a logó: a kapszula a LOGÓTÓL BALRA helyezkedik el és balra nyúlik */
+    .pos-top-right .wm-track-card-capsule {
+        right: calc(100% + 0.8cqw);
+        left: auto;
+    }
+    /* Ha bal felső a logó: a kapszula a LOGÓTÓL JOBBRA helyezkedik el és jobbra nyúlik */
+    .pos-top-left .wm-track-card-capsule {
+        left: calc(100% + 0.8cqw);
+        right: auto;
+    }
+
+    .pos-top-right .wm-track-card-capsule.open {
         opacity: 1;
         pointer-events: auto;
-        animation: combShutterInRight 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        animation: combShutterLeftwards 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
-    .wm-track-card-capsule.closing {
-        animation: combShutterOutRight 0.65s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+    .pos-top-right .wm-track-card-capsule.closing {
+        animation: combShutterLeftwardsOut 0.65s cubic-bezier(0.7, 0, 0.84, 0) forwards;
     }
 
-    @keyframes combShutterInRight {
-        0% { clip-path: polygon(100% 0%, 100% 0%, 100% 100%, 100% 100%); opacity: 0; transform: translate3d(20px, 0, 0); }
-        100% { clip-path: polygon(-5% 0%, 105% 0%, 105% 100%, -5% 100%); opacity: 1; transform: translate3d(0, 0, 0); }
+    .pos-top-left .wm-track-card-capsule.open {
+        opacity: 1;
+        pointer-events: auto;
+        animation: combShutterRightwards 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
-    @keyframes combShutterOutRight {
-        0% { clip-path: polygon(-5% 0%, 105% 0%, 105% 100%, -5% 100%); opacity: 1; transform: translate3d(0, 0, 0); }
-        100% { clip-path: polygon(100% 0%, 100% 0%, 100% 100%, 100% 100%); opacity: 0; transform: translate3d(20px, 0, 0); }
+    .pos-top-left .wm-track-card-capsule.closing {
+        animation: combShutterRightwardsOut 0.65s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+    }
+
+    @keyframes combShutterLeftwards {
+        0% { clip-path: polygon(105% -10%, 105% -10%, 105% 110%, 105% 110%); opacity: 0; transform: translate3d(20px, -50%, 0); }
+        100% { clip-path: polygon(-10% -10%, 105% -10%, 105% 110%, -10% 110%); opacity: 1; transform: translate3d(0, -50%, 0); }
+    }
+    @keyframes combShutterLeftwardsOut {
+        0% { clip-path: polygon(-10% -10%, 105% -10%, 105% 110%, -10% 110%); opacity: 1; transform: translate3d(0, -50%, 0); }
+        100% { clip-path: polygon(105% -10%, 105% -10%, 105% 110%, 105% 110%); opacity: 0; transform: translate3d(20px, -50%, 0); }
+    }
+
+    @keyframes combShutterRightwards {
+        0% { clip-path: polygon(-5% -10%, -5% -10%, -5% 110%, -5% 110%); opacity: 0; transform: translate3d(-20px, -50%, 0); }
+        100% { clip-path: polygon(-5% -10%, 110% -10%, 110% 110%, -5% 110%); opacity: 1; transform: translate3d(0, -50%, 0); }
+    }
+    @keyframes combShutterRightwardsOut {
+        0% { clip-path: polygon(-5% -10%, 110% -10%, 110% 110%, -5% 110%); opacity: 1; transform: translate3d(0, -50%, 0); }
+        100% { clip-path: polygon(-5% -10%, -5% -10%, -5% 110%, -5% 110%); opacity: 0; transform: translate3d(-20px, -50%, 0); }
     }
 
     .wm-tc-inner-box {
         display: flex;
         flex-direction: column;
-        align-items: flex-end; /* Jobbra zárt a logóhoz */
+        align-items: flex-end;
         text-align: right;
         gap: 0.2cqw;
         background: linear-gradient(270deg, rgba(14, 18, 34, 0.96) 0%, rgba(26, 12, 28, 0.92) 100%);
@@ -549,11 +574,15 @@
     }
 
     .wm-brand-expand-badge {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
         display: flex; align-items: center; overflow: hidden; max-width: 0; opacity: 0;
         background: rgba(10, 14, 26, 0.88); border: 1px solid var(--cherry-red); border-radius: 0.6cqw;
         padding: 0; white-space: nowrap; transition: max-width 0.6s cubic-bezier(0.16,1,0.3,1), opacity 0.5s ease, padding 0.5s ease;
-        margin-right: 0.6cqw;
     }
+    .pos-top-right .wm-brand-expand-badge { right: calc(100% + 0.8cqw); left: auto; }
+    .pos-top-left .wm-brand-expand-badge { left: calc(100% + 0.8cqw); right: auto; }
     .wm-brand-expand-badge.open { max-width: 25cqw; opacity: 1; padding: 0.4cqw 1.0cqw; }
     .wm-expand-text-flip { font-size: clamp(0.75rem, 1.1cqw, 1.2rem); font-weight: 800; color: #ffffff; }
 
@@ -685,7 +714,7 @@
         <video id="tv-video-deck-a" class="tv-video-deck active aspect-mode-contain" playsinline preload="auto" crossorigin="anonymous"></video>
         <video id="tv-video-deck-b" class="tv-video-deck aspect-mode-contain" playsinline preload="auto" crossorigin="anonymous"></video>
         
-        <!-- 🛡️ DEDIKÁLT KÜLSŐ MŰSOR DECK (CORS-MENTES NATÍV HANGCSATORNA) -->
+        <!-- 🛡️ DEDIKÁLT KÜLSŐ MŰSOR / ÉLŐ DECK (CORS-MENTES NATÍV HANGCSATORNÁVAL!) -->
         <video id="tv-external-deck" class="tv-external-deck aspect-mode-contain" playsinline preload="auto"></video>
 
         <!-- 🛡️ HÍRHÁTTÉR -->
@@ -817,10 +846,10 @@
 
         <!-- 🛡️ FÜGGETLEN MESTER OSD RÉTEG -->
         <div class="tv-master-osd-layer" id="tv-master-osd-layer">
-            <!-- 🍒 RÖGZÍTETT LOGÓ & BALRA TERJESZKEDŐ FÉSÜLŐS ZENEKÁRTYA -->
+            <!-- 🍒 RÖGZÍTETT LOGÓ & BALRA KITERJEDŐ FÉSÜLŐS ZENEKÁRTYA -->
             <div class="tv-watermark-anchor pos-top-right" id="tv-watermark-anchor">
                 
-                <!-- 🎴 A LOGÓBÓL BALRA KIBOMLÓ, FÉSÜLŐS ZENEI KAPSZULA -->
+                <!-- 🎴 LOGÓBÓL BALRA KIBOMLÓ, FÉSÜLŐS ZENEI KAPSZULA -->
                 <div class="wm-track-card-capsule" id="wm-track-card-capsule">
                     <div class="wm-tc-inner-box">
                         <div class="wm-tc-top-row">
@@ -838,7 +867,7 @@
                     <span class="wm-expand-text-flip" id="wm-expand-text-flip">Cherry1 Music</span>
                 </div>
 
-                <!-- 🍒 FŐ LOGÓ OSZLOP (NEM MOZDUL EL!) -->
+                <!-- 🍒 FŐ LOGÓ OSZLOP (0 MOZDULÁS!) -->
                 <div class="wm-logo-col" id="wm-main-logo-box">
                     <svg class="c1-master-logo-svg" viewBox="0 0 70 100">
                         <rect x="3" y="3" width="64" height="94" rx="14" fill="none" stroke="rgba(255,255,255,0.95)" stroke-width="4.5"/>
@@ -1062,7 +1091,7 @@
         <button class="btn-act" onclick="togglePositionModal()">✖</button>
     </div>
 
-    <!-- 🌸 1. 4:3 KÉPARÁNY KEZELÉS (DELUXE BLUR / ZOOM / ORIGINAL) -->
+    <!-- 🌸 1. 4:3 KÉPARÁNY KEZELÉS -->
     <div style="background:rgba(255, 17, 85, 0.12); border:1.5px solid var(--cherry-red); padding:10px; border-radius:10px; display:flex; flex-direction:column; gap:6px;">
         <span style="font-size:0.75rem; font-weight:800; color:var(--cherry-red);">🌸 4:3 KÉPARÁNY AUTOMATIKUS KEZELÉSE:</span>
         <select id="sel-aspect-mode" style="background:#090d16; color:#fff; border:1px solid var(--border); border-radius:6px; padding:6px; font-family:'Outfit',sans-serif; font-size:0.78rem;" onchange="applyAspectRatioSettings(this.value)">
@@ -1258,7 +1287,7 @@
     const stingerSubText = document.getElementById('stinger-sub-text');
     const tvScreenContainer = document.getElementById('tv-screen-container');
 
-    // 🍒 Megújult Logó & Zenekártya elemek
+    // 🍒 Logó & Zenekártya elemek
     const watermarkAnchor = document.getElementById('tv-watermark-anchor');
     const wmMainLogoBox = document.getElementById('wm-main-logo-box');
     const wmBrandExpandBadge = document.getElementById('wm-brand-expand-badge');
@@ -1374,7 +1403,7 @@
         return `${WORKER_URL}/api/radio/stream?filename=${encodeURIComponent(filename)}`;
     }
 
-    /* 🔴 HLS.JS / MP4 BETÖLTŐ MOTOR: TÁMOGATJA A DEDIKÁLT KÜLSŐ DECKET IS */
+    /* 🔴 HLS.JS / MP4 BETÖLTŐ MOTOR */
     function playStreamOnDeck(deckElement, streamUrl, offset = 0) {
         const isHls = streamUrl.includes('.m3u8');
         const isDeckA = (deckElement === deckA);
@@ -1515,7 +1544,7 @@
         applyAspectRatioToDecks();
     }
 
-    /* 🎚️ BROADCAST DSP AUDIO MOTOR */
+    /* 🎚️ BROADCAST DSP AUDIO MOTOR (R2 DECKHEZ) */
     function setupAudioNodes() {
         if (isEcoLiteMode) return;
         try {
@@ -1731,7 +1760,7 @@
             const curClip = schedule[currentClipIndex];
             if (!curClip || curClip.isNews) return;
 
-            // 🛡️ ÉLŐ STREAM / KÜLSŐ MŰSOR ESETÉN A VIDEÓ HOSSZÁT NEM FIGYELJÜK (NINCS VISSZAPATTANÁS!)
+            // 🛡️ ÉLŐ STREAM / KÜLSŐ MŰSOR ESETÉN A VIDEÓ BELSŐ HOSSZÁT NEM FIGYELJÜK (NINCS VISSZAPATTANÁS!)
             if (curClip.isSpecialLink || curClip.isLiveStream) {
                 return;
             }
@@ -1844,7 +1873,7 @@
         closeLogoTrackCard();
     }
 
-    /* 🎬 KÉPKOCKA-VEZÉRELT CROSSFADE */
+    /* 🎬 KÉPKOCKA-VEZÉRELT CROSSFADE (R2 ÉS DEDIKÁLT KÜLSŐ DECK KÖZÖTT IS) */
     async function executeVideoCrossfade() {
         const todayKey = getSelectedDateKey(0);
         const schedule = weekSchedules[todayKey] || [];
@@ -1863,6 +1892,7 @@
         currentClipIndex = nextIdx;
         let newClip = schedule[nextIdx];
 
+        // Ha az új szám külső koncert / stream, a dedikált deckre váltunk
         let nextDeck, nextDeckName;
         if (newClip.isSpecialLink) {
             nextDeck = deckExt;
@@ -1905,6 +1935,7 @@
             attachDeckTimeMonitor(nextDeck);
             detectVideoAspectRatio(nextDeck);
 
+            // Megjelenítjük az új decket és elrejtjük a régit
             nextDeck.classList.add('active');
             if (currentDeck !== nextDeck) currentDeck.classList.remove('active');
 
@@ -2530,7 +2561,6 @@
         updateAgeRatingBadgeUI();
         evaluateAgeRatingVisibility();
 
-        // 🔴 DINAMIKUS ÉLŐ FELIRAT A LOGÓ ALATT (MUSIC HELYETT)
         if (wmMainLogoBox) {
             wmMainLogoBox.classList.toggle('is-live', Boolean(clip.isLiveStream));
         }
