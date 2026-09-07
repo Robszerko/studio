@@ -351,7 +351,7 @@
     .epg-countdown-bar-fill.running { animation: epgBarDrain 13s linear forwards; }
     @keyframes epgBarDrain { 0% { transform: scaleX(1); } 100% { transform: scaleX(0); } }
 
-    /* 📰 MEGÚJULT TELEVÍZIÓS ALSÓ HÍRSÁV */
+    /* 📰 ALSÓ HÍRSÁV */
     .tv-bottom-news-crawler {
         position: absolute; bottom: 2.2cqw; left: 2.5cqw; right: 2.5cqw; z-index: 9996;
         background: linear-gradient(90deg, rgba(8, 12, 24, 0.98) 0%, rgba(18, 22, 40, 0.95) 100%);
@@ -410,14 +410,13 @@
         transform: translateZ(100px); -webkit-transform: translateZ(100px);
     }
 
-    /* 🍒 RÖGZÍTETT LOGÓ & BALRA TERJESZKEDŐ ZENEKÁRTYA */
+    /* 🍒 RÖGZÍTETT LOGÓ ÉS BALRA TERJESZKEDŐ ZENEKÁRTYA CONTAINER */
     .tv-watermark-anchor {
         position: absolute;
         top: var(--logo-top-val, 2.5cqw);
         right: var(--logo-side-val, 2.8cqw);
         display: flex;
         align-items: center;
-        gap: 0;
         user-select: none;
         pointer-events: none;
         transform-origin: top right;
@@ -431,58 +430,93 @@
         right: auto;
         left: var(--logo-side-val, 2.8cqw);
         transform-origin: top left;
-        flex-direction: row;
     }
 
-    /* LOGÓ OSZLOP (MOZDULATLAN A SAROKBAN) */
+    /* 🍒 FIXEN ÁLLÓ LOGÓ OSZLOP (A SAROKBAN MOZDULATLANUL ÜL) */
     .wm-logo-col {
-        display: flex; flex-direction: column; align-items: center; flex-shrink: 0; position: relative; z-index: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 10;
+        width: 4.6cqw;
+        min-width: 36px;
+        max-width: 70px;
     }
     .c1-master-logo-svg {
-        width: 4.2cqw; min-width: 34px; max-width: 65px; height: auto; aspect-ratio: 70/100;
-        filter: drop-shadow(0 2px 8px rgba(0,0,0,0.85));
+        width: 100%;
+        height: auto;
+        aspect-ratio: 70/100;
+        filter: drop-shadow(0 3px 10px rgba(0,0,0,0.9));
     }
     .wm-sub-music-badge {
-        font-family: 'JetBrains Mono', monospace; font-size: clamp(0.55rem, 0.75cqw, 0.85rem); font-weight: 900;
-        letter-spacing: 1.5px; color: #ffffff; margin-top: 0.2cqw; text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: clamp(0.55rem, 0.75cqw, 0.85rem);
+        font-weight: 900;
+        letter-spacing: 1.5px;
+        color: #ffffff;
+        margin-top: 0.25cqw;
+        text-shadow: 0 1px 4px rgba(0,0,0,0.95);
         display: block;
+        transition: opacity 0.2s ease;
     }
-    /* 🔴 STATIKUS ÉLŐ BADGE A MUSIC HELYÉN */
+
+    /* 🔴 DEDIKÁLT, PASSZOLÓ ÉLŐ BADGE A MUSIC SZÓ HELYÉN */
     .wm-sub-live-badge {
-        font-family: 'Outfit', sans-serif; font-size: clamp(0.52rem, 0.72cqw, 0.82rem); font-weight: 900;
-        letter-spacing: 1.2px; color: #ffffff; background: #ef4444; border: 1px solid rgba(255,255,255,0.4);
-        padding: 0.1cqw 0.6cqw; border-radius: 0.35cqw; margin-top: 0.2cqw; box-shadow: 0 2px 8px rgba(0,0,0,0.8);
-        display: none; text-transform: uppercase;
+        font-family: 'Outfit', 'Space Mono', sans-serif;
+        font-size: clamp(0.54rem, 0.72cqw, 0.82rem);
+        font-weight: 900;
+        letter-spacing: 1.2px;
+        color: #ffffff;
+        background: #ff1155;
+        border: 1.2px solid rgba(255, 255, 255, 0.75);
+        padding: 0.1cqw 0.7cqw;
+        border-radius: 0.35cqw;
+        margin-top: 0.25cqw;
+        box-shadow: 0 0 12px rgba(255, 17, 85, 0.85);
+        display: none;
+        text-transform: uppercase;
+        animation: pulseLiveBadge 1.4s ease-in-out infinite alternate;
     }
+    @keyframes pulseLiveBadge {
+        0% { box-shadow: 0 0 6px rgba(255,17,85,0.6); opacity: 0.9; }
+        100% { box-shadow: 0 0 16px rgba(255,17,85,1); opacity: 1.0; }
+    }
+
+    /* Ha élő az adás: a MUSIC szót levesszük, az ÉLŐ badge jelenik meg! */
     .wm-logo-col.is-live .wm-sub-music-badge { display: none !important; }
     .wm-logo-col.is-live .wm-sub-live-badge { display: inline-block !important; }
 
-    /* 🎴 BALRA KITERJEDŐ, FÉSÜLŐS ANIMÁCIÓS ZENEI KAPSZULA (PONT A LOGÓHOZ RÖGZÍTVE) */
+    /* 🎴 FINOM KIFÉSÜLŐS - BEFÉSÜLŐS ZENEI KAPSZULA (A LOGÓ ELŐTT, BALRA TERJESZKEDVE) */
     .wm-track-card-capsule {
         position: absolute;
         top: 50%;
+        transform: translateY(-50%);
         display: flex;
         align-items: center;
         opacity: 0;
         pointer-events: none;
         white-space: nowrap;
-        overflow: hidden;
-        z-index: 1;
+        z-index: 5;
     }
 
+    /* Jobb felső sarokban a kártya a logótól BALRA fekszik és balra terjed */
     .pos-top-right .wm-track-card-capsule {
         right: calc(100% + 0.8cqw);
         left: auto;
     }
+    /* Bal felső sarokban pedig a logótól JOBBRA terjed */
     .pos-top-left .wm-track-card-capsule {
         left: calc(100% + 0.8cqw);
         right: auto;
     }
 
+    /* 🌸 LÁGY, FINOM TELEVÍZIÓS FÉSÜLŐS ANIMÁCIÓK */
     .pos-top-right .wm-track-card-capsule.open {
         opacity: 1;
         pointer-events: auto;
-        animation: combShutterLeftwards 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        animation: combShutterLeftwardsIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     .pos-top-right .wm-track-card-capsule.closing {
         animation: combShutterLeftwardsOut 0.65s cubic-bezier(0.7, 0, 0.84, 0) forwards;
@@ -491,28 +525,63 @@
     .pos-top-left .wm-track-card-capsule.open {
         opacity: 1;
         pointer-events: auto;
-        animation: combShutterRightwards 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        animation: combShutterRightwardsIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     .pos-top-left .wm-track-card-capsule.closing {
         animation: combShutterRightwardsOut 0.65s cubic-bezier(0.7, 0, 0.84, 0) forwards;
     }
 
-    @keyframes combShutterLeftwards {
-        0% { clip-path: polygon(105% -10%, 105% -10%, 105% 110%, 105% 110%); opacity: 0; transform: translate3d(20px, -50%, 0); }
-        100% { clip-path: polygon(-10% -10%, 105% -10%, 105% 110%, -10% 110%); opacity: 1; transform: translate3d(0, -50%, 0); }
+    @keyframes combShutterLeftwardsIn {
+        0% {
+            clip-path: polygon(100% -10%, 100% -10%, 100% 110%, 100% 110%);
+            opacity: 0;
+            transform: translate3d(24px, -50%, 0);
+        }
+        50% {
+            opacity: 0.9;
+        }
+        100% {
+            clip-path: polygon(-10% -10%, 105% -10%, 105% 110%, -10% 110%);
+            opacity: 1;
+            transform: translate3d(0, -50%, 0);
+        }
     }
     @keyframes combShutterLeftwardsOut {
-        0% { clip-path: polygon(-10% -10%, 105% -10%, 105% 110%, -10% 110%); opacity: 1; transform: translate3d(0, -50%, 0); }
-        100% { clip-path: polygon(105% -10%, 105% -10%, 105% 110%, 105% 110%); opacity: 0; transform: translate3d(20px, -50%, 0); }
+        0% {
+            clip-path: polygon(-10% -10%, 105% -10%, 105% 110%, -10% 110%);
+            opacity: 1;
+            transform: translate3d(0, -50%, 0);
+        }
+        100% {
+            clip-path: polygon(100% -10%, 100% -10%, 100% 110%, 100% 110%);
+            opacity: 0;
+            transform: translate3d(24px, -50%, 0);
+        }
     }
 
-    @keyframes combShutterRightwards {
-        0% { clip-path: polygon(-5% -10%, -5% -10%, -5% 110%, -5% 110%); opacity: 0; transform: translate3d(-20px, -50%, 0); }
-        100% { clip-path: polygon(-5% -10%, 110% -10%, 110% 110%, -5% 110%); opacity: 1; transform: translate3d(0, -50%, 0); }
+    @keyframes combShutterRightwardsIn {
+        0% {
+            clip-path: polygon(0 -10%, 0 -10%, 0 110%, 0 110%);
+            opacity: 0;
+            transform: translate3d(-24px, -50%, 0);
+        }
+        100% {
+            clip-path: polygon(-5% -10%, 110% -10%, 110% 110%, -5% 110%);
+            opacity: 1;
+            transform: translate3d(0, -50%, 0);
+        }
     }
     @keyframes combShutterRightwardsOut {
-        0% { clip-path: polygon(-5% -10%, 110% -10%, 110% 110%, -5% 110%); opacity: 1; transform: translate3d(0, -50%, 0); }
-        100% { clip-path: polygon(-5% -10%, -5% -10%, -5% 110%, -5% 110%); opacity: 0; transform: translate3d(-20px, -50%, 0); }
+        0% {
+            clip-path: polygon(-5% -10%, 110% -10%, 110% 110%, -5% 110%);
+            opacity: 1;
+            transform: translate3d(0, -50%, 0);
+        }
+        100% {
+            clip-path: polygon(0 -10%, 0 -10%, 0 110%, 0 110%);
+            opacity: 0;
+            transform: translate3d(-24px, -50%, 0);
+        }
     }
 
     .wm-tc-inner-box {
@@ -520,32 +589,34 @@
         flex-direction: column;
         align-items: flex-end;
         text-align: right;
-        gap: 0.2cqw;
-        background: linear-gradient(270deg, rgba(14, 18, 34, 0.96) 0%, rgba(26, 12, 28, 0.92) 100%);
+        gap: 0.25cqw;
+        background: linear-gradient(270deg, rgba(14, 18, 34, 0.98) 0%, rgba(26, 12, 28, 0.94) 100%);
         border: 0.16cqw solid rgba(255, 255, 255, 0.22);
-        border-top: 0.25cqw solid var(--theme-primary);
-        border-right: 0.35cqw solid var(--theme-primary);
+        border-top: 0.28cqw solid var(--theme-primary);
+        border-right: 0.38cqw solid var(--theme-primary);
         border-radius: 1.0cqw;
-        padding: 0.6cqw 1.2cqw;
-        box-shadow: 0 10px 35px rgba(0,0,0,0.95), 0 0 25px rgba(255,17,85,0.3);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        max-width: 52cqw;
+        padding: 0.65cqw 1.3cqw;
+        box-shadow: 0 12px 35px rgba(0,0,0,0.96), 0 0 25px rgba(255,17,85,0.3);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        max-width: 60cqw;
+        min-width: 18cqw;
+        box-sizing: border-box;
     }
     .pos-top-left .wm-tc-inner-box {
         align-items: flex-start;
         text-align: left;
         border-right: 0.16cqw solid rgba(255, 255, 255, 0.22);
-        border-left: 0.35cqw solid var(--theme-primary);
+        border-left: 0.38cqw solid var(--theme-primary);
     }
 
     .wm-tc-top-row {
-        display: inline-flex; align-items: center; gap: 0.5cqw;
+        display: inline-flex; align-items: center; gap: 0.6cqw;
     }
     .wm-tc-status-tag {
         font-family: 'JetBrains Mono', monospace; font-size: clamp(0.55rem, 0.72cqw, 0.85rem); font-weight: 900;
-        padding: 0.18cqw 0.65cqw; border-radius: 0.4cqw; background: var(--theme-primary); color: #ffffff;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.8); text-transform: uppercase;
+        padding: 0.18cqw 0.7cqw; border-radius: 0.4cqw; background: var(--theme-primary); color: #ffffff;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.8); text-transform: uppercase; letter-spacing: 0.5px;
     }
     .wm-tc-time-tag {
         font-family: 'JetBrains Mono', monospace; font-size: clamp(0.52rem, 0.70cqw, 0.82rem); font-weight: 800;
@@ -553,17 +624,17 @@
         border: 0.1cqw solid rgba(250, 204, 21, 0.5); display: none;
     }
     .wm-tc-flip-body {
-        display: flex; flex-direction: column; gap: 0.1cqw; width: 100%;
-        transition: transform 0.35s ease, opacity 0.35s ease;
+        display: flex; flex-direction: column; gap: 0.15cqw; width: 100%;
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
     }
-    .wm-tc-flip-body.flipping { transform: translateY(-5px); opacity: 0; }
+    .wm-tc-flip-body.flipping { transform: translateY(-8px); opacity: 0; }
     .wm-tc-artist {
-        font-family: 'Outfit', sans-serif; font-size: clamp(0.75rem, 1.05cqw, 1.30rem); font-weight: 900;
+        font-family: 'Outfit', sans-serif; font-size: clamp(0.78rem, 1.08cqw, 1.35rem); font-weight: 900;
         color: #ffffff; text-transform: uppercase; letter-spacing: 0.5px;
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .wm-tc-title {
-        font-family: 'Outfit', sans-serif; font-size: clamp(0.68rem, 0.92cqw, 1.15rem); font-weight: 700;
+        font-family: 'Outfit', sans-serif; font-size: clamp(0.70rem, 0.94cqw, 1.18rem); font-weight: 700;
         color: #e2e8f0; letter-spacing: -0.2px;
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
@@ -578,7 +649,7 @@
     }
     .pos-top-right .wm-brand-expand-badge { right: calc(100% + 0.8cqw); left: auto; }
     .pos-top-left .wm-brand-expand-badge { left: calc(100% + 0.8cqw); right: auto; }
-    .wm-brand-expand-badge.open { max-width: 25cqw; opacity: 1; padding: 0.4cqw 1.0cqw; }
+    .wm-brand-expand-badge.open { max-width: 28cqw; opacity: 1; padding: 0.4cqw 1.1cqw; }
     .wm-expand-text-flip { font-size: clamp(0.75rem, 1.1cqw, 1.2rem); font-weight: 800; color: #ffffff; }
 
     /* 🟡 PERZISZTENS KORHATÁRKARIKA */
@@ -620,7 +691,7 @@
     .btn-act.active-toggle { border-color: var(--cherry-red); color: var(--cherry-red); background: rgba(255,17,85,0.15); }
     .btn-del-sm {
         background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);
-        border-radius: 6px; padding: 2px 8px; cursor: pointer; font-weight: 800; font-size: 0.75rem;
+        border-radius: 6px; padding: 3px 8px; cursor: pointer; font-weight: 800; font-size: 0.75rem;
     }
 
     /* 🔊 DSP VU METER */
@@ -656,12 +727,12 @@
     }
     .position-floating-panel.active { display: flex; }
 
-    /* 🔗 KÜLSŐ KONCERT / LIVE LINK MODÁL */
+    /* 🔗 KÜLSŐ KONCERT / LIVE / M3U8 LINK MODÁL */
     .external-link-modal {
-        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 540px; max-width: calc(100vw - 32px);
-        background: rgba(12, 16, 30, 0.98); border: 2px solid var(--cherry-red); border-radius: 20px; padding: 20px;
-        display: none; flex-direction: column; gap: 12px; z-index: 999999; box-shadow: 0 20px 50px rgba(0,0,0,0.95);
-        backdrop-filter: blur(18px);
+        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 560px; max-width: calc(100vw - 32px);
+        background: rgba(12, 16, 30, 0.98); border: 2px solid var(--cherry-red); border-radius: 20px; padding: 22px;
+        display: none; flex-direction: column; gap: 14px; z-index: 999999; box-shadow: 0 20px 50px rgba(0,0,0,0.95);
+        backdrop-filter: blur(20px);
     }
     .external-link-modal.active { display: flex; }
 
@@ -841,10 +912,10 @@
 
         <!-- 🛡️ FÜGGETLEN MESTER OSD RÉTEG -->
         <div class="tv-master-osd-layer" id="tv-master-osd-layer">
-            <!-- 🍒 RÖGZÍTETT LOGÓ & BALRA TERJESZKEDŐ FÉSÜLŐS ZENEKÁRTYA -->
+            <!-- 🍒 RÖGZÍTETT LOGÓ & BALRA TERJESZKEDŐ FINOM FÉSÜLŐS ZENEKÁRTYA -->
             <div class="tv-watermark-anchor pos-top-right" id="tv-watermark-anchor">
                 
-                <!-- 🎴 A LOGÓBÓL BALRA KIBOMLÓ, FÉSÜLŐS ZENEI KAPSZULA -->
+                <!-- 🎴 A LOGÓ ELŐTT ELHELYEZKEDŐ, BALRA TERJESZKEDŐ ZENEI KAPSZULA -->
                 <div class="wm-track-card-capsule" id="wm-track-card-capsule">
                     <div class="wm-tc-inner-box">
                         <div class="wm-tc-top-row">
@@ -862,7 +933,7 @@
                     <span class="wm-expand-text-flip" id="wm-expand-text-flip">Cherry1 Music</span>
                 </div>
 
-                <!-- 🍒 FŐ LOGÓ OSZLOP (NEM MOZDUL EL!) -->
+                <!-- 🍒 FŐ LOGÓ OSZLOP (MOZDULATLANUL A SAROKBAN) -->
                 <div class="wm-logo-col" id="wm-main-logo-box">
                     <svg class="c1-master-logo-svg" viewBox="0 0 70 100">
                         <rect x="3" y="3" width="64" height="94" rx="14" fill="none" stroke="rgba(255,255,255,0.95)" stroke-width="4.5"/>
@@ -873,8 +944,9 @@
                         <circle cx="44" cy="38" r="11" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="2.5" stroke-dasharray="3,2"/>
                         <text x="35" y="85" font-family="'Outfit', sans-serif" font-size="34" font-weight="900" fill="#ffffff" text-anchor="middle">1</text>
                     </svg>
+                    <!-- Normál adásnál: MUSIC -->
                     <span class="wm-sub-music-badge" id="wm-sub-music-badge">MUSIC</span>
-                    <!-- 🔴 ÉLŐ ADÁSNÁL EZ JELENIK MEG A MUSIC HELYÉN -->
+                    <!-- 🔴 ÉLŐ ADÁSNÁL EZ JELENIK MEG PONTOSAN A MUSIC SZÓ HELYÉN -->
                     <span class="wm-sub-live-badge" id="wm-sub-live-badge">ÉLŐ</span>
                 </div>
             </div>
@@ -921,19 +993,19 @@
         <div class="calendar-days-row" id="calendar-days-container"></div>
     </div>
 
-    <!-- ADÁSTERV & 🔗 ÚJ KONCERT GOMB -->
+    <!-- ADÁSTERV -->
     <div class="rundown-panel">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
             <div style="font-family:'Outfit',sans-serif; font-size:0.9rem; font-weight:800; color:var(--cherry-red);">
                 📋 ADÁSTERV: <span id="current-selected-day-label" style="color:#fff;">MA</span> - <span id="rundown-count">0</span> tétel
             </div>
             <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                <button class="btn-act" style="color:var(--accent-cyan); border-color:var(--accent-cyan); font-weight:800;" onclick="openExternalLinkModal()">🔗 + Koncert / Külső Link Hozzáadása</button>
+                <button class="btn-act" style="color:var(--accent-cyan); border-color:var(--accent-cyan); font-weight:800;" onclick="openExternalLinkModal()">🔗 + Koncert / Live M3U8 Hozzáadása</button>
                 <button class="btn-act active-toggle" onclick="autoGenerateDaySchedule(selectedDayIndex, true)">🎲 24 Órás Zenei Rotáció (MusicMaster)</button>
                 <button class="btn-act" style="color:#ef4444;" onclick="clearRundown()">🗑️ Terv Ürítése</button>
             </div>
         </div>
-        <div style="max-height:280px; overflow-y:auto;" id="rundown-scroll-container">
+        <div style="max-height:300px; overflow-y:auto;" id="rundown-scroll-container">
             <table class="rundown-table">
                 <thead><tr><th>ADÁSKEZDET</th><th>CÍM / ELŐADÓ</th><th>TÍPUS</th><th>KORHATÁR</th><th>HOSSZ</th><th>ADÁSVÉG</th><th>MŰVELET</th></tr></thead>
                 <tbody id="rundown-tbody"></tbody>
@@ -941,15 +1013,15 @@
         </div>
     </div>
 
-    <!-- 📂 KÜLSŐ MŰSORTÁR (MENTETT KONCERTEK, M3U8, MP4) -->
+    <!-- 📂 KÜLSŐ MŰSORTÁR (MENTETT KONCERTEK, M3U, M3U8, MP4) -->
     <div class="external-library-panel">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
             <div style="font-family:'Outfit',sans-serif; font-size:0.9rem; font-weight:800; color:var(--accent-cyan);">
-                📂 KÜLSŐ MŰSORTÁR (<span id="ext-library-count">0</span> db Mentett Koncert / Stream)
+                📂 KÜLSŐ MŰSORTÁR (<span id="ext-library-count">0</span> db Mentett Koncert / Stream / M3U8)
             </div>
-            <button class="btn-act" onclick="openExternalLinkModal()">➕ Új Koncert Mentése a Tárba</button>
+            <button class="btn-act" onclick="openExternalLinkModal()">➕ Új Koncert / Élő Stream Mentése</button>
         </div>
-        <div style="max-height:220px; overflow-y:auto;">
+        <div style="max-height:240px; overflow-y:auto;">
             <table class="rundown-table">
                 <thead><tr><th>CÍM / ELŐADÓ</th><th>TÍPUS</th><th>KORHATÁR</th><th>HOSSZ</th><th>MŰVELET</th></tr></thead>
                 <tbody id="ext-library-tbody"></tbody>
@@ -976,30 +1048,30 @@
     <div class="log-box" id="studio-log"></div>
 </div>
 
-<!-- 🔗 KÜLSŐ KONCERT / LIVE STREAM FELVITELI ÉS IDŐZÍTÉSI MODÁL -->
+<!-- 🔗 KÜLSŐ KONCERT / LIVE STREAM (M3U / M3U8 / MP4) FELVITELI ÉS SZERKESZTÉSI MODÁL -->
 <div class="external-link-modal" id="external-link-modal">
-    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
-        <div style="font-family:'Outfit',sans-serif; font-size:0.95rem; font-weight:800; color:var(--accent-cyan);" id="ext-modal-header-title">🔗 KONCERT / ÉLŐ STREAM FELVÉTELE ÉS IDŐZÍTÉSE</div>
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:10px;">
+        <div style="font-family:'Outfit',sans-serif; font-size:1.0rem; font-weight:800; color:var(--accent-cyan);" id="ext-modal-header-title">🔗 KONCERT / ÉLŐ STREAM FELVÉTELE ÉS SZERKESZTÉSE</div>
         <button class="btn-act" onclick="closeExternalLinkModal()">✖</button>
     </div>
 
     <input type="hidden" id="inp-ext-edit-id" value="">
 
     <div style="display:flex; flex-direction:column; gap:4px;">
-        <label style="font-size:0.68rem; color:var(--text-muted);">STREAM / MP4 / M3U / M3U8 LINK (Hugging Face, Archive.org, Live Stream):</label>
-        <input type="text" id="inp-ext-url" placeholder="https://.../koncert.mp4 vagy .m3u8" style="background:#080c16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:8px; font-family:'JetBrains Mono',monospace; font-size:0.75rem;" oninput="handleExternalUrlInput(this.value)">
+        <label style="font-size:0.70rem; color:var(--text-muted); font-weight:700;">STREAM / MP4 / M3U / M3U8 LINK (Hugging Face, Live M3U8, Archive.org):</label>
+        <input type="text" id="inp-ext-url" placeholder="https://.../stream.m3u8 vagy .mp4" style="background:#080c16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:9px; font-family:'JetBrains Mono',monospace; font-size:0.75rem;" oninput="handleExternalUrlInput(this.value)">
     </div>
 
     <div style="display:flex; flex-direction:column; gap:4px;">
-        <label style="font-size:0.68rem; color:var(--text-muted);">ELŐADÓ ÉS MŰSOR / KONCERT CÍME (Szerkeszthető):</label>
-        <input type="text" id="inp-ext-title" placeholder="Pl. Dua Lipa - Live in Liverpool" style="background:#080c16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:8px; font-family:'Outfit',sans-serif; font-size:0.85rem; font-weight:700;">
+        <label style="font-size:0.70rem; color:var(--text-muted); font-weight:700;">ELŐADÓ ÉS MŰSOR / KONCERT CÍME (Szabadon szerkeszthető):</label>
+        <input type="text" id="inp-ext-title" placeholder="Pl. Dua Lipa - Live in Liverpool" style="background:#080c16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:9px; font-family:'Outfit',sans-serif; font-size:0.85rem; font-weight:700;">
     </div>
 
     <!-- PONTOS ADÁSKEZDET ÓRA : PERC : MP ÉS MŰSORNAP VÁLASZTÓ -->
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
         <div>
-            <label style="font-size:0.62rem; color:var(--text-muted);">ADÁSNAP:</label>
-            <select id="sel-ext-day" style="width:100%; background:#080c16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px; font-family:'Outfit',sans-serif; font-size:0.80rem;">
+            <label style="font-size:0.65rem; color:var(--text-muted); font-weight:700;">ADÁSNAP:</label>
+            <select id="sel-ext-day" style="width:100%; background:#080c16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:8px; font-family:'Outfit',sans-serif; font-size:0.80rem;">
                 <option value="0">MA</option>
                 <option value="1">Holnap (+1 nap)</option>
                 <option value="2">+2 nap</option>
@@ -1010,66 +1082,66 @@
             </select>
         </div>
         <div>
-            <label style="font-size:0.62rem; color:var(--text-muted);">TÍPUS:</label>
-            <select id="sel-ext-type" style="width:100%; background:#080c16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px; font-family:'Outfit',sans-serif; font-size:0.80rem;">
-                <option value="vod">🎬 Felvétel (MP4)</option>
-                <option value="live">🔴 Élő Stream (LIVE M3U8)</option>
+            <label style="font-size:0.65rem; color:var(--text-muted); font-weight:700;">TÍPUS:</label>
+            <select id="sel-ext-type" style="width:100%; background:#080c16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:8px; font-family:'Outfit',sans-serif; font-size:0.80rem;">
+                <option value="vod">🎬 Felvétel (MP4 / VOD)</option>
+                <option value="live">🔴 Élő Stream (LIVE M3U / M3U8)</option>
             </select>
         </div>
     </div>
 
     <div style="display:flex; flex-direction:column; gap:4px;">
-        <label style="font-size:0.62rem; color:var(--text-muted);">ADÁSKEZDET PONTOS IDŐPONTJA (ÓRA : PERC : MÁSODPERC):</label>
+        <label style="font-size:0.65rem; color:var(--text-muted); font-weight:700;">ADÁSKEZDET PONTOS IDŐPONTJA (ÓRA : PERC : MÁSODPERC):</label>
         <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px;">
             <div>
-                <input type="number" id="inp-ext-start-h" value="22" min="0" max="23" placeholder="Óra" style="width:100%; background:#080c16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px; font-family:'JetBrains Mono',monospace; font-size:0.80rem;">
+                <input type="number" id="inp-ext-start-h" value="22" min="0" max="23" placeholder="Óra" style="width:100%; background:#080c16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:7px; font-family:'JetBrains Mono',monospace; font-size:0.80rem;">
                 <span style="font-size:0.55rem; color:var(--text-muted);">Óra</span>
             </div>
             <div>
-                <input type="number" id="inp-ext-start-m" value="0" min="0" max="59" placeholder="Perc" style="width:100%; background:#080c16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px; font-family:'JetBrains Mono',monospace; font-size:0.80rem;">
+                <input type="number" id="inp-ext-start-m" value="0" min="0" max="59" placeholder="Perc" style="width:100%; background:#080c16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:7px; font-family:'JetBrains Mono',monospace; font-size:0.80rem;">
                 <span style="font-size:0.55rem; color:var(--text-muted);">Perc</span>
             </div>
             <div>
-                <input type="number" id="inp-ext-start-s" value="0" min="0" max="59" placeholder="Mp" style="width:100%; background:#080c16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px; font-family:'JetBrains Mono',monospace; font-size:0.80rem;">
+                <input type="number" id="inp-ext-start-s" value="0" min="0" max="59" placeholder="Mp" style="width:100%; background:#080c16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:7px; font-family:'JetBrains Mono',monospace; font-size:0.80rem;">
                 <span style="font-size:0.55rem; color:var(--text-muted);">Másodperc</span>
             </div>
         </div>
     </div>
 
-    <!-- PONTOS HOSSZ ÓRA : PERC : MP -->
+    <!-- PONTOS HOSSZ ÓRA : PERC : MP ÉS KORHATÁR -->
     <div style="display:flex; flex-direction:column; gap:4px;">
-        <label style="font-size:0.62rem; color:var(--text-muted);">MŰSOR PONTOS HOSSZA (ÓRA : PERC : MÁSODPERC):</label>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap:8px;">
+        <label style="font-size:0.65rem; color:var(--text-muted); font-weight:700;">MŰSOR PONTOS HOSSZA & KORHATÁR:</label>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1.2fr; gap:8px;">
             <div>
-                <input type="number" id="inp-ext-dur-h" value="1" min="0" max="23" placeholder="Óra" style="width:100%; background:#080c16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px; font-family:'JetBrains Mono',monospace; font-size:0.80rem;">
+                <input type="number" id="inp-ext-dur-h" value="1" min="0" max="23" placeholder="Óra" style="width:100%; background:#080c16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:7px; font-family:'JetBrains Mono',monospace; font-size:0.80rem;">
                 <span style="font-size:0.55rem; color:var(--text-muted);">Óra</span>
             </div>
             <div>
-                <input type="number" id="inp-ext-dur-m" value="30" min="0" max="59" placeholder="Perc" style="width:100%; background:#080c16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px; font-family:'JetBrains Mono',monospace; font-size:0.80rem;">
+                <input type="number" id="inp-ext-dur-m" value="30" min="0" max="59" placeholder="Perc" style="width:100%; background:#080c16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:7px; font-family:'JetBrains Mono',monospace; font-size:0.80rem;">
                 <span style="font-size:0.55rem; color:var(--text-muted);">Perc</span>
             </div>
             <div>
-                <input type="number" id="inp-ext-dur-s" value="0" min="0" max="59" placeholder="Mp" style="width:100%; background:#080c16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px; font-family:'JetBrains Mono',monospace; font-size:0.80rem;">
+                <input type="number" id="inp-ext-dur-s" value="0" min="0" max="59" placeholder="Mp" style="width:100%; background:#080c16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:7px; font-family:'JetBrains Mono',monospace; font-size:0.80rem;">
                 <span style="font-size:0.55rem; color:var(--text-muted);">Másodperc</span>
             </div>
             <div>
-                <select id="sel-ext-rating" style="width:100%; background:#080c16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:6px; font-family:'Outfit',sans-serif; font-size:0.80rem;">
-                    <option value="12">🟡 12</option>
-                    <option value="16">🟡 16</option>
-                    <option value="18">🔴 18</option>
-                    <option value="none">Nincs</option>
+                <select id="sel-ext-rating" style="width:100%; background:#080c16; color:#fff; border:1px solid var(--border); border-radius:8px; padding:7px; font-family:'Outfit',sans-serif; font-size:0.80rem;">
+                    <option value="12">🟡 12 (Általános)</option>
+                    <option value="16">🟡 16 (Tinédzser)</option>
+                    <option value="18">🔴 18 (Felnőtt)</option>
+                    <option value="none">⚪ Nincs korhatár</option>
                 </select>
                 <span style="font-size:0.55rem; color:var(--text-muted);">Korhatár</span>
             </div>
         </div>
     </div>
 
-    <div style="display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.04); padding:8px; border-radius:8px;">
-        <input type="checkbox" id="chk-ext-no-news" checked style="accent-color:var(--cherry-red); width:16px; height:16px;">
-        <label for="chk-ext-no-news" style="font-size:0.72rem; color:#fff; cursor:pointer;">🛑 Híradó szüneteltetése a koncert alatt (Nem szakítja meg az adást)</label>
+    <div style="display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.04); padding:10px; border-radius:8px;">
+        <input type="checkbox" id="chk-ext-no-news" checked style="accent-color:var(--cherry-red); width:18px; height:18px;">
+        <label for="chk-ext-no-news" style="font-size:0.75rem; color:#fff; cursor:pointer;">🛑 Híradó és adásóra szüneteltetése a koncert alatt (Nem szakítja félbe a műsort)</label>
     </div>
 
-    <div style="display:flex; gap:8px;">
+    <div style="display:flex; gap:10px; margin-top:4px;">
         <button class="btn-act" style="flex:1; background:var(--card-sub); border:1px solid var(--accent-cyan); color:var(--accent-cyan); font-weight:800; padding:10px; border-radius:10px;" onclick="saveToExternalLibraryOnly()">
             💾 Mentés a Műsortárba
         </button>
@@ -1094,7 +1166,7 @@
             <option value="zoom">🔍 Smart Zoom (16:9 Teljes képernyős kitöltés)</option>
             <option value="original">⬛ Klasszikus Fekete Sávok (Eredeti 4:3)</option>
         </select>
-        <span style="font-size:0.62rem; color:var(--text-muted);">Automatikusan észleli a 4:3-as videókat (pl. Dua Lipa - Illusion vagy retro klipek) és azonnal alkalmazza.</span>
+        <span style="font-size:0.62rem; color:var(--text-muted);">Automatikusan észleli a 4:3-as videókat és azonnal alkalmazza az elmosást.</span>
     </div>
 
     <!-- 📰 2. HÍRADÓ BLOKKOK ENGEDÉLYEZÉSE -->
@@ -1211,7 +1283,7 @@
     let limiterNode = null;
     let analyserNode = null;
     let masterGainNode = null;
-    let sourceA = null, sourceB = null, sourceNews = null;
+    let sourceA = null, sourceB = null, sourceNews = null, sourceExt = null;
     let isDspInitialized = false;
     let dspMonitorTimer = null;
 
@@ -1285,6 +1357,8 @@
     // 🍒 Megújult Logó & Zenekártya elemek
     const watermarkAnchor = document.getElementById('tv-watermark-anchor');
     const wmMainLogoBox = document.getElementById('wm-main-logo-box');
+    const wmSubMusicBadge = document.getElementById('wm-sub-music-badge');
+    const wmSubLiveBadge = document.getElementById('wm-sub-live-badge');
     const wmBrandExpandBadge = document.getElementById('wm-brand-expand-badge');
     const wmExpandTextFlip = document.getElementById('wm-expand-text-flip');
     const wmTrackCardCapsule = document.getElementById('wm-track-card-capsule');
@@ -1369,9 +1443,9 @@
     /* 🧼 TISZTÍTÓ MOTOR */
     function cleanTrackString(raw) {
         if (!raw) return "";
-        return raw.replace(/\.(mp4|webm|mp3|mkv|avi|mov)$/i, '')
-                  .replace(/\[\s*(official\s*video|official\s*music\s*video|official|video|clip|hd|hq|4k|1080p|720p|480p|360p)\s*\]/gi, '')
-                  .replace(/\(\s*(official\s*video|official\s*music\s*video|official|video|clip|hd|hq|4k|1080p|720p|480p|360p)\s*\)/gi, '')
+        return raw.replace(/\.(mp4|webm|mp3|mkv|avi|mov|m3u8|m3u)$/i, '')
+                  .replace(/\[\s*(official\s*video|official\s*music\s*video|official|video|clip|hd|hq|4k|1080p|720p|480p|360p|live)\s*\]/gi, '')
+                  .replace(/\(\s*(official\s*video|official\s*music\s*video|official|video|clip|hd|hq|4k|1080p|720p|480p|360p|live)\s*\)/gi, '')
                   .replace(/\b(720p|1080p|480p|360p|4k|hd|hq)\b/gi, '')
                   .replace(/_/g, ' ')
                   .replace(/\s+/g, ' ')
@@ -1397,9 +1471,9 @@
         return `${WORKER_URL}/api/radio/stream?filename=${encodeURIComponent(filename)}`;
     }
 
-    /* 🔴 HLS.JS / MP4 BETÖLTŐ MOTOR: BIZTOSÍTOTT OFFSET RÁHANGOLÁSSAL */
+    /* 🔴 HLS.JS / MP4 / M3U8 BETÖLTŐ MOTOR */
     function playStreamOnDeck(deckElement, streamUrl, offset = 0) {
-        const isHls = streamUrl.includes('.m3u8');
+        const isHls = streamUrl.includes('.m3u8') || streamUrl.includes('.m3u');
         const isDeckA = (deckElement === deckA);
         const isDeckB = (deckElement === deckB);
 
@@ -1409,17 +1483,17 @@
 
         let seekAttempted = false;
         const doOffsetSeek = () => {
-            if (offset > 0 && !seekAttempted) {
+            if (offset > 0 && !seekAttempted && !isHls) {
                 seekAttempted = true;
                 try {
                     deckElement.currentTime = offset;
-                    log(`⏱️ Valós idejű falióra ráhangolás sikeres: +${Math.round(offset)} mp`, 'info');
+                    log(`⏱️ Valós idejű falióra ráhangolás: +${Math.round(offset)} mp`, 'info');
                 } catch(e){}
             }
         };
 
         if (isHls && Hls.isSupported()) {
-            const hls = new Hls({ enableWorker: true, lowLatencyMode: true });
+            const hls = new Hls({ enableWorker: true, lowLatencyMode: true, backBufferLength: 30 });
             if (isDeckA) hlsDeckA = hls; 
             else if (isDeckB) hlsDeckB = hls;
             else hlsDeckExt = hls;
@@ -1427,14 +1501,22 @@
             hls.loadSource(streamUrl);
             hls.attachMedia(deckElement);
             hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                doOffsetSeek();
                 deckElement.play().catch(()=>{ deckElement.muted = true; deckElement.play(); });
             });
             hls.on(Hls.Events.ERROR, function(event, data) {
                 if (data.fatal) {
-                    log("⚠️ Élő stream jelvesztés észlelve! Visszatérés az adásfolyamhoz...", "warn");
-                    hls.destroy();
-                    recoverFromBrokenLiveStream();
+                    log("⚠️ HLS stream átmeneti akadás, újrakapcsolódás...", "warn");
+                    switch (data.type) {
+                        case Hls.ErrorTypes.NETWORK_ERROR:
+                            hls.startLoad();
+                            break;
+                        case Hls.ErrorTypes.MEDIA_ERROR:
+                            hls.recoverMediaError();
+                            break;
+                        default:
+                            hls.destroy();
+                            break;
+                    }
                 }
             });
         } else {
@@ -1455,25 +1537,9 @@
             deckElement.onplaying = doOffsetSeek;
 
             deckElement.onerror = () => {
-                log("⚠️ Videó lejátszási hiba a linken! Vészhelyzeti visszatérés...", "warn");
-                recoverFromBrokenLiveStream();
+                log("⚠️ Videó lejátszási hiba! Ellenőrizd a linket.", "warn");
             };
         }
-    }
-
-    function recoverFromBrokenLiveStream() {
-        const todayKey = getSelectedDateKey(0);
-        let schedule = weekSchedules[todayKey] || [];
-        if (schedule.length > 0 && currentClipIndex !== -1) {
-            if (schedule[currentClipIndex]) schedule[currentClipIndex]._broken = true;
-            const safeIdx = schedule.findIndex((item, idx) => idx !== currentClipIndex && !item.isSpecialLink && !item._broken);
-            if (safeIdx !== -1) {
-                currentClipIndex = safeIdx;
-                syncToCurrentWallClockTime();
-                return;
-            }
-        }
-        showColorBarScreen();
     }
 
     /* 🌸 4:3 DELUXE AMBIENT BLUR KEZELÉS */
@@ -1519,7 +1585,7 @@
         currentAspectRatioMode = mode;
         applyAspectRatioToDecks();
         syncBroadcastSettingsToCloud();
-        log(`🌸 4:3 Képarány üzemmód beállítva: ${mode.toUpperCase()}`, 'success');
+        log(`🌸 4:3 Képarány üzemmód: ${mode.toUpperCase()}`, 'success');
     }
 
     function startAmbientBlurLoop() {
@@ -1554,7 +1620,7 @@
         applyAspectRatioToDecks();
     }
 
-    /* 🎚️ BROADCAST DSP AUDIO MOTOR (R2 DECKHEZ) */
+    /* 🎚️ BROADCAST DSP AUDIO MOTOR */
     function setupAudioNodes() {
         if (isEcoLiteMode) return;
         try {
@@ -1601,13 +1667,15 @@
                 isDspInitialized = true;
             }
 
-            if (deckA && deckB && newsBgVideo && audioCtx && !sourceA) {
+            if (deckA && deckB && deckExt && newsBgVideo && audioCtx && !sourceA) {
                 try {
                     sourceA = audioCtx.createMediaElementSource(deckA);
                     sourceB = audioCtx.createMediaElementSource(deckB);
+                    sourceExt = audioCtx.createMediaElementSource(deckExt);
                     sourceNews = audioCtx.createMediaElementSource(newsBgVideo);
                     sourceA.connect(preGainNode);
                     sourceB.connect(preGainNode);
+                    sourceExt.connect(preGainNode);
                     sourceNews.connect(preGainNode);
                 } catch(e){}
             }
@@ -1694,7 +1762,7 @@
         if (clockDigitalSub) clockDigitalSub.textContent = nowDate.toLocaleTimeString('hu-HU');
     }
 
-    /* 🍒 LOGÓBA INTEGRÁLT ZENEKÁRTYA MOTOR (NOW / NEXT / LATER) */
+    /* 🍒 LOGÓ ELŐTT BALRA TERJESZKEDŐ ZENEKÁRTYA (NOW / NEXT / LATER) */
     function setLogoTrackCardData(badgeText, rawTitle, isFlip = false, exactStartTimeStr = null) {
         const parsed = parseArtistAndTitle(rawTitle);
         if (wmTcStatusTag) {
@@ -1742,15 +1810,15 @@
     }
 
     function triggerTrackCardTest() {
-        setLogoTrackCardData("MOST:", "Dua Lipa - Live in Liverpool", false, null);
+        setLogoTrackCardData("MOST:", "Dua Lipa feat. Angèle - Fever (Club Mix)", false, null);
         openLogoTrackCard();
         setTimeout(() => {
-            setLogoTrackCardData("KÖVETKEZIK:", "Manuel x Valmar - Budapest", true, "14:25:00");
+            setLogoTrackCardData("KÖVETKEZIK:", "Manuel x Valmar - Budapest By Night", true, "14:25:00");
             setTimeout(() => {
-                setLogoTrackCardData("KÉSŐBB:", "Coldplay - Viva La Vida", true, "14:29:15");
-                setTimeout(closeLogoTrackCard, 4000);
-            }, 4000);
-        }, 4000);
+                setLogoTrackCardData("KÉSŐBB:", "Coldplay - Viva La Vida (Live in Madrid)", true, "14:29:15");
+                setTimeout(closeLogoTrackCard, 4500);
+            }, 4500);
+        }, 4500);
     }
 
     /* ⏱️ VALÓS IDŐS MONITOR, T-15 ELŐTÖLTÉS & DALKÖVETÉS */
@@ -1770,7 +1838,8 @@
             const curClip = schedule[currentClipIndex];
             if (!curClip || curClip.isNews) return;
 
-            // 🛡️ ÉLŐ STREAM / KÜLSŐ MŰSOR ESETÉN A VIDEÓ BELSŐ HOSSZÁT NEM FIGYELJÜK
+            // 🛡️ BIZTOSÍTÁS: ÉLŐ STREAM VAGY BEIDŐZÍTETT KONCERT ALATT A VIDEÓ BELSŐ HOSSZÁT SOHA NEM FIGYELJÜK!
+            // Ezzel megelőzzük, hogy az élő adás véletlenszerűen dalt akarjon váltani és visszapattanjon.
             if (curClip.isSpecialLink || curClip.isLiveStream) {
                 return;
             }
@@ -1781,7 +1850,7 @@
 
             if (curTime > 0.2 && curTime < 1.0) detectVideoAspectRatio(deckElement);
 
-            // ⚡ SEAMLESS ELŐTÖLTÉS T-15 MÁSODPERCNÉL
+            // ⚡ SEAMLESS ELŐTÖLTÉS T-15 MÁSODPERCNÉL (CSAK NORMÁL KLIPNÉL)
             if (remaining <= 15.0 && remaining > 0 && !hasPreloadedNextClip) {
                 hasPreloadedNextClip = true;
                 const nextClip = schedule[(currentClipIndex + 1) % schedule.length];
@@ -1796,7 +1865,7 @@
                 }
             }
 
-            // 1. KEZDÉS: +5. másodpercnél kinyílik a logóból a MOST kártya
+            // 1. KEZDÉS: +5. másodpercnél kinyílik a logó elé a MOST kártya
             if (curTime >= 5.0 && curTime < 13.0 && !introTriggeredForTrack) {
                 introTriggeredForTrack = true;
                 setLogoTrackCardData("MOST:", curClip.title, false, null);
@@ -1822,6 +1891,8 @@
             const todayKey = getSelectedDateKey(0);
             const schedule = weekSchedules[todayKey] || [];
             const curClip = schedule[currentClipIndex];
+            
+            // 🛡️ Élő adásnál az onended sosem léptethet!
             if (curClip && (curClip.isSpecialLink || curClip.isLiveStream)) return;
 
             if (!isVideoTransitioning && !transitionLock) {
@@ -1914,6 +1985,7 @@
         updateAgeRatingBadgeUI();
         evaluateAgeRatingVisibility();
 
+        // 🔴 ÉLŐ ADÁS BADGE / MUSIC VÁLTÁS
         if (wmMainLogoBox) {
             wmMainLogoBox.classList.toggle('is-live', Boolean(newClip.isLiveStream));
         }
@@ -1978,12 +2050,12 @@
     /* ⚡ AZONNALI ÁTKAPCSOLÁS */
     function triggerInstantExternalSwitch(targetIdx) {
         if (isVideoTransitioning || transitionLock) return;
-        log("⚡ Időzített műsor elérkezett: Finom zenei lehalkulás és átváltás...", "success");
+        log("⚡ Időzített műsor elérkezett: Finom zenei halkítás és bekapcsolás...", "success");
         currentClipIndex = targetIdx - 1;
         executeVideoCrossfade();
     }
 
-    /* 🛡️ ÖNGYÓGYÍTÓ WATCHDOG ÉS IDŐZÍTŐ FELÜGYELŐ */
+    /* 🛡️ ÖNGYÓGYÍTÓ WATCHDOG ÉS FALIÓRA FELÜGYELŐ */
     function runBroadcastHealthCheck() {
         if (!isTvBroadcasting || isHourlyNewsRunning || colorbarLayer?.classList.contains('active')) return;
         const activeDeck = getActiveVideoElement();
@@ -1995,7 +2067,7 @@
         const schedule = weekSchedules[todayKey] || [];
         const curClip = schedule[currentClipIndex];
 
-        // 1. Átkapcsolás a beállított koncertre pontos másodpercben
+        // 1. Átkapcsolás a beidőzített koncertre / élő adásra a pontos másodpercben
         const scheduledLinkNowIdx = schedule.findIndex(it => it.isSpecialLink && curSec >= it.startSec && curSec < it.endSec);
         if (scheduledLinkNowIdx !== -1 && currentClipIndex !== scheduledLinkNowIdx) {
             if (curSec === schedule[scheduledLinkNowIdx].startSec - 3 && !isSwitchFading) {
@@ -2014,15 +2086,15 @@
             }
         }
 
-        // 2. Ha a koncert vagy dal ideje lejárt a falióra szerint, azonnal léptetünk
+        // 2. Pontos váltás a következő klipre, ha az aktuális műsor/koncert ideje LEJÁRT a falióra szerint
         if (curClip && curSec >= curClip.endSec) {
-            log(`⏱️ Adásidő lejárt (${curClip.title}): Másodpercre pontos váltás a következő tételre...`, "info");
+            log(`⏱️ Beidőzített adásidő lejárt (${curClip.title}): Másodpercre pontos váltás a következő tételre...`, "info");
             executeVideoCrossfade();
             return;
         }
 
-        // 3. Lefagyás-elhárítás
-        if (!activeDeck.paused && !activeDeck.ended) {
+        // 3. Lefagyás-elhárítás (Kizárólag videóklipeknél, élőnél nem bolygatjuk)
+        if (curClip && !curClip.isLiveStream && !activeDeck.paused && !activeDeck.ended) {
             if (activeDeck.currentTime === lastActiveDeckTime && activeDeck.readyState >= 2) {
                 stallCount++;
                 if (stallCount >= 3) {
@@ -2036,12 +2108,12 @@
             lastActiveDeckTime = activeDeck.currentTime;
         }
 
-        // 4. Falióra csúszásmentesítő (Csak felvételnél)
+        // 4. Falióra csúszásmentesítő (Kizárólag felvételeknél)
         if (curClip && !curClip.isLiveStream && !activeDeck.paused && activeDeck.readyState >= 3) {
             if (curSec >= curClip.startSec && curSec < curClip.endSec) {
                 const expectedOffset = curSec - curClip.startSec;
                 const actualOffset = activeDeck.currentTime;
-                if (Math.abs(actualOffset - expectedOffset) > 4.5) {
+                if (Math.abs(actualOffset - expectedOffset) > 5.0) {
                     activeDeck.currentTime = expectedOffset;
                 }
             }
@@ -2255,7 +2327,7 @@
         const curClip = schedule[currentClipIndex];
 
         if (curClip && (curClip.isSpecialLink || curClip.noNews) && !isManualTest) {
-            log("🛑 Koncert van adásban: Az órás Híradó és Óra szüneteltetve.", "info");
+            log("🛑 Koncert / Élő adás van folyamatban: Az órás Híradó szüneteltetve.", "info");
             return;
         }
 
@@ -2410,7 +2482,6 @@
         isHourlyNewsRunning = false;
         if (newsPhaseTimer) clearTimeout(newsPhaseTimer);
 
-        if (wmSubMusicBadge) wmSubMusicBadge.textContent = "MUSIC";
         if (newsBgVideo) { newsBgVideo.pause(); newsBgVideo.classList.remove('active'); }
         if (hourlyNewsMagazine) hourlyNewsMagazine.classList.remove('active');
         if (stationClockOverlay) stationClockOverlay.classList.remove('active');
@@ -2478,10 +2549,6 @@
         if (masterClock) masterClock.textContent = timeStr;
         if (smpteLiveClock) smpteLiveClock.textContent = timeStr;
         updateAnalogClockHands(now);
-
-        if (wmSubMusicBadge) {
-            wmSubMusicBadge.textContent = isHourlyNewsRunning ? timeStr : "MUSIC";
-        }
 
         const h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
         const curHM = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
@@ -2580,7 +2647,7 @@
         updateAgeRatingBadgeUI();
         evaluateAgeRatingVisibility();
 
-        // 🔴 DINAMIKUS ÉLŐ FELIRAT A LOGÓ ALATT (MUSIC HELYETT)
+        // 🔴 DINAMIKUS ÉLŐ FELIRAT A LOGÓ ALATT (A MUSIC SZÓ HELYÉN)
         if (wmMainLogoBox) {
             wmMainLogoBox.classList.toggle('is-live', Boolean(clip.isLiveStream));
         }
@@ -2785,7 +2852,7 @@
 
         if (itemToSchedule) {
             document.getElementById('inp-ext-edit-id').value = itemToSchedule.id || '';
-            document.getElementById('inp-ext-url').value = itemToSchedule.url || '';
+            document.getElementById('inp-ext-url').value = itemToSchedule.url || itemToSchedule.filename || '';
             document.getElementById('inp-ext-title').value = itemToSchedule.title || '';
             document.getElementById('sel-ext-type').value = itemToSchedule.isLiveStream ? 'live' : 'vod';
             document.getElementById('sel-ext-rating').value = itemToSchedule.rating || '12';
@@ -2794,12 +2861,25 @@
             document.getElementById('inp-ext-dur-h').value = Math.floor(totalSec / 3600);
             document.getElementById('inp-ext-dur-m').value = Math.floor((totalSec % 3600) / 60);
             document.getElementById('inp-ext-dur-s').value = totalSec % 60;
-            document.getElementById('ext-modal-header-title').textContent = "✏️ KONCERT / LIVE LINK SZERKESZTÉSE";
+            
+            if (itemToSchedule.startSec !== undefined) {
+                const sSec = itemToSchedule.startSec;
+                document.getElementById('inp-ext-start-h').value = Math.floor(sSec / 3600);
+                document.getElementById('inp-ext-start-m').value = Math.floor((sSec % 3600) / 60);
+                document.getElementById('inp-ext-start-s').value = sSec % 60;
+            }
+
+            document.getElementById('ext-modal-header-title').textContent = "✏️ KONCERT / LIVE STREAM SZERKESZTÉSE";
         } else {
             document.getElementById('inp-ext-edit-id').value = '';
             document.getElementById('inp-ext-url').value = '';
             document.getElementById('inp-ext-title').value = '';
-            document.getElementById('ext-modal-header-title').textContent = "🔗 ÚJ KONCERT / LIVE LINK FELVÉTELE";
+            document.getElementById('sel-ext-type').value = 'vod';
+            document.getElementById('sel-ext-rating').value = '12';
+            document.getElementById('inp-ext-dur-h').value = 1;
+            document.getElementById('inp-ext-dur-m').value = 30;
+            document.getElementById('inp-ext-dur-s').value = 0;
+            document.getElementById('ext-modal-header-title').textContent = "🔗 ÚJ KONCERT / LIVE STREAM FELVÉTELE";
         }
 
         modal.classList.add('active');
@@ -2814,12 +2894,19 @@
         if (!val) return;
         const cleanVal = val.trim();
         const inpTitle = document.getElementById('inp-ext-title');
+        const selType = document.getElementById('sel-ext-type');
+
+        // M3U / M3U8 észlelés: ha m3u vagy m3u8 a link, automatikusan váltson élőre
+        if (cleanVal.includes('.m3u8') || cleanVal.includes('.m3u')) {
+            if (selType) selType.value = 'live';
+        }
+
         if (inpTitle && (!inpTitle.value || inpTitle.value.startsWith("Pl."))) {
             const fileName = cleanVal.split('/').pop().split('?')[0];
             inpTitle.value = cleanTrackString(decodeURIComponent(fileName));
         }
 
-        if (!cleanVal.includes('.m3u8')) {
+        if (!cleanVal.includes('.m3u8') && !cleanVal.includes('.m3u')) {
             const tempV = document.createElement('video');
             tempV.preload = 'metadata';
             tempV.src = cleanVal;
@@ -2832,7 +2919,7 @@
                     if (document.getElementById('inp-ext-dur-h')) document.getElementById('inp-ext-dur-h').value = h;
                     if (document.getElementById('inp-ext-dur-m')) document.getElementById('inp-ext-dur-m').value = m;
                     if (document.getElementById('inp-ext-dur-s')) document.getElementById('inp-ext-dur-s').value = s;
-                    log(`⏱️ Külső videó hossza automatikusan felismerve: ${h}h ${m}m ${s}s`, 'success');
+                    log(`⏱️ Videó hossza automatikusan felismerve: ${h}h ${m}m ${s}s`, 'success');
                 }
                 tempV.src = '';
             };
@@ -2852,7 +2939,7 @@
         const extRating = document.getElementById('sel-ext-rating')?.value || "12";
 
         if (!extUrl || !extTitle) {
-            alert("Kérlek add meg a videó közvetlen linkjét és címét!");
+            alert("Kérlek add meg a videó vagy stream linkjét és címét!");
             return;
         }
 
@@ -2877,7 +2964,7 @@
         saveExternalLibrary();
         renderExternalLibraryTable();
         closeExternalLinkModal();
-        log(`📂 Koncert elmentve a Külső Műsortárba: ${extTitle}`, 'success');
+        log(`📂 Koncert / Stream sikeresen elmentve: ${extTitle}`, 'success');
     }
 
     function renderExternalLibraryTable() {
@@ -2886,7 +2973,7 @@
         document.getElementById('ext-library-count').textContent = externalLibrary.length;
 
         if (externalLibrary.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:15px;">Nincs mentett külső koncert / stream. Kattints a fenti gombra a hozzáadáshoz!</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:15px;">Nincs mentett külső koncert vagy élő stream. Kattints a fenti gombra a hozzáadáshoz!</td></tr>';
             return;
         }
 
@@ -2905,7 +2992,7 @@
                     <td><span style="color:#facc15; font-weight:800;">${item.rating || '12'}</span></td>
                     <td>${durStr}</td>
                     <td style="display:flex; gap:6px; align-items:center;">
-                        <button class="btn-act" style="color:var(--accent-cyan); border-color:var(--accent-cyan);" onclick="scheduleFromExternalLibrary('${item.id}')">📅 Adásba teszem</button>
+                        <button class="btn-act" style="color:var(--accent-cyan); border-color:var(--accent-cyan);" onclick="scheduleFromExternalLibrary('${item.id}')">📅 Adásba</button>
                         <button class="btn-act" style="color:var(--accent-amber); border-color:var(--accent-amber);" onclick="editExternalLibraryItem('${item.id}')">✏️ Szerkesztés</button>
                         <button class="btn-act" onclick="previewExternalTrack('${item.id}')">▶ Lejátszás</button>
                         <button class="btn-del-sm" onclick="deleteFromExternalLibrary('${item.id}')">❌</button>
@@ -2936,7 +3023,7 @@
         deckExt.classList.add('active');
         activeDeckName = 'EXT';
         playStreamOnDeck(deckExt, item.url, 0);
-        log(`▶ Előnézet indítása: ${item.title}`, 'info');
+        log(`▶ Előnézet: ${item.title}`, 'info');
     }
 
     function deleteFromExternalLibrary(id) {
@@ -2989,7 +3076,7 @@
         const extNoNews = document.getElementById('chk-ext-no-news')?.checked ?? true;
 
         if (!extUrl || !extTitle) {
-            alert("Kérlek add meg a videó közvetlen linkjét és címét!");
+            alert("Kérlek add meg a videó vagy stream közvetlen linkjét és címét!");
             return;
         }
         if (totalDurationSec <= 0) {
@@ -3258,13 +3345,54 @@
                     <td><strong style="color:var(--theme-primary); font-family:\'JetBrains Mono\',monospace;" ${isCurrentOnAir ? 'id="rundown-live-counter"' : ''}>${isCurrentOnAir ? '🔴 MOST ' : ''}${item.startTimeStr}</strong></td>
                     <td>${displayTitle}</td>
                     <td><span style="color:${typeColor}; font-weight:800;">${typeLabel}</span></td>
-                    <td><span style="color:#facc15; font-weight:800;">${item.rating || '12'}</span></td>
+                    <td><span style="color:#facc15; font-weight:800; cursor:pointer;" onclick="quickEditItemRating('${item.id}')" title="Kattints a korhatár módosításához">🟡 ${item.rating || '12'} ✏️</span></td>
                     <td>${Math.floor(item.duration/60)}:${String(item.duration%60).padStart(2,'0')}</td>
                     <td style="color:var(--text-muted);">${item.endTimeStr}</td>
-                    <td style="text-align:center;"><button class="btn-del-sm" onclick="removeRundownItem('${item.id}')">❌</button></td>
+                    <td style="display:flex; gap:6px; align-items:center;">
+                        <button class="btn-act" style="color:var(--accent-amber); padding:2px 8px;" onclick="editRundownItem('${item.id}')">✏️</button>
+                        <button class="btn-del-sm" onclick="removeRundownItem('${item.id}')">❌</button>
+                    </td>
                 </tr>
             `;
         }).join('');
+    }
+
+    function quickEditItemRating(id) {
+        const dateKey = getSelectedDateKey(selectedDayIndex);
+        const item = (weekSchedules[dateKey] || []).find(it => it.id === id);
+        if (!item) return;
+
+        const newRating = prompt("Add meg a tétel új korhatárát (12, 16, 18 vagy none):", item.rating || "12");
+        if (newRating && ['12', '16', '18', 'none'].includes(newRating.trim())) {
+            item.rating = newRating.trim();
+            saveWeekSchedules();
+            renderRundownTable();
+            if (currentClipIndex !== -1 && weekSchedules[dateKey][currentClipIndex]?.id === id) {
+                currentAgeRating = item.rating;
+                updateAgeRatingBadgeUI();
+                evaluateAgeRatingVisibility();
+            }
+            log(`🟡 Korhatár módosítva (${item.title}): ${item.rating}`, 'success');
+        }
+    }
+
+    function editRundownItem(id) {
+        const dateKey = getSelectedDateKey(selectedDayIndex);
+        const item = (weekSchedules[dateKey] || []).find(it => it.id === id);
+        if (!item) return;
+
+        if (item.isSpecialLink) {
+            openExternalLinkModal(item);
+            return;
+        }
+
+        const newTitle = prompt("Add meg a tétel új címét (Előadó - Szám címe):", item.title);
+        if (newTitle && newTitle.trim().length > 0) {
+            item.title = cleanTrackString(newTitle);
+            saveWeekSchedules();
+            renderRundownTable();
+            log(`✏️ Adásterv tétel frissítve: ${item.title}`, 'success');
+        }
     }
 
     function updateRundownHighlightAndScroll() {
@@ -3349,7 +3477,7 @@
                                 };
                             });
 
-            log(`📂 [MŰSORTÁR] ${r2Library.length} db zenei videóklip betöltve (R2 + Hugging Face)!`, 'success');
+            log(`📂 [MŰSORTÁR] ${r2Library.length} db videóklip betöltve!`, 'success');
             for (const item of r2Library) {
                 readActualVideoDuration(item.url, item.filename).then(dur => { item.duration = dur; });
             }
@@ -3398,7 +3526,7 @@
                     body: JSON.stringify(trackMetadataMap),
                     headers: { 'Content-Type': 'application/json' }
                 });
-                log(`💾 Cím frissítve az R2-ben: ${clean}`, 'success');
+                log(`💾 Cím frissítve: ${clean}`, 'success');
             } catch(e){}
 
             for (const dayKey in weekSchedules) {
@@ -3585,118 +3713,118 @@
         if (data.enable_midnight_news !== undefined) {
             enableMidnightNews = Boolean(data.enable_midnight_news);
             const btn = document.getElementById('btn-toggle-midnight-news');
-            if (btn) { btn.textContent = enableMidnightNews ? "BE" : "KI"; btn.className = enableMidnightNews ? "btn-act active-toggle" : "btn-act"; }
-        }
-        if (data.news_start) {
-            newsStartTime = data.news_start;
-            if (document.getElementById('inp-news-start-time')) document.getElementById('inp-news-start-time').value = newsStartTime;
-        }
-        if (data.news_end) {
-            newsEndTime = data.news_end;
-            if (document.getElementById('inp-news-end-time')) document.getElementById('inp-news-end-time').value = newsEndTime;
-        }
+if (btn) { btn.textContent = enableMidnightNews ? "BE" : "KI"; btn.className = enableMidnightNews ? "btn-act active-toggle" : "btn-act"; }
+}
+if (data.news_start) {
+newsStartTime = data.news_start;
+if (document.getElementById('inp-news-start-time')) document.getElementById('inp-news-start-time').value = newsStartTime;
+}
+if (data.news_end) {
+newsEndTime = data.news_end;
+if (document.getElementById('inp-news-end-time')) document.getElementById('inp-news-end-time').value = newsEndTime;
+}
 
-        if (data.logo_pos_t && document.getElementById('rng-logo-top')) document.getElementById('rng-logo-top').value = data.logo_pos_t;
-        if (data.logo_pos_side && document.getElementById('rng-logo-side')) document.getElementById('rng-logo-side').value = data.logo_pos_side;
-        if (data.logo_scale && document.getElementById('rng-logo-scale')) document.getElementById('rng-logo-scale').value = data.logo_scale;
-        if (data.rating_pos_b && document.getElementById('rng-pos-bottom')) document.getElementById('rng-pos-bottom').value = data.rating_pos_b;
-        if (data.rating_pos_r && document.getElementById('rng-pos-right')) document.getElementById('rng-pos-right').value = data.rating_pos_r;
-        if (data.rating_pos_s && document.getElementById('rng-pos-size')) document.getElementById('rng-pos-size').value = data.rating_pos_s;
+if (data.logo_pos_t && document.getElementById('rng-logo-top')) document.getElementById('rng-logo-top').value = data.logo_pos_t;
+    if (data.logo_pos_side && document.getElementById('rng-logo-side')) document.getElementById('rng-logo-side').value = data.logo_pos_side;
+    if (data.logo_scale && document.getElementById('rng-logo-scale')) document.getElementById('rng-logo-scale').value = data.logo_scale;
+    if (data.rating_pos_b && document.getElementById('rng-pos-bottom')) document.getElementById('rng-pos-bottom').value = data.rating_pos_b;
+    if (data.rating_pos_r && document.getElementById('rng-pos-right')) document.getElementById('rng-pos-right').value = data.rating_pos_r;
+    if (data.rating_pos_s && document.getElementById('rng-pos-size')) document.getElementById('rng-pos-size').value = data.rating_pos_s;
 
-        if (data.logo_corner) setLogoCorner(data.logo_corner, false);
-        updatePositionsUI();
-        evaluateAgeRatingVisibility();
+    if (data.logo_corner) setLogoCorner(data.logo_corner, false);
+    updatePositionsUI();
+    evaluateAgeRatingVisibility();
+}
+
+async function syncBroadcastSettingsToCloud() {
+    const payload = {
+        isBroadcasting: isTvBroadcasting,
+        aspect_ratio_mode: currentAspectRatioMode,
+        logo_corner: logoCornerMode,
+        logo_pos_t: document.getElementById('rng-logo-top')?.value || "2.5",
+        logo_pos_side: document.getElementById('rng-logo-side')?.value || "2.8",
+        logo_scale: document.getElementById('rng-logo-scale')?.value || "100",
+        logo_opacity: currentLogoOpacity,
+        is_rating_24h: isRating24hMode,
+        rating_start: ratingStartTime,
+        rating_end: ratingEndTime,
+        enable_daytime_news: enableDaytimeNews,
+        enable_midnight_news: enableMidnightNews,
+        news_start: newsStartTime,
+        news_end: newsEndTime,
+        rating_pos_b: document.getElementById('rng-pos-bottom')?.value || "2.0",
+        rating_pos_r: document.getElementById('rng-pos-right')?.value || "2.8",
+        rating_pos_s: document.getElementById('rng-pos-size')?.value || "3.8",
+        rating_opacity: currentRatingOpacity,
+        news_bg_url: customNewsBgVideoUrl,
+        midnight_bg_url: customMidnightBgVideoUrl,
+        updatedAt: new Date().toISOString()
+    };
+
+    try { localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(payload)); } catch(e){}
+
+    try {
+        await fetch(`${WORKER_URL}/api/radio/settings`, {
+            method: 'PUT',
+            body: JSON.stringify(payload),
+            headers: { 'Content-Type': 'application/json' }
+        });
+    } catch(e){}
+}
+
+async function saveWeekSchedules() {
+    try { localStorage.setItem(STORAGE_KEY_SCHEDULE, JSON.stringify(weekSchedules)); } catch(e){}
+    try {
+        await fetch(`${WORKER_URL}/api/radio/schedule`, {
+            method: 'PUT',
+            body: JSON.stringify(weekSchedules),
+            headers: { 'Content-Type': 'application/json' }
+        });
+    } catch(e){}
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+    buildClockFaceTicks();
+    initCalendar();
+    planHourlyCrawlerSchedule();
+    attachDeckTimeMonitor(deckA);
+    attachDeckTimeMonitor(deckB);
+    attachDeckTimeMonitor(deckExt);
+
+    try {
+        const localSettings = JSON.parse(localStorage.getItem(STORAGE_KEY_SETTINGS));
+        if (localSettings) applyLoadedBroadcastSettings(localSettings);
+        const localSched = JSON.parse(localStorage.getItem(STORAGE_KEY_SCHEDULE));
+        if (localSched) weekSchedules = localSched;
+    } catch(e){}
+
+    await loadR2Library();
+    await loadExternalLibrary();
+
+    const cloud = await safeFetchJson(`${WORKER_URL}/api/radio/settings?_t=${Date.now()}`);
+    if (cloud) applyLoadedBroadcastSettings(cloud);
+
+    const cloudSched = await safeFetchJson(`${WORKER_URL}/api/radio/schedule?_t=${Date.now()}`);
+    if (cloudSched && typeof cloudSched === 'object') weekSchedules = cloudSched;
+
+    const todayKey = getSelectedDateKey(0);
+    if (!weekSchedules[todayKey] || weekSchedules[todayKey].length === 0) autoGenerateDaySchedule(0, false);
+    else renderRundownTable();
+
+    fetchLiveNews();
+    fetchLiveWeather();
+    updatePositionsUI();
+    applyDaypartTheme(getDaypartKeyForHour(new Date().getHours()));
+
+    if (isTvBroadcasting) {
+        setupAudioNodes();
+        syncToCurrentWallClockTime();
+        scheduleRandomLogoAnimation();
     }
 
-    async function syncBroadcastSettingsToCloud() {
-        const payload = {
-            isBroadcasting: isTvBroadcasting,
-            aspect_ratio_mode: currentAspectRatioMode,
-            logo_corner: logoCornerMode,
-            logo_pos_t: document.getElementById('rng-logo-top')?.value || "2.5",
-            logo_pos_side: document.getElementById('rng-logo-side')?.value || "2.8",
-            logo_scale: document.getElementById('rng-logo-scale')?.value || "100",
-            logo_opacity: currentLogoOpacity,
-            is_rating_24h: isRating24hMode,
-            rating_start: ratingStartTime,
-            rating_end: ratingEndTime,
-            enable_daytime_news: enableDaytimeNews,
-            enable_midnight_news: enableMidnightNews,
-            news_start: newsStartTime,
-            news_end: newsEndTime,
-            rating_pos_b: document.getElementById('rng-pos-bottom')?.value || "2.0",
-            rating_pos_r: document.getElementById('rng-pos-right')?.value || "2.8",
-            rating_pos_s: document.getElementById('rng-pos-size')?.value || "3.8",
-            rating_opacity: currentRatingOpacity,
-            news_bg_url: customNewsBgVideoUrl,
-            midnight_bg_url: customMidnightBgVideoUrl,
-            updatedAt: new Date().toISOString()
-        };
-
-        try { localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(payload)); } catch(e){}
-
-        try {
-            await fetch(`${WORKER_URL}/api/radio/settings`, {
-                method: 'PUT',
-                body: JSON.stringify(payload),
-                headers: { 'Content-Type': 'application/json' }
-            });
-        } catch(e){}
-    }
-
-    async function saveWeekSchedules() {
-        try { localStorage.setItem(STORAGE_KEY_SCHEDULE, JSON.stringify(weekSchedules)); } catch(e){}
-        try {
-            await fetch(`${WORKER_URL}/api/radio/schedule`, {
-                method: 'PUT',
-                body: JSON.stringify(weekSchedules),
-                headers: { 'Content-Type': 'application/json' }
-            });
-        } catch(e){}
-    }
-
-    window.addEventListener('DOMContentLoaded', async () => {
-        buildClockFaceTicks();
-        initCalendar();
-        planHourlyCrawlerSchedule();
-        attachDeckTimeMonitor(deckA);
-        attachDeckTimeMonitor(deckB);
-        attachDeckTimeMonitor(deckExt);
-
-        try {
-            const localSettings = JSON.parse(localStorage.getItem(STORAGE_KEY_SETTINGS));
-            if (localSettings) applyLoadedBroadcastSettings(localSettings);
-            const localSched = JSON.parse(localStorage.getItem(STORAGE_KEY_SCHEDULE));
-            if (localSched) weekSchedules = localSched;
-        } catch(e){}
-
-        await loadR2Library();
-        await loadExternalLibrary();
-
-        const cloud = await safeFetchJson(`${WORKER_URL}/api/radio/settings?_t=${Date.now()}`);
-        if (cloud) applyLoadedBroadcastSettings(cloud);
-
-        const cloudSched = await safeFetchJson(`${WORKER_URL}/api/radio/schedule?_t=${Date.now()}`);
-        if (cloudSched && typeof cloudSched === 'object') weekSchedules = cloudSched;
-
-        const todayKey = getSelectedDateKey(0);
-        if (!weekSchedules[todayKey] || weekSchedules[todayKey].length === 0) autoGenerateDaySchedule(0, false);
-        else renderRundownTable();
-
-        fetchLiveNews();
-        fetchLiveWeather();
-        updatePositionsUI();
-        applyDaypartTheme(getDaypartKeyForHour(new Date().getHours()));
-
-        if (isTvBroadcasting) {
-            setupAudioNodes();
-            syncToCurrentWallClockTime();
-            scheduleRandomLogoAnimation();
-        }
-
-        setInterval(fetchLiveNews, 10 * 60 * 1000);
-        setInterval(fetchLiveWeather, 10 * 60 * 1000);
-    });
+    setInterval(fetchLiveNews, 10 * 60 * 1000);
+    setInterval(fetchLiveWeather, 10 * 60 * 1000);
+});
 </script>
 </body>
 </html>
