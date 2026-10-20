@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="referrer" content="no-referrer-when-downgrade">
-<title>CHERRY1 MUSIC TELEVISION · Master Broadcast Studio 2026</title>
+<title>CHERRY1 MUSIC TELEVISION · Broadcast Studio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
 <!-- 🔴 HLS.JS STREAM MOTOR -->
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <style>
@@ -301,6 +301,10 @@
     .magazine-top-bar { display: flex; align-items: center; justify-content: space-between; }
 
     .magazine-body-grid { display: grid; grid-template-columns: 46% 51%; gap: 3%; align-items: center; flex: 1; padding: 12px 0; }
+    .magazine-body-grid.no-image { grid-template-columns: minmax(0, 1fr); }
+    .magazine-body-grid.no-image .mag-image-wrap { display: none !important; }
+    .mag-image-sharp-fg { display: block; }
+
     .magazine-body-grid.comb-in { animation: newsCardCombIn 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     .magazine-body-grid.comb-out { animation: newsCardCombOut 0.5s cubic-bezier(0.7, 0, 0.84, 0) forwards; }
     @keyframes newsCardCombIn { 0% { transform: translateY(24px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
@@ -649,6 +653,284 @@
         background: #04060a; border: 1px solid var(--border); border-radius: 10px; padding: 10px; font-family: 'JetBrains Mono', monospace;
         font-size: 0.70rem; color: #94a3b8; max-height: 110px; overflow-y: auto;
     }
+
+
+    /* CHERRY1 PREMIUM SYSTEM — finom kontraszt, kevesebb GPU-terhelés */
+    .master-header {
+        background: linear-gradient(115deg, #140711 0%, #3d071c 58%, #9f1239 100%);
+        box-shadow: 0 8px 26px rgba(0,0,0,.32);
+        border-color: rgba(255,255,255,.13);
+    }
+    .tv-screen-wrapper {
+        border-radius: 14px;
+        box-shadow: 0 12px 32px rgba(0,0,0,.55);
+        border-color: rgba(255,255,255,.12);
+    }
+    /* VIVA-korszakos zenei lower-third hangulat: nagy csatornalogó, erős címek, egyszerű rétegek. */
+    .tv-cherry-track-card {
+        bottom: 3.2cqw;
+        left: 2.8cqw;
+        max-width: min(78cqw, 900px);
+        gap: 1.1cqw;
+        align-items: center;
+        padding: 1.0cqw 2.0cqw 1.0cqw 1.15cqw;
+        background: linear-gradient(90deg, rgba(8,10,18,.96) 0%, rgba(8,10,18,.92) 70%, rgba(255,17,85,.25) 100%);
+        border: 1px solid rgba(255,255,255,.18);
+        border-left: .72cqw solid #ff1155;
+        border-bottom: .22cqw solid #38bdf8;
+        border-radius: 4px 10px 10px 4px;
+        box-shadow: 0 6px 18px rgba(0,0,0,.35);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+        transform: translate3d(0, 8px, 0);
+        transition: opacity .22s ease, transform .22s ease;
+    }
+    .tv-cherry-track-card.card-active { transform: translate3d(0,0,0); }
+    .c1-card-emblem {
+        display: block !important;
+        width: 7.0cqw;
+        min-width: 42px;
+        max-width: 92px;
+        height: auto;
+        flex: 0 0 auto;
+        filter: drop-shadow(0 2px 5px rgba(0,0,0,.35));
+    }
+    .c1-card-body { gap: .28cqw; min-width: 0; flex: 1; }
+    .c1-card-channel {
+        font: 900 clamp(.58rem, .72cqw, .82rem)/1.1 'JetBrains Mono', monospace;
+        letter-spacing: 1.25px;
+        color: #ff6c96;
+        text-transform: uppercase;
+        opacity: 1;
+    }
+    .c1-card-channel span { color: #e2e8f0; font-weight: 700; }
+    .c1-card-meta-row { gap: .55cqw; }
+    .c1-card-tag {
+        background: #ff1155;
+        border: 0;
+        color: #fff;
+        box-shadow: none;
+        border-radius: 2px;
+        padding: .18cqw .62cqw;
+        font-family: 'Outfit', sans-serif;
+        letter-spacing: .7px;
+    }
+    .c1-card-artist {
+        font-size: clamp(1.08rem, 1.75cqw, 2.1rem);
+        letter-spacing: .18px;
+        line-height: 1.08;
+        text-transform: uppercase;
+        text-shadow: none;
+    }
+    .c1-card-title {
+        color: #8edcff;
+        font-size: clamp(.78rem, 1.08cqw, 1.28rem);
+        font-weight: 700;
+    }
+    @media (max-width: 520px) {
+        .tv-cherry-track-card { max-width: 82cqw; gap: 1.1cqw; }
+        .c1-card-emblem { min-width: 36px; width: 7.0cqw; max-width: 64px; }
+        .c1-card-channel { letter-spacing: .55px; }
+    }
+    .tv-age-rating-container { filter: none; }
+    .nmhh-ring { box-shadow: 0 2px 8px rgba(0,0,0,.45); }
+    .weather-dash-title { letter-spacing: .2px; }
+    .weather-card-rich {
+        min-width: 0;
+        gap: .55cqw;
+        background: linear-gradient(155deg, rgba(10,15,27,.96), rgba(7,10,18,.92));
+        border: 1px solid rgba(255,255,255,.15);
+        border-top: 2px solid var(--cherry-red);
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0,0,0,.30);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+        padding: .85cqw 1cqw;
+    }
+    .wcr-icon-desc { min-width: 0; }
+    .wcr-icon-desc span:last-child { overflow: hidden; text-overflow: ellipsis; }
+    .wcr-icon-img { width: clamp(22px, 2.7cqw, 40px); height: clamp(22px, 2.7cqw, 40px); object-fit: contain; flex-shrink: 0; }
+    .wcr-emoji-icon { font-size: clamp(1.1rem, 1.7cqw, 1.8rem); flex-shrink: 0; }
+    .wcr-temp { color: #fff; text-shadow: none; white-space: nowrap; }
+    .wcr-feels { color: #aab8cc; font: 600 clamp(.58rem, .72cqw, .82rem)/1.2 'JetBrains Mono', monospace; }
+    .wcr-feels strong { color: #fff; }
+    .wcr-details-grid { gap: .45cqw .6cqw; font-size: clamp(.57rem, .7cqw, .78rem); color: #aab8cc; }
+    .wcr-details-grid span { min-width: 0; }
+    .wcr-details-grid strong { color: #f8fafc; font-weight: 800; }
+    .weather-empty-state {
+        grid-column: 1 / -1;
+        min-height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        text-align: center;
+        color: #cbd5e1;
+        border: 1px solid rgba(255,255,255,.18);
+        border-radius: 8px;
+        background: rgba(8,12,22,.84);
+        font-weight: 700;
+    }
+    .tv-bottom-news-crawler, .tv-epg-guide-banner, .mag-image-wrap {
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+    .btn-tv-primary, .btn-act, .day-tab-btn, .folder-tab-pill { transition: background-color .16s ease, border-color .16s ease, color .16s ease; }
+    .btn-tv-primary:hover { transform: none; }
+    @media (max-width: 760px) {
+        body { padding: 8px; }
+        .studio-container { gap: 10px; }
+        .master-header { padding: 12px; border-radius: 12px; }
+        .header-center-box { width: 100%; gap: 6px; }
+        .clock-display { font-size: 1rem; padding: 5px 10px; }
+        .tv-screen-wrapper { border-radius: 8px; }
+        .tv-controls-bar { padding: 10px; gap: 8px; }
+        .tv-controls-bar > div { width: 100%; }
+        .tv-controls-bar .btn-act, .tv-controls-bar .btn-tv-primary { min-height: 38px; }
+        .calendar-days-row { gap: 4px; }
+        .day-tab-btn { padding: 7px 2px; border-radius: 8px; }
+        .pro-rundown-wrapper { overflow-x: auto; }
+        .pro-rundown-header, .pro-rundown-row { min-width: 840px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+    body.eco-lite-mode .tv-cherry-track-card,
+    body.eco-lite-mode .weather-card-rich,
+    body.eco-lite-mode .master-header,
+    body.eco-lite-mode .tv-screen-wrapper { box-shadow: none !important; }
+    body.eco-lite-mode .tv-ambient-blur-canvas { display: none !important; }
+    body.eco-lite-mode .tv-video-deck { transition: opacity .08s linear !important; }
+    body.eco-lite-mode .tv-cherry-track-card,
+    body.eco-lite-mode .tv-epg-guide-banner,
+    body.eco-lite-mode .tv-bottom-news-crawler,
+    body.eco-lite-mode .weather-card-rich { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+
+    /* VIVA TV inspired, layerless lower third. Only transform/opacity animate. */
+    .tv-cherry-track-card {
+        left: 2.8cqw !important;
+        bottom: 3.0cqw !important;
+        display: flex;
+        align-items: center;
+        gap: 1.05cqw;
+        max-width: 68cqw;
+        padding: 0 !important;
+        background: transparent !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+        opacity: 0;
+        pointer-events: none;
+        transform: translate3d(-10px,0,0);
+        transition: opacity .20s linear, transform .24s ease-out;
+        will-change: transform, opacity;
+    }
+    .tv-cherry-track-card.card-active { opacity: 1; transform: translate3d(0,0,0); }
+    .c1-card-emblem {
+        width: 6.0cqw !important;
+        min-width: 40px !important;
+        max-width: 72px !important;
+        height: auto;
+        flex: 0 0 auto;
+        opacity: 0;
+        transform: perspective(320px) rotateY(-72deg) translate3d(-5px,0,0);
+        transform-origin: right center;
+        transition: transform .30s ease-out, opacity .16s linear;
+        filter: none !important;
+    }
+    .tv-cherry-track-card.card-active .c1-card-emblem {
+        opacity: 1;
+        transform: perspective(320px) rotateY(0deg) translate3d(0,0,0);
+    }
+    .c1-card-divider {
+        width: 1px;
+        height: 2.9em;
+        flex: 0 0 1px;
+        display: block;
+        background: linear-gradient(180deg, rgba(255,255,255,0), #ff1155 22%, #e2e8f0 50%, #38bdf8 78%, rgba(255,255,255,0));
+        opacity: 0;
+        transform: scaleY(.05);
+        transform-origin: center;
+        transition: transform .22s ease-out .10s, opacity .12s linear .10s;
+    }
+    .tv-cherry-track-card.card-active .c1-card-divider { opacity: .95; transform: scaleY(1); }
+    .c1-card-body {
+        min-width: 0;
+        max-width: 54cqw;
+        display: flex;
+        flex-direction: column;
+        gap: .22cqw;
+        overflow: hidden;
+        background: transparent !important;
+    }
+    .c1-card-heading-row { display:flex; align-items:center; gap: .8cqw; min-width:0; }
+    .c1-card-meta-row { display:flex; align-items:center; gap:.5cqw; flex:0 0 auto; }
+    .c1-card-tag {
+        display:inline-flex;
+        align-items:center;
+        background: rgba(255,17,85,.94);
+        border: 0 !important;
+        border-radius: 2px !important;
+        padding: .12cqw .48cqw !important;
+        font: 800 clamp(.54rem,.66cqw,.76rem)/1.15 'Outfit',sans-serif !important;
+        letter-spacing: .45px !important;
+        color:#fff;
+        box-shadow:none !important;
+        white-space:nowrap;
+    }
+    .c1-card-artist {
+        min-width:0;
+        font: 800 clamp(.76rem,1.12cqw,1.18rem)/1.16 'Outfit',sans-serif !important;
+        letter-spacing:.18px !important;
+        color:#fff !important;
+        text-transform:uppercase;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        text-shadow:0 1px 4px rgba(0,0,0,.9) !important;
+    }
+    .c1-card-title {
+        font: 600 clamp(.66rem,.88cqw,.94rem)/1.18 'Outfit',sans-serif !important;
+        color:#b9eaff !important;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        text-shadow:0 1px 4px rgba(0,0,0,.95) !important;
+    }
+    .c1-card-time {
+        display:none;
+        font:700 clamp(.52rem,.62cqw,.72rem)/1.1 'JetBrains Mono',monospace !important;
+        color:#f8fafc !important;
+        white-space:nowrap;
+    }
+    @media (max-width: 760px) {
+        .tv-cherry-track-card { left:2.3cqw !important; bottom:2.7cqw !important; gap:1.3cqw; max-width:78cqw; }
+        .c1-card-emblem { width:7.2cqw !important; min-width:34px !important; max-width:52px !important; }
+        .c1-card-body { max-width:62cqw; }
+        .c1-card-artist { font-size:clamp(.64rem,1.7cqw,.90rem) !important; }
+        .c1-card-title { font-size:clamp(.58rem,1.35cqw,.76rem) !important; }
+        .c1-card-tag { font-size:clamp(.48rem,1.05cqw,.62rem) !important; }
+    }
+    body.eco-lite-mode .tv-cherry-track-card { box-shadow:none !important; }
+    body.eco-lite-mode .c1-card-emblem { filter:none !important; transition-duration:.16s !important; }
+    body.eco-lite-mode .c1-card-divider { transition-duration:.14s !important; }
+    body.eco-lite-mode .tv-cherry-track-card { transition-duration:.16s !important; }
+
+    /* EPG: exactly the next 30-minute window, four columns and up to two rows. */
+    .epg-grid { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; gap: .65cqw !important; }
+    .epg-countdown-bar-fill.running { animation-duration: var(--epg-duration, 20s) !important; }
+    .epg-item { min-width:0; padding:.52cqw .75cqw; }
+    .epg-artist, .epg-title { overflow:hidden; text-overflow:ellipsis; }
+    .epg-main-headline { min-width:0; }
+    @media (max-width: 520px) {
+        .epg-grid { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; gap: .5cqw !important; }
+        .epg-item { padding: .45cqw .5cqw; }
+        .epg-artist { font-size:clamp(.52rem,.85cqw,.76rem); }
+        .epg-title { font-size:clamp(.48rem,.72cqw,.66rem); }
+    }
+
 </style>
 </head>
 <body>
@@ -757,7 +1039,7 @@
             </div>
             <div class="magazine-body-grid" id="mag-news-body-grid">
                 <div class="mag-image-wrap">
-                    <img id="mag-story-img-fg" class="mag-image-sharp-fg" src="" alt="Hírkép">
+                    <img id="mag-story-img-fg" class="mag-image-sharp-fg" src="" alt="A hír eredeti képe" loading="eager" decoding="async">
                     <div class="mag-source-overlay" id="mag-source-tag">INDEX</div>
                 </div>
                 <div class="mag-details-col">
@@ -860,9 +1142,9 @@
             </div>
 
             <!-- 🍒 TISZTÍTOTT DALINFÓ KÁRTYA: FELÜL VASTAG FEHÉR ELŐADÓ, ALATTA VÉKONY VILÁGOSKÉK DALCÍM -->
-            <div class="tv-cherry-track-card" id="tv-cherry-track-card">
-                <svg class="c1-card-emblem" viewBox="0 0 70 100">
-                    <rect x="3" y="3" width="64" height="94" rx="14" fill="none" stroke="rgba(255,255,255,0.95)" stroke-width="4.5"/>
+            <div class="tv-cherry-track-card" id="tv-cherry-track-card" aria-live="off">
+                <svg class="c1-card-emblem" viewBox="0 0 70 100" aria-label="CHERRY1">
+                    <rect x="3" y="3" width="64" height="94" rx="14" fill="none" stroke="rgba(255,255,255,0.98)" stroke-width="4.5"/>
                     <path d="M22 28 C 26 12, 38 8, 48 5" stroke="#10b981" stroke-width="3.5" stroke-linecap="round" fill="none"/>
                     <path d="M44 28 C 42 15, 38 8, 48 5" stroke="#10b981" stroke-width="3.5" stroke-linecap="round" fill="none"/>
                     <circle cx="22" cy="38" r="11" fill="#ff1155" stroke="#ffffff" stroke-width="2.5"/>
@@ -870,12 +1152,15 @@
                     <circle cx="44" cy="38" r="11" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="2.5" stroke-dasharray="3,2"/>
                     <text x="35" y="85" font-family="'Outfit', sans-serif" font-size="34" font-weight="900" fill="#ffffff" text-anchor="middle">1</text>
                 </svg>
+                <span class="c1-card-divider" aria-hidden="true"></span>
                 <div class="c1-card-body">
-                    <div class="c1-card-meta-row">
-                        <span class="c1-card-tag" id="c1-card-tag">MOST SZÓL</span>
-                        <span class="c1-card-time" id="c1-card-time">14:00</span>
+                    <div class="c1-card-heading-row">
+                        <div class="c1-card-artist" id="c1-card-artist">BALÁZS PALI</div>
+                        <div class="c1-card-meta-row">
+                            <span class="c1-card-tag" id="c1-card-tag">MOST SZÓL</span>
+                            <span class="c1-card-time" id="c1-card-time">14:00</span>
+                        </div>
                     </div>
-                    <div class="c1-card-artist" id="c1-card-artist">BALÁZS PALI</div>
                     <div class="c1-card-title" id="c1-card-title">Homok Szerelem</div>
                 </div>
             </div>
@@ -895,6 +1180,7 @@
             <button class="btn-act" style="color:var(--accent-cyan); border-color:var(--accent-cyan);" onclick="triggerTrackCardTest()">🎴 Dalinfó Teszt</button>
             <button class="btn-act" style="color:var(--cherry-green); border-color:var(--cherry-green);" onclick="triggerBottomNewsCrawlerTest()">📰 Hírsáv Teszt</button>
             <button class="btn-act" style="color:var(--accent-amber); border-color:var(--accent-amber);" onclick="triggerHourlyNewsTest(false)">📰 Hírek röviden Teszt</button>
+            <button class="btn-act" style="color:#7dd3fc; border-color:#7dd3fc;" onclick="triggerGoogleWeatherTest()">⛅ Google Weather Teszt</button>
             <button class="btn-act" id="btn-logo-pos-toggle" onclick="toggleLogoCornerPosition()">📍 Logó: JOBB FELSŐ</button>
             <button class="btn-act active-toggle" onclick="togglePositionModal()">⚙️ Beállítások & Finomhangolás</button>
             <button class="btn-act" onclick="toggleCustomFullscreen()">⛶ Teljes Képernyő</button>
@@ -1170,7 +1456,7 @@
         </div>
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <span style="font-size:0.70rem; color:#fff;">Éjféli Napi Összefoglaló:</span>
-            <button class="btn-act active-toggle" id="btn-toggle-midnight-news" onclick="toggleMidnightNewsConfig()" style="font-size:0.7rem; padding:3px 10px;">BE</button>
+            <button class="btn-act" id="btn-toggle-midnight-news" onclick="toggleMidnightNewsConfig()" style="font-size:0.7rem; padding:3px 10px;">KI</button>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
             <div>
@@ -1236,6 +1522,15 @@
 
 <script>
     const WORKER_URL = "https://kepbenoszlop.androjid21.workers.dev";
+    // A Google Weather adatokat a Cloudflare Worker proxyzza; API-kulcs nincs a HTML-ben.
+    const GOOGLE_WEATHER_ENDPOINT = `${WORKER_URL}/api/tv/google-weather`;
+    const GOOGLE_WEATHER_CACHE_KEY = "cherry1_google_weather_cache_v1";
+    const GOOGLE_WEATHER_CACHE_TTL_MS = 55 * 60 * 1000;
+    const BUDAPEST_WALLCLOCK_FORMATTER = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Europe/Budapest', year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23'
+    });
+    const STORAGE_KEY_MIDNIGHT_NEWS_CONFIGURED = "cherry1_midnight_news_configured_v1";
     const BACKUP_DEMO_STREAM = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
     const STORAGE_KEY_SETTINGS = "cherry1_broadcast_settings_v27";
     const STORAGE_KEY_SCHEDULE = "cherry1_broadcast_schedule_v27";
@@ -1278,7 +1573,7 @@
     let ratingEndTime = "23:59";
 
     let enableDaytimeNews = true;
-    let enableMidnightNews = true;
+    let enableMidnightNews = false;
     let newsStartTime = "06:00";
     let newsEndTime = "23:00";
 
@@ -1302,9 +1597,23 @@
 
     let isCrawlerActive = false;
     let isEpgActive = false;
+    let lastEpgTriggerKey = '';
     let crawlerStoryIndex = 0;
     let crawlerTimer = null;
-    let lastCrawlerTriggerMinute = -1;
+    let lastCrawlerTriggerKey = "";
+    let hasExplicitMidnightNewsPreference = false;
+    let lastNewsSlotKey = "";
+    let newsLaunchTimer = null;
+    let lastObservedScheduleDateKey = "";
+    let nextDayGenerationInFlightKey = "";
+    let nextDayGenerationLastAttemptMs = 0;
+    let isDayRolloverSyncing = false;
+    let googleWeatherCacheTimestamp = 0;
+    let googleWeatherFetchPromise = null;
+    let googleWeatherLastAttemptFailed = false;
+    let googleWeatherLastAttemptPartial = false;
+    let googleWeatherLastError = "";
+    let googleWeatherLastUpdatedCount = 0;
     let audioFadeInterval = null;
 
     // 🇭🇺 HAZAI KÖZPONTOK
@@ -1376,6 +1685,7 @@
     const analogSecGroup = document.getElementById('analog-sec-group');
     const hourlyNewsMagazine = document.getElementById('tv-hourly-news-magazine');
     const magStoryImgFg = document.getElementById('mag-story-img-fg');
+    const magImageWrap = magStoryImgFg ? magStoryImgFg.closest('.mag-image-wrap') : null;
     const magSourceTag = document.getElementById('mag-source-tag');
     const magCatLbl = document.getElementById('mag-cat-lbl');
     const magTimeLbl = document.getElementById('mag-time-lbl');
@@ -1434,10 +1744,14 @@
     }
 
     function getBudapestNow() {
-        const localNowMs = Date.now() + serverTimeOffsetMs;
-        const d = new Date(localNowMs);
-        const bpStr = d.toLocaleString('en-US', { timeZone: 'Europe/Budapest' });
-        return new Date(bpStr);
+        // A böngésző saját időzónájától független Budapest-falióra.
+        // A visszaadott Date helyi getterei szándékosan a budapesti falióra értékeit adják,
+        // hogy a régi műsorterv-függvények (getHours/setDate stb.) konzisztensen működjenek.
+        const instant = new Date(Date.now() + serverTimeOffsetMs);
+        const parts = BUDAPEST_WALLCLOCK_FORMATTER.formatToParts(instant);
+        const values = {};
+        for (const part of parts) if (part.type !== 'literal') values[part.type] = Number(part.value);
+        return new Date(values.year, values.month - 1, values.day, values.hour, values.minute, values.second, instant.getMilliseconds());
     }
 
     async function syncServerTimeWithWorker() {
@@ -1674,23 +1988,41 @@
         const schedule = weekSchedules[dateKey];
         if (!schedule || schedule.length === 0) return;
 
+        let previousEnd = Number(schedule[0] && schedule[0].startSec) || 0;
         for (let i = 0; i < schedule.length; i++) {
             const item = schedule[i];
-            if (item.isNews || item.isSpecialLink) continue;
+            if (!item || !Number.isFinite(Number(item.duration))) continue;
 
-            const realDur = clipDurationsCache[item.filename || item.url];
-            if (realDur && realDur > 10) {
-                item.duration = realDur;
+            if (item.isNews) {
+                // Hírek fix órakezdésre vannak kötve, az időtartamuk nem függhet a háttérvideótól.
+                const preferredStart = Number.isFinite(Number(item.startSec)) ? Number(item.startSec) : previousEnd;
+                item.startSec = Math.max(previousEnd, preferredStart);
+                item.duration = Math.max(1, Number(item.duration) || 137);
+                item.endSec = item.startSec + item.duration;
+            } else if (item.isSpecialLink) {
+                // Kézzel időzített különműsor/live elem megtartja a tervezett kezdését,
+                // de nem kezdődhet az előző műsorelem vége előtt.
+                const preferredStart = Number.isFinite(Number(item.startSec)) ? Number(item.startSec) : previousEnd;
+                item.startSec = Math.max(previousEnd, preferredStart);
+                const cachedSpecialDuration = clipDurationsCache[item.filename || item.url];
+                if (cachedSpecialDuration && cachedSpecialDuration > 10) item.duration = cachedSpecialDuration;
+                item.endSec = item.startSec + Math.max(1, Number(item.duration) || 180);
+            } else {
+                item.startSec = previousEnd;
+                const hourBoundary = (Math.floor(item.startSec / 3600) + 1) * 3600;
+                const nextFixed = schedule.slice(i + 1).find(next => next && (next.isNews || next.isSpecialLink));
+                const boundary = Math.min(hourBoundary, nextFixed && Number.isFinite(Number(nextFixed.startSec)) ? Number(nextFixed.startSec) : 86400);
+                const available = Math.max(1, boundary - item.startSec);
+                const cachedDuration = clipDurationsCache[item.filename || item.url];
+                const desiredDuration = cachedDuration && cachedDuration > 10 ? cachedDuration : (Number(item.duration) || 180);
+                // A klip nem lóghat bele a következő órába, híradóba vagy fix különműsorba.
+                item.duration = Math.max(1, Math.min(desiredDuration, available));
+                item.endSec = item.startSec + item.duration;
             }
-        }
 
-        for (let i = 1; i < schedule.length; i++) {
-            if (!schedule[i].isSpecialLink && !schedule[i].isNews) {
-                schedule[i].startSec = schedule[i - 1].endSec;
-                schedule[i].endSec = schedule[i].startSec + schedule[i].duration;
-                schedule[i].startTimeStr = formatSecToHMS(schedule[i].startSec);
-                schedule[i].endTimeStr = formatSecToHMS(schedule[i].endSec);
-            }
+            item.startTimeStr = formatSecToHMS(item.startSec);
+            item.endTimeStr = formatSecToHMS(item.endSec);
+            previousEnd = item.endSec;
         }
 
         renderBroadcastRundown();
@@ -1864,7 +2196,7 @@
         if (ambientBlurAnimFrame) return;
         let lastFrameTime = 0;
         const renderLoop = (time) => {
-            if (!isCurrentVideo43 || currentAspectRatioMode !== 'blur' || isEcoLiteMode) {
+            if (!isCurrentVideo43 || currentAspectRatioMode !== 'blur' || isEcoLiteMode || document.visibilityState !== 'visible') {
                 stopAmbientBlurLoop();
                 return;
             }
@@ -1887,13 +2219,41 @@
         }
     }
 
-    function toggleEcoMode() {
-        isEcoLiteMode = !isEcoLiteMode;
+    function shouldAutoUseEcoLiteMode() {
+        const nav = navigator;
+        const memory = Number(nav.deviceMemory || 0);
+        const cores = Number(nav.hardwareConcurrency || 0);
+        const connection = nav.connection || nav.mozConnection || nav.webkitConnection;
+        const saveData = Boolean(connection && connection.saveData);
+        // Only force Lite automatically for strong low-end indicators; users can still toggle it manually.
+        return saveData || (memory > 0 && memory <= 2) || (memory > 0 && memory <= 3 && cores > 0 && cores <= 4) || (cores > 0 && cores <= 2);
+    }
+
+    function setEcoLiteMode(enabled, automatic = false) {
+        isEcoLiteMode = Boolean(enabled);
         document.body.classList.toggle('eco-lite-mode', isEcoLiteMode);
         const btn = document.getElementById('btn-toggle-eco-mode');
-        if (btn) btn.classList.toggle('active-toggle', isEcoLiteMode);
+        if (btn) {
+            btn.classList.toggle('active-toggle', isEcoLiteMode);
+            btn.title = automatic && isEcoLiteMode
+                ? 'Automatikusan bekapcsolva az eszköz kímélése érdekében; kattintással módosítható.'
+                : 'Erőforrás-kímélő megjelenítési mód';
+        }
+        if (isEcoLiteMode) stopAmbientBlurLoop();
         applyAspectRatioToDecks();
+    }
+
+    function toggleEcoMode() {
+        setEcoLiteMode(!isEcoLiteMode, false);
         log(`⚡ Erőforrás-kímélő mód: ${isEcoLiteMode ? 'BE' : 'KI'}`, 'info');
+    }
+
+    function enableLiteModeForWeakDevices() {
+        const reducedMotion = Boolean(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+        const lowMemory = Number.isFinite(navigator.deviceMemory) && navigator.deviceMemory <= 2;
+        const smallDeviceWithFewCores = window.matchMedia && window.matchMedia('(max-width: 768px)').matches
+            && Number.isFinite(navigator.hardwareConcurrency) && navigator.hardwareConcurrency <= 4;
+        if (reducedMotion || lowMemory || smallDeviceWithFewCores) setEcoLiteMode(true, true);
     }
 
     function unlockAudioOnUserGesture() {
@@ -2147,9 +2507,32 @@
         const incomingDeck = getInactiveVideoElement();
         const incomingDeckName = (activeDeckName === 'A') ? 'B' : 'A';
 
-        const nextIdx = (customTargetIndex !== -1) ? customTargetIndex : ((currentClipIndex + 1) % schedule.length);
+        let nextIdx = (customTargetIndex !== -1) ? customTargetIndex : ((currentClipIndex + 1) % schedule.length);
+        let newClip = schedule[nextIdx];
+        if (newClip && newClip.isNews) {
+            const now = getBudapestNow();
+            const currentSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+            const eventHour = Math.floor(Number(newClip.startSec || 0) / 3600);
+            const secondsUntilEvent = Number(newClip.startSec || 0) - currentSec;
+            if (isNewsEnabledForHour(eventHour) && secondsUntilEvent >= 0 && secondsUntilEvent <= 20) {
+                isVideoTransitioning = false;
+                startHourlyNewsBulletin(false, eventHour === 0);
+                return;
+            }
+            // A hírkapcsoló kikapcsolt állapotában vagy túl korai zeneszám-vég esetén továbbmegyünk a következő zenére.
+            let searched = 0;
+            do {
+                nextIdx = (nextIdx + 1) % schedule.length;
+                newClip = schedule[nextIdx];
+                searched++;
+            } while (newClip && newClip.isNews && searched < schedule.length);
+            if (!newClip || newClip.isNews) {
+                isVideoTransitioning = false;
+                return;
+            }
+        }
+        const previousClipIndex = currentClipIndex;
         currentClipIndex = nextIdx;
-        const newClip = schedule[nextIdx];
 
         currentAgeRating = newClip.rating || '12';
         updateAgeRatingBadgeUI();
@@ -2182,9 +2565,11 @@
         incomingDeck.volume = 0;
 
         let hasSwitched = false;
+        let switchFallbackTimer = null;
         const performDeckSwap = () => {
             if (hasSwitched) return;
             hasSwitched = true;
+            if (switchFallbackTimer) { clearTimeout(switchFallbackTimer); switchFallbackTimer = null; }
 
             detectVideoAspectRatio(incomingDeck);
             incomingDeck.classList.add('active');
@@ -2213,9 +2598,22 @@
         incomingDeck.addEventListener('playing', performDeckSwap, { once: true });
         playMediaSource(incomingDeck, nextSrc, 0, Boolean(newClip.isLiveStream));
 
-        setTimeout(() => {
-            if (!hasSwitched) performDeckSwap();
-        }, 800);
+        // Csak akkor váltunk tartalékból, ha már dekódolható képkocka áll rendelkezésre.
+        // Gyenge mobilhálózaton a régi deck marad látható a betöltés alatt.
+        switchFallbackTimer = setTimeout(() => {
+            if (hasSwitched) return;
+            if (incomingDeck.readyState >= 2 && !incomingDeck.paused) {
+                performDeckSwap();
+                return;
+            }
+            incomingDeck.removeEventListener('playing', performDeckSwap);
+            incomingDeck.pause();
+            purgeDeckMemory(incomingDeck);
+            currentClipIndex = previousClipIndex;
+            isVideoTransitioning = false;
+            renderBroadcastRundown();
+            log(`⚠️ A következő klip nem indult el időben: ${newClip.title}. Az előző kép megőrizve, újrapróbálható.`, 'warn');
+        }, 6500);
     }
 
     function runBroadcastHealthCheck() {
@@ -2239,7 +2637,7 @@
     }
     setInterval(runBroadcastHealthCheck, 1000);
 
-    /* 📺 EPG SÁV */
+    /* 📺 EPG SÁV — a kijelzett pillanattól számított pontos 30 perces ablak */
     function showUpcomingEpgGuide() {
         if (!isTvBroadcasting || isHourlyNewsRunning || isTrackCardOpen || isCrawlerActive || isEpgActive) return;
         const todayKey = getSelectedDateKey(0);
@@ -2248,7 +2646,35 @@
 
         const now = getBudapestNow();
         const curSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-        const upcoming = schedule.filter(it => it.startSec > curSec && !it.isNews).slice(0, 4);
+        const endWindowSec = curSec + 30 * 60;
+        const timeline = [];
+
+        schedule.forEach((item, index) => {
+            if (!item || item.isNews || index === currentClipIndex) return;
+            const start = Number(item.startSec);
+            if (!Number.isFinite(start)) return;
+            if (start > curSec && start < Math.min(endWindowSec, 86400)) {
+                timeline.push({ item, timelineStartSec: start });
+            }
+        });
+
+        // Ha a 30 perces időablak átlépi az éjfélt, a következő napi adástervet is figyelembe vesszük.
+        if (endWindowSec > 86400) {
+            const tomorrowKey = getSelectedDateKey(1);
+            const tomorrowSchedule = weekSchedules[tomorrowKey] || [];
+            tomorrowSchedule.forEach(item => {
+                if (!item || item.isNews) return;
+                const start = Number(item.startSec);
+                if (!Number.isFinite(start)) return;
+                const timelineStartSec = 86400 + start;
+                if (timelineStartSec > curSec && timelineStartSec < endWindowSec) {
+                    timeline.push({ item, timelineStartSec });
+                }
+            });
+        }
+
+        const upcoming = timeline.sort((a, b) => a.timelineStartSec - b.timelineStartSec)
+            .slice(0, 8).map(entry => entry.item);
         if (upcoming.length === 0) return;
 
         if (epgCurrentClock) epgCurrentClock.textContent = now.toLocaleTimeString('hu-HU');
@@ -2260,10 +2686,12 @@
         if (epgItemsContainer) {
             epgItemsContainer.innerHTML = upcoming.map((item, idx) => {
                 const parsed = parseArtistAndTitle(item.title);
+                const rawTime = String(item.startTimeStr || '');
+                const timeLabel = rawTime.match(/^\d{2}:\d{2}/)?.[0] || rawTime;
                 return `
                     <div class="epg-item">
                         <div class="epg-item-header">
-                            <span class="epg-time">${idx === 0 ? '▶ ' : ''}${escapeHtml(item.startTimeStr)}</span>
+                            <span class="epg-time">${idx === 0 ? '▶ ' : ''}${escapeHtml(timeLabel)}</span>
                         </div>
                         <div class="epg-artist">${escapeHtml(parsed.artist)}</div>
                         <div class="epg-title">${escapeHtml(parsed.title)}</div>
@@ -2272,14 +2700,21 @@
             }).join('');
         }
 
+        // A meglévő 4 oszlopot megtartjuk: egy sor 1–4 kártyával 20 mp,
+        // két sor 5–8 kártyával 40 mp képernyőidőt kap.
+        const rows = Math.max(1, Math.ceil(upcoming.length / 4));
+        const displayDurationMs = rows * 20000;
         isEpgActive = true;
         if (tvEpgGuideBanner) {
+            tvEpgGuideBanner.style.setProperty('--epg-duration', `${displayDurationMs / 1000}s`);
             tvEpgGuideBanner.classList.remove('comb-out');
             tvEpgGuideBanner.classList.add('comb-in');
         }
 
         if (epgCountdownFill) {
+            epgCountdownFill.style.setProperty('--epg-duration', `${displayDurationMs / 1000}s`);
             epgCountdownFill.classList.remove('running');
+            // Reset only the small progress element, not the video or TV screen.
             void epgCountdownFill.offsetWidth;
             epgCountdownFill.classList.add('running');
         }
@@ -2290,17 +2725,17 @@
                 tvEpgGuideBanner.classList.add('comb-out');
             }
             setTimeout(() => { isEpgActive = false; }, 650);
-        }, 20000);
+        }, displayDurationMs);
     }
 
     /* 📰 ALSÓ HÍRSÁV (3 HÍR EGYMÁS UTÁN) */
     function startBottomNewsCrawlerBlock() {
         if (!isTvBroadcasting || isHourlyNewsRunning || isTrackCardOpen || isEpgActive || isCrawlerActive) return;
-        const freshStories = (rawNewsStories.length > 0) ? rawNewsStories.slice(0, 3) : [
-            { title: "Cherry1 Music Television: 24 órás HD zenei adás", description: "A legújabb hazai és nemzetközi slágerek kristálytiszta minőségben.", source: "CHERRY1", date: new Date().toISOString() },
-            { title: "Friss zenei hírek és klippremierek folyamatosan", description: "Kövesd a Cherry1 műsorát a legújabb zenei trendekért.", source: "CHERRY1", date: new Date().toISOString() }
-        ];
-
+        const freshStories = rawNewsStories.slice(0, 3);
+        if (freshStories.length === 0) {
+            log("📰 Hírsáv kihagyva: nincs ellenőrzött, megjeleníthető hír.", 'warn');
+            return;
+        }
         isCrawlerActive = true;
         crawlerStoryIndex = 0;
         showSingleCrawlerStory(freshStories);
@@ -2381,7 +2816,19 @@
     }
 
     /* 📰 HÍREK RÖVIDEN MAGAZIN */
-    function startHourlyNewsBulletin(isManualTest = false, forceMidnight = false) {
+    function isHourInsideNewsWindow(hour) {
+        const hh = `${String(hour).padStart(2, '0')}:00`;
+        return newsStartTime <= newsEndTime
+            ? (hh >= newsStartTime && hh <= newsEndTime)
+            : (hh >= newsStartTime || hh <= newsEndTime);
+    }
+
+    function isNewsEnabledForHour(hour) {
+        if (hour === 0) return Boolean(enableMidnightNews);
+        return Boolean(enableDaytimeNews && isHourInsideNewsWindow(hour));
+    }
+
+    function startHourlyNewsBulletin(isManualTest = false, forceMidnight = false, startImmediately = false) {
         const todayKey = getSelectedDateKey(0);
         const curClip = (weekSchedules[todayKey] || [])[currentClipIndex];
 
@@ -2389,42 +2836,39 @@
             log("🛑 Koncert/műsor alatt a Hírek röviden szünetel.", "info");
             return;
         }
-
         if (isHourlyNewsRunning) return;
-        isHourlyNewsRunning = true;
-        isMidnightEdition = forceMidnight;
 
+        isHourlyNewsRunning = true;
+        isMidnightEdition = Boolean(forceMidnight);
         resetTrackGraphicsState();
         endBottomNewsCrawler();
         if (tvEpgGuideBanner) tvEpgGuideBanner.classList.remove('comb-in');
         evaluateAgeRatingVisibility();
 
-        stationClockOverlay.classList.add('active');
+        if (stationClockOverlay) stationClockOverlay.classList.add('active');
         isStationClockVisible = true;
 
-        const now = getBudapestNow();
-        let secondsToTop = isManualTest ? 4 : (60 - now.getSeconds());
-        if (secondsToTop <= 0) secondsToTop = 60;
-
-        const clockInterval = setInterval(() => {
-            secondsToTop--;
-            if (secondsToTop <= 0) {
-                clearInterval(clockInterval);
-                purgeDeckMemory(deckA);
-                purgeDeckMemory(deckB);
-                deckA.classList.remove('active');
-                deckB.classList.remove('active');
-                stationClockOverlay.classList.remove('active');
-                isStationClockVisible = false;
-                launchNewsMagazinePlayback();
-            }
-        }, 1000);
+        if (newsLaunchTimer) clearTimeout(newsLaunchTimer);
+        const correctedNow = Date.now() + serverTimeOffsetMs;
+        const nextMinuteMs = 60000 - (correctedNow % 60000);
+        const waitMs = startImmediately ? 250 : (isManualTest ? 4000 : Math.max(100, nextMinuteMs));
+        newsLaunchTimer = setTimeout(() => {
+            newsLaunchTimer = null;
+            purgeDeckMemory(deckA);
+            purgeDeckMemory(deckB);
+            deckA.classList.remove('active');
+            deckB.classList.remove('active');
+            if (stationClockOverlay) stationClockOverlay.classList.remove('active');
+            isStationClockVisible = false;
+            launchNewsMagazinePlayback();
+        }, waitMs);
     }
 
     function launchNewsMagazinePlayback() {
         if (!hourlyNewsMagazine) return;
+        refreshGoogleWeatherData(false).catch(() => {});
         const targetSrc = isMidnightEdition ? (customMidnightBgVideoUrl || customNewsBgVideoUrl || BACKUP_DEMO_STREAM) : (customNewsBgVideoUrl || BACKUP_DEMO_STREAM);
-        let targetNewsDurationSec = 137;
+        const targetNewsDurationSec = isMidnightEdition && enableMidnightNews ? 600 : 137;
 
         if (newsBgVideo) {
             newsBgVideo.src = targetSrc;
@@ -2432,30 +2876,33 @@
             ensureDeckAudio(newsBgVideo);
             newsBgVideo.loop = true;
             newsBgVideo.classList.add('active');
-            newsBgVideo.onloadedmetadata = () => {
-                if (newsBgVideo.duration && !isNaN(newsBgVideo.duration) && newsBgVideo.duration > 20) {
-                    targetNewsDurationSec = Math.round(newsBgVideo.duration);
-                    log(`📰 Hírek alatti klip felismerve: ${targetNewsDurationSec} mp`, 'info');
-                }
-            };
+            // A háttérklip hossza dekorációs elem: nem írhatja felül a fix műsoridőt.
+            newsBgVideo.onloadedmetadata = null;
             newsBgVideo.play().catch(()=>{});
         }
 
         hourlyNewsMagazine.classList.add('active');
         if (magMainTitleTxt) {
-            magMainTitleTxt.textContent = "Hírek röviden";
+            magMainTitleTxt.textContent = isMidnightEdition ? "Éjféli hírek" : "Hírek röviden";
         }
 
-        let activeStories = (rawNewsStories.length > 0) ? rawNewsStories.slice(0, 5) : [
-            { title: "Cherry1 Music Television: 24 órás digitális zenei adás", description: "A legújabb slágerek kristálytiszta minőségben a képernyőn.", source: "CHERRY1", date: new Date().toISOString(), image: "" },
-            { title: "Zenei újdonságok és friss klippremierek a Cherry1 műsorán", description: "Folyamatos frissítések a magyar és nemzetközi toplistákról.", source: "CHERRY1", date: new Date().toISOString(), image: "" }
-        ];
+        let activeStories = rawNewsStories.slice(0, 5);
+        if (activeStories.length === 0) {
+            activeStories = [{
+                title: "Jelenleg nincs megjeleníthető, ellenőrzött hír",
+                description: "A hírcsatornák frissítés alatt állnak. A következő blokkban csak ellenőrzött hír jelenik meg.",
+                source: "INFORMÁCIÓ",
+                date: new Date().toISOString(),
+                image: "",
+                isStatus: true
+            }];
+        }
 
         if (magNewsBodyGrid) magNewsBodyGrid.style.display = 'grid';
         if (magWeatherDashboard) magWeatherDashboard.style.display = 'none';
 
         // 🌟 Pontos időfelosztás a klip legutolsó képkockájáig (nincs levágás!)
-        const availableContentSec = Math.max(60, targetNewsDurationSec - 4);
+        const availableContentSec = Math.max(60, targetNewsDurationSec);
         const weatherTotalDurationSec = Math.min(45, Math.round(availableContentSec * 0.33));
         const newsTotalDurationSec = availableContentSec - weatherTotalDurationSec;
         const perStoryDurationMs = Math.round((newsTotalDurationSec / activeStories.length) * 1000);
@@ -2470,9 +2917,38 @@
             }
 
             const item = activeStories[sIndex];
-            const imgUrl = item.image || "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80";
-
-            if (magStoryImgFg) magStoryImgFg.src = imgUrl;
+            const originalImageUrl = safeNewsImageUrl(item.image || item.thumbnail || "");
+            const imgUrl = getNewsImageDisplayUrl(originalImageUrl);
+            let triedDirectImageFallback = false;
+            if (magNewsBodyGrid) magNewsBodyGrid.classList.toggle('no-image', !imgUrl);
+            if (magImageWrap) magImageWrap.style.display = imgUrl ? 'block' : 'none';
+            if (magStoryImgFg) {
+                magStoryImgFg.onload = () => {
+                    if (magImageWrap) magImageWrap.style.display = 'block';
+                    if (magNewsBodyGrid) magNewsBodyGrid.classList.remove('no-image');
+                };
+                magStoryImgFg.onerror = () => {
+                    // Ha a forrás hotlink-védett vagy a proxy nem engedélyezi a hostot,
+                    // egyszer közvetlenül is megpróbáljuk az eredeti képet.
+                    if (originalImageUrl && !triedDirectImageFallback && magStoryImgFg.src !== originalImageUrl) {
+                        triedDirectImageFallback = true;
+                        magStoryImgFg.src = originalImageUrl;
+                        return;
+                    }
+                    if (magImageWrap) magImageWrap.style.display = 'none';
+                    if (magNewsBodyGrid) magNewsBodyGrid.classList.add('no-image');
+                    magStoryImgFg.removeAttribute('src');
+                };
+                if (imgUrl) {
+                    magStoryImgFg.loading = 'eager';
+                    magStoryImgFg.decoding = 'async';
+                    magStoryImgFg.referrerPolicy = 'no-referrer';
+                    magStoryImgFg.src = imgUrl;
+                } else {
+                    magStoryImgFg.removeAttribute('src');
+                    if (magImageWrap) magImageWrap.style.display = 'none';
+                }
+            }
             if (magSourceTag) magSourceTag.textContent = (item.source || "INDEX").toUpperCase();
             if (magCatLbl) magCatLbl.textContent = `🔴 ${item.source || "KÖZÉLET"}`;
             if (magTimeLbl) magTimeLbl.textContent = formatNewsExactTime(item.date);
@@ -2508,41 +2984,67 @@
             magWeatherDashboard.style.display = 'flex';
             weatherRichCardsContainer.innerHTML = '';
 
-            let titleTxt = "⛅ IDŐJÁRÁS INFÓBÁZIS · MAGYARORSZÁG";
-            let dataList = cachedWeatherData.length > 0 ? cachedWeatherData : HUNGARIAN_CITIES.map(c => ({ name: c.name, temp: 22, humidity: 50, wind: 14, pressure: 1016, icon: "☀️", desc: "Tiszta idő" }));
+            let titleTxt = "⛅ GOOGLE WEATHER · MAGYARORSZÁG";
+            let dataList = cachedWeatherData;
 
             if (tier === 2) {
-                titleTxt = "⛅ IDŐJÁRÁS INFÓBÁZIS · VILÁGVÁROSOK";
-                dataList = cachedWorldWeatherData.length > 0 ? cachedWorldWeatherData : WORLD_CITIES.map(c => ({ name: c.name, temp: 20, humidity: 55, wind: 12, pressure: 1014, icon: "☀️", desc: "Kellemes" }));
+                titleTxt = "⛅ GOOGLE WEATHER · VILÁGVÁROSOK";
+                dataList = cachedWorldWeatherData;
             } else if (tier === 3) {
-                titleTxt = "🌋 IDŐJÁRÁS INFÓBÁZIS · FÖLDÜNK EXTRÉM PONTJAI";
-                dataList = cachedExtremeWeatherData.length > 0 ? cachedExtremeWeatherData : EXTREME_CITIES.map(c => ({ name: c.name, temp: -25, humidity: 30, wind: 28, pressure: 1022, icon: "❄️", desc: c.desc }));
+                titleTxt = "🌋 GOOGLE WEATHER · EXTRÉM PONTOK";
+                dataList = cachedExtremeWeatherData;
             }
 
             if (weatherDashTitleTxt) weatherDashTitleTxt.textContent = titleTxt;
-            if (weatherDashClock) weatherDashClock.textContent = `FRISSÍTVE: ${getBudapestNow().toLocaleTimeString('hu-HU')}`;
+            const updateLabel = googleWeatherCacheTimestamp
+                ? new Date(googleWeatherCacheTimestamp).toLocaleTimeString('hu-HU', { timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit' })
+                : 'nincs korábbi adat';
+            if (weatherDashClock) {
+                weatherDashClock.textContent = googleWeatherLastAttemptFailed
+                    ? `FRISSÍTÉS SIKERTELEN · UTOLSÓ ADAT: ${updateLabel}`
+                    : googleWeatherLastAttemptPartial
+                        ? `RÉSZLEGES FRISSÍTÉS · ${updateLabel}`
+                        : `GOOGLE WEATHER · FRISSÍTVE: ${updateLabel}`;
+                weatherDashClock.title = googleWeatherLastError || (googleWeatherLastAttemptPartial ? 'Néhány helyszín nem frissült; a korábbi valódi adatot tartjuk meg.' : 'Google Weather-adatok a Cherry1 Workeren keresztül.');
+            }
 
-            dataList.slice(0, 8).forEach(c => {
-                const card = document.createElement('div');
-                card.className = 'weather-card-rich';
-                card.innerHTML = `
-                    <div class="wcr-city">${escapeHtml(c.name.toUpperCase())}</div>
-                    <div class="wcr-main-row">
-                        <div class="wcr-icon-desc">
-                            <span style="font-size:1.3rem;">${c.icon || "☀️"}</span>
-                            <span>${escapeHtml(c.desc || "Kellemes")}</span>
+            if (!Array.isArray(dataList) || dataList.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'weather-empty-state';
+                empty.textContent = 'Jelenleg nincs elérhető Google Weather-adat ezen a nézeten. Nem jelenítünk meg becsült időjárást.';
+                weatherRichCardsContainer.appendChild(empty);
+            } else {
+                dataList.slice(0, 8).forEach(c => {
+                    const card = document.createElement('div');
+                    card.className = 'weather-card-rich';
+                    const value = val => val === null || val === undefined || val === '' || !Number.isFinite(Number(val)) ? '—' : String(val);
+                    const tempValue = c.temp !== null && c.temp !== undefined && Number.isFinite(Number(c.temp)) ? Number(c.temp) : null;
+                    const tempText = tempValue === null ? '—' : `${tempValue > 0 ? '+' : ''}${tempValue.toLocaleString('hu-HU', { maximumFractionDigits: 1 })}°C`;
+                    const iconMarkup = c.iconUrl
+                        ? `<img class="wcr-icon-img" src="${escapeHtml(c.iconUrl)}" alt="" loading="lazy" decoding="async">`
+                        : `<span class="wcr-emoji-icon">${escapeHtml(c.icon || '🌡️')}</span>`;
+                    card.innerHTML = `
+                        <div class="wcr-city">${escapeHtml(String(c.name || '').toUpperCase())}</div>
+                        <div class="wcr-main-row">
+                            <div class="wcr-icon-desc">
+                                ${iconMarkup}
+                                <span>${escapeHtml(c.desc || 'Időjárási állapot')}</span>
+                            </div>
+                            <div class="wcr-temp">${tempText}</div>
                         </div>
-                        <div class="wcr-temp">${parseFloat(c.temp) > 0 ? '+' : ''}${escapeHtml(c.temp)}°C</div>
-                    </div>
-                    <div class="wcr-details-grid">
-                        <span>Pára: <strong>${escapeHtml(c.humidity)}%</strong></span>
-                        <span>Szél: <strong>${escapeHtml(c.wind)} km/h</strong></span>
-                        <span>Légnyomás: <strong>${escapeHtml(c.pressure)} hPa</strong></span>
-                        <span>Status: <strong style="color:#10b981;">Tiszta</strong></span>
-                    </div>
-                `;
-                weatherRichCardsContainer.appendChild(card);
-            });
+                        <div class="wcr-feels">Hőérzet <strong>${value(c.feelsLike)}${c.feelsLike == null ? '' : '°C'}</strong></div>
+                        <div class="wcr-details-grid">
+                            <span>Felhőzet <strong>${value(c.cloudCover)}${c.cloudCover == null ? '' : '%'}</strong></span>
+                            <span>Pára <strong>${value(c.humidity)}${c.humidity == null ? '' : '%'}</strong></span>
+                            <span>Szél <strong>${value(c.wind)}${c.wind == null ? '' : ' km/h'}</strong></span>
+                            <span>Nyomás <strong>${value(c.pressure)}${c.pressure == null ? '' : ' hPa'}</strong></span>
+                            <span>Csapadék esélye <strong>${value(c.precipitation)}${c.precipitation == null ? '' : '%'}</strong></span>
+                            <span>UV-index <strong>${value(c.uvIndex)}</strong></span>
+                        </div>
+                    `;
+                    weatherRichCardsContainer.appendChild(card);
+                });
+            }
 
             magWeatherDashboard.classList.remove('comb-out');
             magWeatherDashboard.classList.add('comb-in');
@@ -2581,6 +3083,7 @@
 
     function endHourlyNewsBulletin() {
         if (!isHourlyNewsRunning) return;
+        if (newsLaunchTimer) { clearTimeout(newsLaunchTimer); newsLaunchTimer = null; }
         isHourlyNewsRunning = false;
 
         // 1. A hírek utáni dalt MINDIG az elejétől (0:00-tól) indítjuk el a takarás alatt:
@@ -2606,9 +3109,13 @@
         const now = getBudapestNow();
         const curSec = (now.getHours() * 3600) + (now.getMinutes() * 60) + now.getSeconds();
 
-        // Megkeressük a hírek után következő első zenei klipet:
-        let nextIdx = schedule.findIndex(item => !item.isNews && item.endSec > curSec);
-        if (nextIdx === -1) nextIdx = 0;
+        // A hírek utáni klipet az aktuális órából választjuk, így egy korábbi,
+        // óraváltáson átnyúló klip időintervalluma nem indítható újra véletlenül.
+        const hourStart = Math.floor(curSec / 3600) * 3600;
+        let nextIdx = schedule.findIndex(item => !item.isNews && item.startSec >= hourStart && item.startSec < hourStart + 3600);
+        if (nextIdx === -1) nextIdx = schedule.findIndex(item => !item.isNews && item.startSec >= curSec);
+        if (nextIdx === -1) nextIdx = schedule.findIndex(item => !item.isNews);
+        if (nextIdx === -1) return;
 
         currentClipIndex = nextIdx;
         const clip = schedule[nextIdx];
@@ -2663,6 +3170,16 @@
         startHourlyNewsBulletin(true, isMidnight);
     }
 
+    async function triggerGoogleWeatherTest() {
+        log('⛅ Google Weather-kapcsolat tesztelése a Workeren keresztül…', 'info');
+        const ok = await refreshGoogleWeatherData(true);
+        if (ok) {
+            alert(`Google Weather válasz érkezett.\nMost frissült helyszínek: ${googleWeatherLastUpdatedCount}.\n${googleWeatherLastAttemptPartial ? 'Részleges frissítés történt; a hiányzó helyeken az utolsó valódi adat marad.' : 'A kért időjárási adatok frissültek.'}`);
+        } else {
+            alert(`Google Weather teszt sikertelen.\n\n${googleWeatherLastError || 'Ismeretlen hiba'}\n\nEllenőrizd a Worker telepítését, a GOOGLE_WEATHER_API_KEY beállítást, a Google Weather API engedélyezését és a számlázást.`);
+        }
+    }
+
     function getWeatherCondition(code, isDay) {
         if (code === 0) return { icon: isDay ? "☀️" : "🌙", desc: "Tiszta idő" };
         if (code === 1 || code === 2) return { icon: isDay ? "🌤️" : "☁️🌙", desc: "Kevés felhő" };
@@ -2674,26 +3191,212 @@
         return { icon: isDay ? "☀️" : "🌙", desc: "Változékony" };
     }
 
+    function loadGoogleWeatherCache() {
+        try {
+            const cached = JSON.parse(localStorage.getItem(GOOGLE_WEATHER_CACHE_KEY) || 'null');
+            if (!cached || typeof cached !== 'object') return;
+            googleWeatherCacheTimestamp = Number(cached.timestamp) || 0;
+            if (Array.isArray(cached.hu)) cachedWeatherData = cached.hu;
+            if (Array.isArray(cached.world)) cachedWorldWeatherData = cached.world;
+            if (Array.isArray(cached.extreme)) cachedExtremeWeatherData = cached.extreme;
+        } catch (e) {}
+    }
+
+    function normalizeGoogleWeather(city, data) {
+        if (!data || !data.temperature || !Number.isFinite(Number(data.temperature.degrees))) return null;
+        const condition = data.weatherCondition || {};
+        const temperature = Number(data.temperature.degrees);
+        const feels = Number(data.feelsLikeTemperature && data.feelsLikeTemperature.degrees);
+        const wind = Number(data.wind && data.wind.speed && data.wind.speed.value);
+        const pressure = Number(data.airPressure && data.airPressure.meanSeaLevelMillibars);
+        const precip = Number(data.precipitation && data.precipitation.probability && data.precipitation.probability.percent);
+        const cloudCover = Number(data.cloudCover);
+        const iconBase = typeof condition.iconBaseUri === 'string' && condition.iconBaseUri.startsWith('https://maps.gstatic.com/weather/v1/')
+            ? condition.iconBaseUri : '';
+        return {
+            name: city.name,
+            temp: Math.round(temperature * 10) / 10,
+            feelsLike: Number.isFinite(feels) ? Math.round(feels * 10) / 10 : null,
+            humidity: Number.isFinite(Number(data.relativeHumidity)) ? Number(data.relativeHumidity) : null,
+            wind: Number.isFinite(wind) ? Math.round(wind) : null,
+            pressure: Number.isFinite(pressure) ? Math.round(pressure) : null,
+            cloudCover: Number.isFinite(cloudCover) ? Math.max(0, Math.min(100, Math.round(cloudCover))) : null,
+            precipitation: Number.isFinite(precip) ? Math.max(0, Math.min(100, Math.round(precip))) : null,
+            uvIndex: Number.isFinite(Number(data.uvIndex)) ? Number(data.uvIndex) : null,
+            desc: (condition.description && condition.description.text) || condition.type || 'Időjárási állapot',
+            iconUrl: iconBase ? `${iconBase}.svg` : '',
+            icon: data.isDaytime ? '☀️' : '🌙',
+            currentTime: data.currentTime || '',
+            isGoogleWeather: true
+        };
+    }
+
+    async function refreshGoogleWeatherData(force = false) {
+        loadGoogleWeatherCache();
+        const cachedExists = cachedWeatherData.length || cachedWorldWeatherData.length || cachedExtremeWeatherData.length;
+        if (!force && cachedExists && googleWeatherCacheTimestamp && Date.now() - googleWeatherCacheTimestamp < GOOGLE_WEATHER_CACHE_TTL_MS) return true;
+        if (googleWeatherFetchPromise) return googleWeatherFetchPromise;
+
+        googleWeatherFetchPromise = (async () => {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 35000);
+            try {
+                const endpoint = new URL(GOOGLE_WEATHER_ENDPOINT);
+                if (force) endpoint.searchParams.set('refresh', '1');
+                endpoint.searchParams.set('_t', String(Date.now()));
+                const response = await fetch(endpoint.toString(), {
+                    method: 'GET', mode: 'cors', cache: 'no-store', signal: controller.signal,
+                    headers: { 'Accept': 'application/json', 'Cache-Control': 'no-cache' }
+                });
+                let payload = {};
+                try { payload = await response.json(); } catch (_) {}
+                if (!response.ok || !payload || !payload.groups) {
+                    const detail = payload && (payload.error || (payload.diagnostics && payload.diagnostics[0]))
+                        ? `: ${payload.error || payload.diagnostics[0]}` : '';
+                    throw new Error(`Google Weather Worker HTTP ${response.status}${detail}`);
+                }
+
+                const nextHu = Array.isArray(payload.groups.hu) ? payload.groups.hu : [];
+                const nextWorld = Array.isArray(payload.groups.world) ? payload.groups.world : [];
+                const nextExtreme = Array.isArray(payload.groups.extreme) ? payload.groups.extreme : [];
+                const successCount = nextHu.length + nextWorld.length + nextExtreme.length;
+                if (!successCount) throw new Error(payload.error || 'A Google Weather nem adott vissza használható adatot.');
+
+                // A meglévő valós adatok helyben maradnak, ha egyetlen város frissítése sikertelen.
+                const mergeByName = (oldList, freshList, sourceList) => {
+                    const oldMap = new Map((oldList || []).map(item => [item.name, item]));
+                    const freshMap = new Map((freshList || []).map(item => [item.name, item]));
+                    return sourceList.map(city => freshMap.get(city.name) || oldMap.get(city.name)).filter(Boolean);
+                };
+                cachedWeatherData = mergeByName(cachedWeatherData, nextHu, HUNGARIAN_CITIES);
+                cachedWorldWeatherData = mergeByName(cachedWorldWeatherData, nextWorld, WORLD_CITIES);
+                cachedExtremeWeatherData = mergeByName(cachedExtremeWeatherData, nextExtreme, EXTREME_CITIES);
+                googleWeatherCacheTimestamp = Number(payload.timestamp) || Date.now();
+                googleWeatherLastUpdatedCount = successCount;
+                googleWeatherLastAttemptPartial = Boolean(payload.partial) || successCount < (HUNGARIAN_CITIES.length + WORLD_CITIES.length + EXTREME_CITIES.length);
+                googleWeatherLastAttemptFailed = false;
+                googleWeatherLastError = '';
+
+                try {
+                    localStorage.setItem(GOOGLE_WEATHER_CACHE_KEY, JSON.stringify({
+                        timestamp: googleWeatherCacheTimestamp,
+                        hu: cachedWeatherData,
+                        world: cachedWorldWeatherData,
+                        extreme: cachedExtremeWeatherData
+                    }));
+                } catch (_) {}
+
+                const requested = Number(payload.requested) || (HUNGARIAN_CITIES.length + WORLD_CITIES.length + EXTREME_CITIES.length);
+                log(`⛅ Google Weather: ${successCount}/${requested} helyszín frissült${googleWeatherLastAttemptPartial ? ' · részleges frissítés' : ''}.`, googleWeatherLastAttemptPartial ? 'warn' : 'success');
+                if (payload.diagnostics && payload.diagnostics.length) {
+                    log(`⛅ Google Weather részlet: ${payload.diagnostics.slice(0, 2).join(' | ')}`, 'warn');
+                }
+                return true;
+            } catch (error) {
+                googleWeatherLastAttemptFailed = true;
+                googleWeatherLastError = error && error.name === 'AbortError'
+                    ? 'A Google Weather Worker 35 másodpercen belül nem válaszolt. Ellenőrizd a Worker telepítését és a Google API-kvótát.'
+                    : (error && error.message ? error.message : 'Ismeretlen Google Weather-hiba');
+                log(`⛅ Google Weather frissítés nem sikerült: ${googleWeatherLastError}`, 'warn');
+                return false;
+            } finally {
+                clearTimeout(timeout);
+            }
+        })().finally(() => { googleWeatherFetchPromise = null; });
+        return googleWeatherFetchPromise;
+    }
+
+    function safeNewsImageUrl(value) {
+        const raw = String(value || '').trim();
+        if (!raw) return '';
+        try {
+            const url = new URL(raw, location.href);
+            if (url.protocol !== 'https:' && url.protocol !== 'http:') return '';
+            if (!url.hostname || url.hostname === 'example.invalid' || /^(localhost|127\.|10\.|192\.168\.|169\.254\.)/i.test(url.hostname)) return '';
+            if (/^(?:cherry1(?:[-_ ]?music)?|music[-_ ]?television)$/i.test(url.hostname)) return '';
+            return url.href;
+        } catch (_) { return ''; }
+    }
+
+    function getNewsImageDisplayUrl(value) {
+        const original = safeNewsImageUrl(value);
+        if (!original) return '';
+        try {
+            const worker = new URL(WORKER_URL, location.href);
+            const src = new URL(original);
+            if (src.origin === worker.origin && src.pathname.startsWith('/api/tv/news-image')) return original;
+            return `${WORKER_URL}/api/tv/news-image?url=${encodeURIComponent(original)}`;
+        } catch (_) { return original; }
+    }
+
+    function normalizeNewsLink(value) {
+        try {
+            const u = new URL(String(value || ''));
+            u.hash = '';
+            ['utm_source','utm_medium','utm_campaign','utm_term','utm_content','fbclid','gclid'].forEach(k => u.searchParams.delete(k));
+            return (u.origin + u.pathname.replace(/\/$/, '') + u.search).toLowerCase();
+        } catch (_) { return String(value || '').trim().toLowerCase(); }
+    }
+
     async function fetchLiveNewsAndWeather() {
         try {
-            const data = await safeFetchJson(`${WORKER_URL}?_t=${Date.now()}`);
-            if (data) {
-                if (data.news) {
-                    let list = Array.isArray(data.news) ? data.news : Object.values(data.news);
-                    rawNewsStories = list.map(item => ({
-                        title: (item.title || "").replace(/<[^>]*>?/gm, '').trim(),
-                        description: (item.description || item.summary || "").replace(/<[^>]*>?/gm, '').trim(),
-                        source: item.source || "INDEX",
-                        date: item.date || new Date().toISOString(),
-                        image: item.image || ""
-                    })).filter(it => it.title.length > 0);
-                }
-                if (data.weather && Array.isArray(data.weather)) cachedWeatherData = data.weather;
-                if (data.worldWeather && Array.isArray(data.worldWeather)) cachedWorldWeatherData = data.worldWeather;
-                if (data.extremeWeather && Array.isArray(data.extremeWeather)) cachedExtremeWeatherData = data.extremeWeather;
-            }
-            log("⛅ Hírek és 3-szintű időjárás sikeresen frissítve a Workerből!", 'success');
-        } catch(e){}
+            const data = await safeFetchJson(`${WORKER_URL}?images=1&_t=${Date.now()}`);
+            if (!data) throw new Error('A Worker nem adott híradatot.');
+
+            // A Worker AI-szerkesztett latestNews listája az elsődleges; nyers RSS csak tartalék.
+            const preferred = Array.isArray(data.latestNews) ? data.latestNews : null;
+            const raw = Array.isArray(data.news) ? data.news : (data.news && typeof data.news === 'object' ? Object.values(data.news) : []);
+            const rawSorted = raw.slice().sort((a, b) => {
+                const da = new Date(a.date || a.pubDate || a.publishedAt || 0).getTime();
+                const db = new Date(b.date || b.pubDate || b.publishedAt || 0).getTime();
+                return (Number.isFinite(db) ? db : 0) - (Number.isFinite(da) ? da : 0);
+            });
+            // A Worker által visszaadott első AI-tételek sorrendben a legfrissebb RSS-alapokhoz tartoznak.
+            // Eredeti dátumot használunk, mert az AI-szerkesztés időpontja nem a hír publikálási ideje.
+            const rawByLink = new Map();
+            rawSorted.forEach(entry => {
+                const key = normalizeNewsLink(entry.link);
+                if (key && !rawByLink.has(key)) rawByLink.set(key, entry);
+            });
+            const sourceList = (preferred && preferred.length)
+                ? preferred.map((item, index) => {
+                    // A címet/összefoglalót az AI adja, de a dátumot, képet, forrást és linket
+                    // mindig az eredeti RSS-tételből egészítjük ki. Korábbi Worker-cache esetén
+                    // az index szerinti nyers tétel is tartalék, mert a két lista azonos sorrendű.
+                    const linked = item.link ? rawByLink.get(normalizeNewsLink(item.link)) : null;
+                    const original = linked || rawSorted[index] || null;
+                    return {
+                        ...item,
+                        date: (original && original.date) || item.date || item.pubDate || item.publishedAt || '',
+                        source: (original && original.source) || item.source || '',
+                        image: item.image || (original && original.image) || item.thumbnail || '',
+                        link: item.link || (original && original.link) || ''
+                    };
+                })
+                : rawSorted;
+            const nowMs = Date.now();
+            const seen = new Set();
+            const normalized = sourceList.map(item => {
+                const title = String(item.title || '').replace(/<[^>]*>?/gm, '').replace(/&nbsp;/gi, ' ').trim();
+                const description = String(item.description || item.summary || '').replace(/<[^>]*>?/gm, '').replace(/&nbsp;/gi, ' ').trim();
+                const date = item.date || item.pubDate || item.publishedAt || '';
+                const time = date ? new Date(date).getTime() : NaN;
+                const identity = title.toLocaleLowerCase('hu-HU').replace(/[^a-z0-9áéíóöőúüű]+/g, ' ').trim();
+                return { title, description, source: item.source || 'HÍRFORRÁS', date, image: item.image || '', link: item.link || '', _time: time, _identity: identity };
+            }).filter(item => {
+                if (!item.title || !item._identity || seen.has(item._identity)) return false;
+                if (!Number.isFinite(item._time)) return false;
+                // A jövőbeni időbélyeg és a 48 óránál régebbi cikk nem kerülhet be friss hírként.
+                if (item._time > nowMs + 5 * 60 * 1000 || item._time < nowMs - 48 * 60 * 60 * 1000) return false;
+                seen.add(item._identity);
+                return true;
+            }).sort((a, b) => b._time - a._time).map(({ _time, _identity, ...item }) => item);
+            rawNewsStories = normalized;
+            log(`📰 Ellenőrzött hírek betöltve: ${rawNewsStories.length} tétel.`, rawNewsStories.length ? 'success' : 'warn');
+        } catch (e) {
+            log(`📰 Hírfrissítés sikertelen: ${e.message || 'hálózati hiba'}`, 'warn');
+            // Sikertelen lekéréskor nem írjuk felül a korábban beolvasott, még érvényes híreket.
+        }
     }
 
     /* ⏱️ VALÓS IDEJŰ MESTER ÓRA & 59:40-ES ZENEI LEHALKULÁS (20 MP FADER) */
@@ -2709,36 +3412,78 @@
         const curHM = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
         const curSec = (h * 3600) + (m * 60) + s;
 
+        const todayKeyForRollover = getSelectedDateKey(0);
+        if (!lastObservedScheduleDateKey) {
+            lastObservedScheduleDateKey = todayKeyForRollover;
+        } else if (todayKeyForRollover !== lastObservedScheduleDateKey) {
+            lastObservedScheduleDateKey = todayKeyForRollover;
+            currentClipIndex = -1;
+            if (isTvBroadcasting && !isHourlyNewsRunning && !isDayRolloverSyncing) {
+                isDayRolloverSyncing = true;
+                Promise.resolve().then(async () => {
+                    if (!weekSchedules[todayKeyForRollover] || weekSchedules[todayKeyForRollover].length === 0) {
+                        await autoGenerateDaySchedule(0, false);
+                    }
+                    if (isTvBroadcasting && !isHourlyNewsRunning) await syncToCurrentWallClockTime();
+                }).catch(error => log(`⚠️ Éjfél utáni adásszinkron hiba: ${error.message || error}`, 'warn'))
+                  .finally(() => { isDayRolloverSyncing = false; });
+            }
+        }
+
+        const tomorrowKeyForPrefetch = getSelectedDateKey(1);
+        if (h === 23 && (!weekSchedules[tomorrowKeyForPrefetch] || weekSchedules[tomorrowKeyForPrefetch].length === 0)
+            && nextDayGenerationInFlightKey !== tomorrowKeyForPrefetch && Date.now() - nextDayGenerationLastAttemptMs >= 60000) {
+            nextDayGenerationInFlightKey = tomorrowKeyForPrefetch;
+            nextDayGenerationLastAttemptMs = Date.now();
+            autoGenerateDaySchedule(1, false).catch(error => log(`⚠️ Másnapi adásterv előkészítési hiba: ${error.message || error}`, 'warn'))
+                .finally(() => { if (nextDayGenerationInFlightKey === tomorrowKeyForPrefetch) nextDayGenerationInFlightKey = ''; });
+        }
+
         const isNewsWindow = (newsStartTime <= newsEndTime)
             ? (curHM >= newsStartTime && curHM <= newsEndTime)
             : (curHM >= newsStartTime || curHM <= newsEndTime);
 
-        // 🌟 59:40-től 00:00-ig tartó 20 másodperces sima zenei lehalkulás (Volume 1.0 -> 0.0)
-        if (isTvBroadcasting && !isHourlyNewsRunning && m === 59 && s >= 40) {
-            const isTargetHour = (h === 23 ? enableMidnightNews : (isNewsWindow && enableDaytimeNews));
-            if (isTargetHour) {
-                const fadeProgress = (s - 40) / 20; // 0-tól 1-ig fut 20 mp alatt
-                const curDeck = getActiveVideoElement();
-                if (curDeck) {
-                    curDeck.volume = Math.max(0, masterVolume * (1 - fadeProgress));
-                }
-                if (s === 40) {
-                    startHourlyNewsBulletin(false, (h === 23));
-                    return;
-                }
+        // Az óra elejére tervezett hírt az előző óra utolsó 20 másodpercében készítjük elő.
+        // A feltétel nem egyetlen másodpercre épül, és az éjféli blokk külön kapcsolóval működik.
+        const nextHour = (h + 1) % 24;
+        const nextHourDateKey = h === 23 ? getSelectedDateKey(1) : getSelectedDateKey(0);
+        const nextHourIsNews = isNewsEnabledForHour(nextHour);
+        const newsSlotKey = `${nextHourDateKey}_${String(nextHour).padStart(2, '0')}`;
+        if (isTvBroadcasting && m === 59 && s >= 40 && nextHourIsNews) {
+            const fadeProgress = Math.min(1, Math.max(0, (s - 40) / 20));
+            const curDeck = getActiveVideoElement();
+            if (curDeck) curDeck.volume = Math.max(0, masterVolume * (1 - fadeProgress));
+            if (!isHourlyNewsRunning && lastNewsSlotKey !== newsSlotKey) {
+                lastNewsSlotKey = newsSlotKey;
+                startHourlyNewsBulletin(false, nextHour === 0);
             }
         }
 
-        if (isTvBroadcasting && !isHourlyNewsRunning && (m === 15 || m === 45) && s === 0) {
+        const epgSlotKey = `${getSelectedDateKey(0)}_${String(h).padStart(2, '0')}_${String(m).padStart(2, '0')}`;
+        if (isTvBroadcasting && !isHourlyNewsRunning && (m === 15 || m === 45)
+            && lastEpgTriggerKey !== epgSlotKey && !isTrackCardOpen && !isCrawlerActive && !isEpgActive) {
             showUpcomingEpgGuide();
+            if (isEpgActive) lastEpgTriggerKey = epgSlotKey;
         }
 
-        // 🌟 3 HÍR BLOKK: MINDEN ÓRA 05, 20, 35 ÉS 50. PERCÉBEN
+        // Alsó hírsáv: azonos percet minden órában újra engedünk, de ugyanaz az idősáv csak egyszer indul.
         const crawlerTriggerMinutes = [5, 20, 35, 50];
-        if (isTvBroadcasting && !isHourlyNewsRunning && s === 10 && crawlerTriggerMinutes.includes(m)) {
-            if (lastCrawlerTriggerMinute !== m) {
-                lastCrawlerTriggerMinute = m;
-                startBottomNewsCrawlerBlock();
+        const crawlerSlotKey = `${getSelectedDateKey(0)}_${String(h).padStart(2, '0')}_${String(m).padStart(2, '0')}`;
+        if (isTvBroadcasting && !isHourlyNewsRunning && s >= 10 && crawlerTriggerMinutes.includes(m)
+            && lastCrawlerTriggerKey !== crawlerSlotKey) {
+            lastCrawlerTriggerKey = crawlerSlotKey;
+            startBottomNewsCrawlerBlock();
+        }
+
+        // Elmaradt másodperc esetén is induljon el a terv szerinti híradó, ha a böngésző
+        // az óra eleji hírsávban ébred vissza. Az éjféli híradó továbbra is KI alapértelmezés szerint.
+        const currentSchedule = weekSchedules[getSelectedDateKey(0)] || [];
+        const scheduledNews = currentSchedule.find(item => item.isNews && curSec >= item.startSec && curSec < item.endSec);
+        if (isTvBroadcasting && !isHourlyNewsRunning && scheduledNews && isNewsEnabledForHour(h)) {
+            const activeSlotKey = `${getSelectedDateKey(0)}_${String(h).padStart(2, '0')}`;
+            if (lastNewsSlotKey !== activeSlotKey) {
+                lastNewsSlotKey = activeSlotKey;
+                startHourlyNewsBulletin(false, h === 0, true);
             }
         }
 
@@ -2763,6 +3508,25 @@
     }
     setInterval(updateClock, 1000);
 
+    // A háttérbe tett Android böngészők visszafoghatják az időzítőket. Visszatéréskor
+    // azonnal újraértékeljük a budapesti időt és a műsortervet.
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState !== 'visible') return;
+        updateClock();
+        if (isTvBroadcasting && !isHourlyNewsRunning) {
+            syncToCurrentWallClockTime().catch(error => log(`⚠️ Visszatérés utáni szinkronhiba: ${error.message || error}`, 'warn'));
+        }
+        if (Date.now() - googleWeatherCacheTimestamp >= GOOGLE_WEATHER_CACHE_TTL_MS) {
+            refreshGoogleWeatherData(false).catch(() => {});
+        }
+    });
+    window.addEventListener('pageshow', () => {
+        if (isTvBroadcasting && document.visibilityState === 'visible' && !isHourlyNewsRunning) {
+            updateClock();
+            syncToCurrentWallClockTime().catch(() => {});
+        }
+    });
+
     /* 🎬 GLOBÁLIS ADÁSSZINKRONIZÁLÁS */
     async function syncToCurrentWallClockTime() {
         if (!isTvBroadcasting || isHourlyNewsRunning) return;
@@ -2780,9 +3544,25 @@
         let foundIdx = schedule.findIndex(item => curSec >= item.startSec && curSec < item.endSec);
         if (foundIdx === -1) foundIdx = 0;
 
+        let clip = schedule[foundIdx];
+        let startOffset = 0;
+        if (clip && clip.isNews) {
+            const hour = now.getHours();
+            if (isNewsEnabledForHour(hour)) {
+                startHourlyNewsBulletin(false, hour === 0, true);
+                return;
+            }
+            const hourStart = Math.floor(curSec / 3600) * 3600;
+            const musicIdx = schedule.findIndex(item => !item.isNews && item.startSec >= hourStart && item.startSec < hourStart + 3600);
+            if (musicIdx !== -1) {
+                foundIdx = musicIdx;
+                clip = schedule[foundIdx];
+                startOffset = 0;
+            }
+        }
+        if (!clip || clip.isNews) { showColorBarScreen(); return; }
         hideColorBarScreen();
-        const clip = schedule[foundIdx];
-        const offset = Math.max(0, curSec - clip.startSec);
+        const offset = startOffset || Math.max(0, curSec - clip.startSec);
         currentClipIndex = foundIdx;
         playbackSessionId++;
         resetTrackGraphicsState();
@@ -2918,6 +3698,8 @@
 
     function toggleMidnightNewsConfig() {
         enableMidnightNews = !enableMidnightNews;
+        hasExplicitMidnightNewsPreference = true;
+        try { localStorage.setItem(STORAGE_KEY_MIDNIGHT_NEWS_CONFIGURED, '1'); } catch (e) {}
         const btn = document.getElementById('btn-toggle-midnight-news');
         if (btn) {
             btn.textContent = enableMidnightNews ? "BE" : "KI";
@@ -3476,7 +4258,7 @@
         for (let h = 0; h < 24; h++) {
             const hourStart = h * 3600;
             const hourEnd = (h + 1) * 3600;
-            const isNewsHour = (h === 0 && enableMidnightNews) || (h >= 6 && h <= 23 && enableDaytimeNews);
+            const isNewsHour = isNewsEnabledForHour(h);
 
             if (isNewsHour) {
                 const isMidnight = (h === 0);
@@ -3503,11 +4285,8 @@
             while (startSec < hourEnd) {
                 const remainingSecInHour = hourEnd - startSec;
 
-                // 🌟 Ha már csak 50 mp vagy kevesebb van az óra végéig, nem indítunk új klipet!
-                if (remainingSecInHour <= 50) {
-                    break;
-                }
-
+                // Minden órát folytonosan fedünk le; az utolsó klipet a következő műsorhatárnál levágjuk,
+                // így a következő óra/hírblokk nem ütközik a mostani klip időintervallumával.
                 let candidates = pool.filter(clip => {
                     const parsed = parseArtistAndTitle(clip.title);
                     const artistKey = parsed.artist.toLowerCase();
@@ -3564,8 +4343,9 @@
                 const parsedChosen = parseArtistAndTitle(chosenClip.title);
                 lastArtistPlayedSec[parsedChosen.artist.toLowerCase()] = startSec;
 
-                let realDur = clipDurationsCache[fileKey] || chosenClip.duration || 180;
-                let clipEnd = startSec + realDur;
+                const mediaDuration = clipDurationsCache[fileKey] || chosenClip.duration || 180;
+                const realDur = Math.max(1, Math.min(mediaDuration, remainingSecInHour));
+                const clipEnd = startSec + realDur;
 
                 schedule.push({
                     id: `c_${startSec}`,
@@ -3590,7 +4370,7 @@
         saveWeekSchedules();
         renderBroadcastRundown();
 
-        if (isTvBroadcasting && selectedDayIndex === 0 && !isHourlyNewsRunning) {
+        if (dayOffset === 0 && isTvBroadcasting && selectedDayIndex === 0 && !isHourlyNewsRunning) {
             syncToCurrentWallClockTime();
         }
     }
@@ -3889,9 +4669,22 @@ function playImmediateVideo(filename) {
 }
 
 function formatNewsExactTime(dateStr) {
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return "MA 14:00";
-    return `MA ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    const d = dateStr ? new Date(dateStr) : null;
+    if (!d || Number.isNaN(d.getTime())) return "IDŐPONT NÉLKÜL";
+    const time = new Intl.DateTimeFormat('hu-HU', {
+        timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+    }).format(d);
+    const dateKey = new Intl.DateTimeFormat('sv-SE', {
+        timeZone: 'Europe/Budapest', year: 'numeric', month: '2-digit', day: '2-digit'
+    }).format(d);
+    const todayKey = getSelectedDateKey(0);
+    const yesterdayKey = getSelectedDateKey(-1);
+    if (dateKey === todayKey) return `MA ${time}`;
+    if (dateKey === yesterdayKey) return `TEGNAP ${time}`;
+    const date = new Intl.DateTimeFormat('hu-HU', {
+        timeZone: 'Europe/Budapest', month: '2-digit', day: '2-digit'
+    }).format(d);
+    return `${date} ${time}`;
 }
 
 function formatSecToHMS(secTotal) {
@@ -3917,9 +4710,11 @@ function applyDaypartTheme(cat) {
 }
 
 function getSelectedDateKey(offset) {
+    // getBudapestNow() szándékosan budapesti falióra-időt tartalmazó Date objektumot ad.
+    // Helyi év/hónap/nap mezőket használunk, nem toISOString()-t, ami napot válthat.
     const d = getBudapestNow();
-    d.setDate(d.getDate() + offset);
-    return d.toISOString().split('T')[0];
+    d.setDate(d.getDate() + Number(offset || 0));
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 function setTvVolume(val) {
@@ -4067,7 +4862,7 @@ function applyLoadedBroadcastSettings(data) {
         if (btn) { btn.textContent = enableDaytimeNews ? "BE" : "KI"; btn.className = enableDaytimeNews ? "btn-act active-toggle" : "btn-act"; }
     }
     if (data.enable_midnight_news !== undefined) {
-        enableMidnightNews = Boolean(data.enable_midnight_news);
+        enableMidnightNews = hasExplicitMidnightNewsPreference ? Boolean(data.enable_midnight_news) : false;
         const btn = document.getElementById('btn-toggle-midnight-news');
         if (btn) { btn.textContent = enableMidnightNews ? "BE" : "KI"; btn.className = enableMidnightNews ? "btn-act active-toggle" : "btn-act"; }
     }
@@ -4104,6 +4899,10 @@ async function saveWeekSchedules() {
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
+    try { hasExplicitMidnightNewsPreference = localStorage.getItem(STORAGE_KEY_MIDNIGHT_NEWS_CONFIGURED) === '1'; } catch (e) {}
+    enableLiteModeForWeakDevices();
+    if (shouldAutoUseEcoLiteMode()) setEcoLiteMode(true, true);
+    loadGoogleWeatherCache();
     buildClockFaceTicks();
     loadCachedDurations();
     attachDeckTimeMonitor(deckA);
@@ -4131,6 +4930,34 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (cloudSched && typeof cloudSched === 'object' && Object.keys(cloudSched).length > 0) {
         weekSchedules = cloudSched;
         log("🌐 Rögzített felhő adásmenet sikeresen betöltve!", 'success');
+    }
+
+    // Éjféli híradó alapértelmezetten KI. A felhőben tárolt adástervet nem töröljük
+    // automatikusan: a felhasználó saját, kézzel módosított napjai érintetlenek maradnak.
+    if (!hasExplicitMidnightNewsPreference) {
+        enableMidnightNews = false;
+        const midnightBtn = document.getElementById('btn-toggle-midnight-news');
+        if (midnightBtn) { midnightBtn.textContent = 'KI'; midnightBtn.className = 'btn-act'; }
+    }
+
+    // Korábbi HTML-verziókból megmaradt, óraváltáson átlógó klipintervallumok javítása.
+    // Csak tényleges időütközésnél nyúlunk a naphoz, és a meglévő tételeket megtartjuk.
+    let repairedLoadedSchedules = false;
+    for (const [dateKey, daySchedule] of Object.entries(weekSchedules || {})) {
+        if (!Array.isArray(daySchedule) || daySchedule.length < 2) continue;
+        const hasClipOverlap = daySchedule.some((item, index) => {
+            const next = daySchedule[index + 1];
+            if (!item || !next || item.isNews || item.isSpecialLink || next.isSpecialLink) return false;
+            return Number(item.endSec) > Number(next.startSec) + 1;
+        });
+        if (hasClipOverlap) {
+            recalculateScheduleTimings(dateKey);
+            repairedLoadedSchedules = true;
+        }
+    }
+    if (repairedLoadedSchedules) {
+        await saveWeekSchedules();
+        log('🕒 Régi adásterv időátfedései javítva; a műsorelemek megmaradtak.', 'success');
     }
 
     const todayKey = getSelectedDateKey(0);
