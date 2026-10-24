@@ -338,7 +338,9 @@
     }
 
     /* ⛅ 3-SZINTŰ IDŐJÁRÁS DASHBOARD */
-    .mag-weather-dashboard { display: none; flex-direction: column; gap: 1.2cqw; width: 100%; flex: 1; justify-content: center; padding: 1cqw 0; }
+    .mag-weather-dashboard { display: none; flex-direction: column; gap: 1.2cqw; width: 100%; flex: 1; justify-content: center; padding: 1cqw 0; opacity: 1; }
+    @keyframes weatherFinalFade { from { opacity: 1; transform: translate3d(0,0,0); } to { opacity: 0; transform: translate3d(0,-10px,0); } }
+    .mag-weather-dashboard.final-fade-out { animation: weatherFinalFade 4.8s linear forwards !important; pointer-events: none; }
     .mag-weather-dashboard.comb-in { animation: newsCardCombIn 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     .mag-weather-dashboard.comb-out { animation: newsCardCombOut 0.5s cubic-bezier(0.7, 0, 0.84, 0) forwards; }
     .weather-dash-top { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.28); padding-bottom: 0.5cqw; }
@@ -1256,6 +1258,7 @@
         </div>
 
         <div class="folder-tab-bar" id="ext-folder-tabs"></div>
+        <div id="clip-duplicate-notice" style="display:none; border:1px solid rgba(245,158,11,.45); background:rgba(245,158,11,.08); color:#fde68a; border-radius:10px; padding:10px 12px; font-size:.78rem; line-height:1.45;"></div>
 
         <div style="max-height:240px; overflow-y:auto;">
             <table style="width:100%; border-collapse:collapse; font-size:0.78rem;">
@@ -1536,6 +1539,7 @@
     const STORAGE_KEY_SCHEDULE = "cherry1_broadcast_schedule_v27";
     const STORAGE_KEY_EXT_LIB = "cherry1_broadcast_ext_lib_v27";
     const STORAGE_KEY_DURATIONS = "cherry1_durations_cache_v27";
+    const STORAGE_KEY_ROTATION_EXCLUSIONS = "cherry1_rotation_exclusions_v1";
 
     let serverTimeOffsetMs = 0;
     let isCloudSynced = false;
@@ -1543,6 +1547,7 @@
 
     let r2Library = [];
     let externalLibrary = [];
+    let rotationExcludedEntries = new Set();
     let trackMetadataMap = {};
     let weekSchedules = {};
     let selectedDayIndex = 0;
@@ -1610,6 +1615,10 @@
     let isDayRolloverSyncing = false;
     let googleWeatherCacheTimestamp = 0;
     let googleWeatherFetchPromise = null;
+    let activeWeatherTier = 0;
+    let renderActiveWeatherPage = null;
+    let weatherFinalFadeStarted = false;
+    let newsBlockUsesCustomClip = false;
     let googleWeatherLastAttemptFailed = false;
     let googleWeatherLastAttemptPartial = false;
     let googleWeatherLastError = "";
@@ -2926,6 +2935,12 @@
 
         isHourlyNewsRunning = true;
         isMidnightEdition = Boolean(forceMidnight);
+        activeWeatherTier = 0;
+        renderActiveWeatherPage = null;
+        weatherFinalFadeStarted = false;
+        // Az időjárást már a visszaszámlálás alatt frissítjük és az ikonokat előre melegítjük.
+        primeGoogleWeatherIcons();
+        refreshGoogleWeatherData(true).catch(() => {});
         resetTrackGraphicsState();
         endBottomNewsCrawler();
         if (tvEpgGuideBanner) tvEpgGuideBanner.classList.remove('comb-in');
@@ -2950,137 +2965,173 @@
         }, waitMs);
     }
 
+    function primeGoogleWeatherIcons() {
+        const all = [...(cachedWeatherData || []), ...(cachedWorldWeatherData || []), ...(cachedExtremeWeatherData || [])];
+        all.slice(0, 48).forEach(city => {
+            const src = city && typeof city.iconUrl === 'string' ? city.iconUrl : '';
+            if (!/^https:\/\/maps\.gstatic\.com\/weather\/v1\//i.test(src)) return;
+            try { const image = new Image(); image.decoding = 'async'; image.fetchPriority = 'low'; image.src = src; } catch (_) {}
+        });
+    }
+
+    function fadeFinalWeatherCard() {
+        if (!isHourlyNewsRunning || weatherFinalFadeStarted || !magWeatherDashboard) return;
+        // Ha a készülék lemaradt az átmenetekkel, előbb az utolsó oldalra állunk.
+        if (activeWeatherTier !== 3 && typeof renderActiveWeatherPage === 'function') {
+            renderActiveWeatherPage(3);
+        }
+        weatherFinalFadeStarted = true;
+        magWeatherDashboard.classList.remove('comb-in', 'comb-out', 'final-fade-out');
+        magWeatherDashboard.classList.add('final-fade-out');
+    }
+
+    function monitorNewsVideoTime() {
+        if (!isHourlyNewsRunning || !newsBgVideo || newsBgVideo.loop) return;
+        const duration = Number(newsBgVideo.duration);
+        const current = Number(newsBgVideo.currentTime);
+        if (!Number.isFinite(duration) || duration <= 0 || !Number.isFinite(current)) return;
+        if (duration - current <= 5.05) fadeFinalWeatherCard();
+    }
+
     function launchNewsMagazinePlayback() {
         if (!hourlyNewsMagazine) return;
         refreshGoogleWeatherData(false).catch(() => {});
-        const targetSrc = isMidnightEdition ? (customMidnightBgVideoUrl || customNewsBgVideoUrl || BACKUP_DEMO_STREAM) : (customNewsBgVideoUrl || BACKUP_DEMO_STREAM);
-        const targetNewsDurationSec = isMidnightEdition && enableMidnightNews ? 600 : 137;
-
-        if (newsBgVideo) {
-            newsBgVideo.src = targetSrc;
-            newsBgVideo.currentTime = 0;
-            ensureDeckAudio(newsBgVideo);
-            newsBgVideo.loop = true;
-            newsBgVideo.classList.add('active');
-            // A háttérklip hossza dekorációs elem: nem írhatja felül a fix műsoridőt.
-            newsBgVideo.onloadedmetadata = null;
-            newsBgVideo.play().catch(()=>{});
-        }
+        const customTargetSrc = isMidnightEdition
+            ? (customMidnightBgVideoUrl || customNewsBgVideoUrl)
+            : customNewsBgVideoUrl;
+        const targetSrc = customTargetSrc || BACKUP_DEMO_STREAM;
+        const defaultDurationSec = isMidnightEdition && enableMidnightNews ? 600 : 137;
+        const isFiniteCustomClip = Boolean(customTargetSrc);
+        newsBlockUsesCustomClip = isFiniteCustomClip;
+        weatherFinalFadeStarted = false;
+        activeWeatherTier = 0;
+        renderActiveWeatherPage = null;
+        let contentStarted = false;
+        let fallbackStartTimer = null;
 
         hourlyNewsMagazine.classList.add('active');
-        if (magMainTitleTxt) {
-            magMainTitleTxt.textContent = isMidnightEdition ? "Éjféli hírek" : "Hírek röviden";
-        }
+        if (magMainTitleTxt) magMainTitleTxt.textContent = isMidnightEdition ? 'Éjféli hírek' : 'Hírek röviden';
+        if (magHeadlineTxt) magHeadlineTxt.textContent = 'Hírek és időjárás előkészítése…';
+        if (magDescTxt) magDescTxt.textContent = 'A friss adatok betöltése folyamatban.';
+        if (magNewsBodyGrid) { magNewsBodyGrid.style.display = 'grid'; magNewsBodyGrid.classList.remove('final-fade-out','comb-out'); }
+        if (magWeatherDashboard) { magWeatherDashboard.style.display = 'none'; magWeatherDashboard.classList.remove('final-fade-out','comb-out'); }
 
-        let activeStories = rawNewsStories.slice(0, 5);
-        if (activeStories.length === 0) {
-            activeStories = [{
-                title: "Jelenleg nincs megjeleníthető, ellenőrzött hír",
-                description: "A hírcsatornák frissítés alatt állnak. A következő blokkban csak ellenőrzött hír jelenik meg.",
-                source: "INFORMÁCIÓ",
-                date: new Date().toISOString(),
-                image: "",
-                isStatus: true
+        const beginContent = (reportedDurationSec) => {
+            if (contentStarted || !isHourlyNewsRunning) return;
+            contentStarted = true;
+            if (fallbackStartTimer) { clearTimeout(fallbackStartTimer); fallbackStartTimer = null; }
+            const totalDurationSec = isFiniteCustomClip && Number.isFinite(reportedDurationSec) && reportedDurationSec > 30
+                ? Math.floor(reportedDurationSec)
+                : defaultDurationSec;
+            let activeStories = rawNewsStories.slice(0, 5);
+            if (activeStories.length === 0) activeStories = [{
+                title: 'Jelenleg nincs megjeleníthető, ellenőrzött hír',
+                description: 'A hírcsatornák frissítés alatt állnak. A következő blokkban csak ellenőrzött hír jelenik meg.',
+                source: 'INFORMÁCIÓ', date: new Date().toISOString(), image: '', isStatus: true
             }];
-        }
 
-        if (magNewsBodyGrid) magNewsBodyGrid.style.display = 'grid';
-        if (magWeatherDashboard) magWeatherDashboard.style.display = 'none';
-
-        // 🌟 Pontos időfelosztás a klip legutolsó képkockájáig (nincs levágás!)
-        const availableContentSec = Math.max(60, targetNewsDurationSec);
-        const weatherTotalDurationSec = Math.min(45, Math.round(availableContentSec * 0.33));
-        const newsTotalDurationSec = availableContentSec - weatherTotalDurationSec;
-        const perStoryDurationMs = Math.round((newsTotalDurationSec / activeStories.length) * 1000);
-
-        let sIndex = -1;
-        const nextStory = () => {
-            if (!isHourlyNewsRunning) return;
-            sIndex++;
-            if (sIndex >= activeStories.length) {
-                launchThreePageWeatherDashboard(weatherTotalDurationSec);
-                return;
-            }
-
-            const item = activeStories[sIndex];
-            const originalImageUrl = safeNewsImageUrl(item.image || item.thumbnail || "");
-            const imgUrl = getNewsImageDisplayUrl(originalImageUrl);
-            let triedDirectImageFallback = false;
-            if (magNewsBodyGrid) magNewsBodyGrid.classList.toggle('no-image', !imgUrl);
-            if (magImageWrap) magImageWrap.style.display = imgUrl ? 'block' : 'none';
-            if (magStoryImgFg) {
-                magStoryImgFg.onload = () => {
-                    if (magImageWrap) magImageWrap.style.display = 'block';
-                    if (magNewsBodyGrid) magNewsBodyGrid.classList.remove('no-image');
-                };
-                magStoryImgFg.onerror = () => {
-                    // Ha a forrás hotlink-védett vagy a proxy nem engedélyezi a hostot,
-                    // egyszer közvetlenül is megpróbáljuk az eredeti képet.
-                    if (originalImageUrl && !triedDirectImageFallback && magStoryImgFg.src !== originalImageUrl) {
-                        triedDirectImageFallback = true;
-                        magStoryImgFg.src = originalImageUrl;
-                        return;
+            const weatherTotalDurationSec = Math.min(45, Math.max(18, Math.round(totalDurationSec * 0.33)));
+            const newsTotalDurationSec = Math.max(1, totalDurationSec - weatherTotalDurationSec);
+            const perStoryDurationMs = Math.max(1000, Math.round((newsTotalDurationSec / activeStories.length) * 1000));
+            let sIndex = -1;
+            const nextStory = () => {
+                if (!isHourlyNewsRunning) return;
+                sIndex++;
+                if (sIndex >= activeStories.length) {
+                    launchThreePageWeatherDashboard(weatherTotalDurationSec, totalDurationSec);
+                    return;
+                }
+                const item = activeStories[sIndex];
+                const originalImageUrl = safeNewsImageUrl(item.image || item.thumbnail || '');
+                const imgUrl = getNewsImageDisplayUrl(originalImageUrl);
+                let triedDirectImageFallback = false;
+                if (magNewsBodyGrid) magNewsBodyGrid.classList.toggle('no-image', !imgUrl);
+                if (magImageWrap) magImageWrap.style.display = imgUrl ? 'block' : 'none';
+                if (magStoryImgFg) {
+                    magStoryImgFg.onload = () => {
+                        if (magImageWrap) magImageWrap.style.display = 'block';
+                        if (magNewsBodyGrid) magNewsBodyGrid.classList.remove('no-image');
+                    };
+                    magStoryImgFg.onerror = () => {
+                        if (originalImageUrl && !triedDirectImageFallback && magStoryImgFg.src !== originalImageUrl) {
+                            triedDirectImageFallback = true;
+                            magStoryImgFg.src = originalImageUrl;
+                            return;
+                        }
+                        if (magImageWrap) magImageWrap.style.display = 'none';
+                        if (magNewsBodyGrid) magNewsBodyGrid.classList.add('no-image');
+                        magStoryImgFg.removeAttribute('src');
+                    };
+                    if (imgUrl) {
+                        magStoryImgFg.loading = 'eager';
+                        magStoryImgFg.decoding = 'async';
+                        magStoryImgFg.referrerPolicy = 'no-referrer';
+                        magStoryImgFg.src = imgUrl;
+                    } else {
+                        magStoryImgFg.removeAttribute('src');
+                        if (magImageWrap) magImageWrap.style.display = 'none';
                     }
-                    if (magImageWrap) magImageWrap.style.display = 'none';
-                    if (magNewsBodyGrid) magNewsBodyGrid.classList.add('no-image');
-                    magStoryImgFg.removeAttribute('src');
-                };
-                if (imgUrl) {
-                    magStoryImgFg.loading = 'eager';
-                    magStoryImgFg.decoding = 'async';
-                    magStoryImgFg.referrerPolicy = 'no-referrer';
-                    magStoryImgFg.src = imgUrl;
-                } else {
-                    magStoryImgFg.removeAttribute('src');
-                    if (magImageWrap) magImageWrap.style.display = 'none';
                 }
-            }
-            if (magSourceTag) magSourceTag.textContent = (item.source || "INDEX").toUpperCase();
-            if (magCatLbl) magCatLbl.textContent = `🔴 ${item.source || "KÖZÉLET"}`;
-            if (magTimeLbl) magTimeLbl.textContent = formatNewsExactTime(item.date);
-            if (magHeadlineTxt) magHeadlineTxt.textContent = item.title;
-            if (magDescTxt) magDescTxt.textContent = item.description || item.title;
-
-            if (magNewsBodyGrid) {
-                magNewsBodyGrid.classList.remove('comb-out');
-                magNewsBodyGrid.classList.add('comb-in');
-            }
-
-            setTimeout(() => {
-                if (magNewsBodyGrid && isHourlyNewsRunning) {
-                    magNewsBodyGrid.classList.remove('comb-in');
-                    magNewsBodyGrid.classList.add('comb-out');
-                }
-            }, perStoryDurationMs - 800);
-
-            setTimeout(nextStory, perStoryDurationMs);
+                if (magSourceTag) magSourceTag.textContent = (item.source || 'INDEX').toUpperCase();
+                if (magCatLbl) magCatLbl.textContent = `🔴 ${item.source || 'KÖZÉLET'}`;
+                if (magTimeLbl) magTimeLbl.textContent = formatNewsExactTime(item.date);
+                if (magHeadlineTxt) magHeadlineTxt.textContent = item.title;
+                if (magDescTxt) magDescTxt.textContent = item.description || item.title;
+                if (magNewsBodyGrid) { magNewsBodyGrid.classList.remove('comb-out'); magNewsBodyGrid.classList.add('comb-in'); }
+                setTimeout(() => {
+                    if (magNewsBodyGrid && isHourlyNewsRunning) {
+                        magNewsBodyGrid.classList.remove('comb-in');
+                        magNewsBodyGrid.classList.add('comb-out');
+                    }
+                }, Math.max(250, perStoryDurationMs - 800));
+                setTimeout(nextStory, perStoryDurationMs);
+            };
+            nextStory();
         };
-        nextStory();
+
+        if (newsBgVideo) {
+            newsBgVideo.onended = null;
+            newsBgVideo.onerror = null;
+            newsBgVideo.onloadedmetadata = null;
+            newsBgVideo.ontimeupdate = null;
+            newsBgVideo.ontimeupdate = monitorNewsVideoTime;
+            newsBgVideo.preload = 'auto';
+            newsBgVideo.src = targetSrc;
+            try { newsBgVideo.currentTime = 0; } catch (e) {}
+            ensureDeckAudio(newsBgVideo);
+            // A saját hírvideó a valódi végén fut ki; csak a tartalék demó marad loopban.
+            newsBgVideo.loop = !isFiniteCustomClip;
+            newsBgVideo.classList.add('active');
+            if (isFiniteCustomClip) {
+                newsBgVideo.onloadedmetadata = () => beginContent(Number(newsBgVideo.duration));
+                newsBgVideo.onended = () => { if (isHourlyNewsRunning) endHourlyNewsBulletin(); };
+                // Hiba esetén ne maradjon beragadva az órás hírréteg; a csatorna folytassa a műsort.
+                newsBgVideo.onerror = () => { if (isHourlyNewsRunning) endHourlyNewsBulletin(); };
+            }
+            newsBgVideo.play().catch(() => {});
+            if (isFiniteCustomClip && newsBgVideo.readyState >= 1) beginContent(Number(newsBgVideo.duration));
+        }
+        if (!isFiniteCustomClip || !newsBgVideo) beginContent(defaultDurationSec);
+        else fallbackStartTimer = setTimeout(() => beginContent(defaultDurationSec), 3500);
     }
 
     /* ⛅ HÁROMOLDALAS IDŐJÁRÁS MEGJELENÍTÉSE (MAGYARORSZÁG + VILÁGVÁROSOK + EXTRÉM PONTOK) */
-    function launchThreePageWeatherDashboard(totalDurationSec) {
+    function launchThreePageWeatherDashboard(totalDurationSec, totalBlockDurationSec = totalDurationSec) {
         if (!isHourlyNewsRunning) return;
         if (magNewsBodyGrid) magNewsBodyGrid.style.display = 'none';
-
+        if (magWeatherDashboard) magWeatherDashboard.classList.remove('final-fade-out','comb-out');
         const singlePageDurationMs = Math.floor((totalDurationSec / 3) * 1000);
 
+        weatherFinalFadeStarted = false;
         const renderPage = (tier) => {
             if (!isHourlyNewsRunning || !magWeatherDashboard || !weatherRichCardsContainer) return;
+            activeWeatherTier = tier;
             magWeatherDashboard.style.display = 'flex';
             weatherRichCardsContainer.innerHTML = '';
-
-            let titleTxt = "⛅ GOOGLE WEATHER · MAGYARORSZÁG";
+            let titleTxt = '⛅ GOOGLE WEATHER · MAGYARORSZÁG';
             let dataList = cachedWeatherData;
-
-            if (tier === 2) {
-                titleTxt = "⛅ GOOGLE WEATHER · VILÁGVÁROSOK";
-                dataList = cachedWorldWeatherData;
-            } else if (tier === 3) {
-                titleTxt = "🌋 GOOGLE WEATHER · EXTRÉM PONTOK";
-                dataList = cachedExtremeWeatherData;
-            }
-
+            if (tier === 2) { titleTxt = '⛅ GOOGLE WEATHER · VILÁGVÁROSOK'; dataList = cachedWorldWeatherData; }
+            else if (tier === 3) { titleTxt = '🌋 GOOGLE WEATHER · EXTRÉM PONTOK'; dataList = cachedExtremeWeatherData; }
             if (weatherDashTitleTxt) weatherDashTitleTxt.textContent = titleTxt;
             const updateLabel = googleWeatherCacheTimestamp
                 ? new Date(googleWeatherCacheTimestamp).toLocaleTimeString('hu-HU', { timeZone: 'Europe/Budapest', hour: '2-digit', minute: '2-digit' })
@@ -3088,9 +3139,7 @@
             if (weatherDashClock) {
                 weatherDashClock.textContent = googleWeatherLastAttemptFailed
                     ? `FRISSÍTÉS SIKERTELEN · UTOLSÓ ADAT: ${updateLabel}`
-                    : googleWeatherLastAttemptPartial
-                        ? `RÉSZLEGES FRISSÍTÉS · ${updateLabel}`
-                        : `GOOGLE WEATHER · FRISSÍTVE: ${updateLabel}`;
+                    : googleWeatherLastAttemptPartial ? `RÉSZLEGES FRISSÍTÉS · ${updateLabel}` : `GOOGLE WEATHER · FRISSÍTVE: ${updateLabel}`;
                 weatherDashClock.title = googleWeatherLastError || (googleWeatherLastAttemptPartial ? 'Néhány helyszín nem frissült; a korábbi valódi adatot tartjuk meg.' : 'Google Weather-adatok a Cherry1 Workeren keresztül.');
             }
 
@@ -3103,74 +3152,57 @@
                 dataList.slice(0, 8).forEach(c => {
                     const card = document.createElement('div');
                     card.className = 'weather-card-rich';
-                    const value = val => val === null || val === undefined || val === '' || !Number.isFinite(Number(val)) ? '—' : String(val);
+                    const value = v => v === null || v === undefined || v === '' || !Number.isFinite(Number(v)) ? '—' : String(v);
                     const tempValue = c.temp !== null && c.temp !== undefined && Number.isFinite(Number(c.temp)) ? Number(c.temp) : null;
                     const tempText = tempValue === null ? '—' : `${tempValue > 0 ? '+' : ''}${tempValue.toLocaleString('hu-HU', { maximumFractionDigits: 1 })}°C`;
                     const iconMarkup = c.iconUrl
-                        ? `<img class="wcr-icon-img" src="${escapeHtml(c.iconUrl)}" alt="" loading="lazy" decoding="async">`
+                        ? `<img class="wcr-icon-img" src="${escapeHtml(c.iconUrl)}" alt="" loading="eager" decoding="async">`
                         : `<span class="wcr-emoji-icon">${escapeHtml(c.icon || '🌡️')}</span>`;
                     card.innerHTML = `
                         <div class="wcr-city">${escapeHtml(String(c.name || '').toUpperCase())}</div>
-                        <div class="wcr-main-row">
-                            <div class="wcr-icon-desc">
-                                ${iconMarkup}
-                                <span>${escapeHtml(c.desc || 'Időjárási állapot')}</span>
-                            </div>
-                            <div class="wcr-temp">${tempText}</div>
-                        </div>
+                        <div class="wcr-main-row"><div class="wcr-icon-desc">${iconMarkup}<span>${escapeHtml(c.desc || 'Időjárási állapot')}</span></div><div class="wcr-temp">${tempText}</div></div>
                         <div class="wcr-feels">Hőérzet <strong>${value(c.feelsLike)}${c.feelsLike == null ? '' : '°C'}</strong></div>
-                        <div class="wcr-details-grid">
-                            <span>Felhőzet <strong>${value(c.cloudCover)}${c.cloudCover == null ? '' : '%'}</strong></span>
-                            <span>Pára <strong>${value(c.humidity)}${c.humidity == null ? '' : '%'}</strong></span>
-                            <span>Szél <strong>${value(c.wind)}${c.wind == null ? '' : ' km/h'}</strong></span>
-                            <span>Nyomás <strong>${value(c.pressure)}${c.pressure == null ? '' : ' hPa'}</strong></span>
-                            <span>Csapadék esélye <strong>${value(c.precipitation)}${c.precipitation == null ? '' : '%'}</strong></span>
-                            <span>UV-index <strong>${value(c.uvIndex)}</strong></span>
-                        </div>
-                    `;
+                        <div class="wcr-details-grid"><span>Felhőzet <strong>${value(c.cloudCover)}${c.cloudCover == null ? '' : '%'}</strong></span><span>Pára <strong>${value(c.humidity)}${c.humidity == null ? '' : '%'}</strong></span><span>Szél <strong>${value(c.wind)}${c.wind == null ? '' : ' km/h'}</strong></span><span>Nyomás <strong>${value(c.pressure)}${c.pressure == null ? '' : ' hPa'}</strong></span><span>Csapadék esélye <strong>${value(c.precipitation)}${c.precipitation == null ? '' : '%'}</strong></span><span>UV-index <strong>${value(c.uvIndex)}</strong></span></div>`;
                     weatherRichCardsContainer.appendChild(card);
                 });
             }
-
-            magWeatherDashboard.classList.remove('comb-out');
+            magWeatherDashboard.classList.remove('comb-out','final-fade-out');
             magWeatherDashboard.classList.add('comb-in');
         };
-
-        // 1. Oldal: Hazai városok
+        renderActiveWeatherPage = renderPage;
         renderPage(1);
-
-        // 2. Oldal: Világvárosok
         setTimeout(() => {
             if (!isHourlyNewsRunning) return;
-            magWeatherDashboard.classList.remove('comb-in');
-            magWeatherDashboard.classList.add('comb-out');
-            setTimeout(() => {
-                if (!isHourlyNewsRunning) return;
-                renderPage(2);
-            }, 600);
-        }, singlePageDurationMs - 600);
-
-        // 3. Oldal: Földünk extrém pontjai
+            magWeatherDashboard.classList.remove('comb-in'); magWeatherDashboard.classList.add('comb-out');
+            setTimeout(() => { if (isHourlyNewsRunning) renderPage(2); }, 500);
+        }, Math.max(0, singlePageDurationMs - 500));
         setTimeout(() => {
             if (!isHourlyNewsRunning) return;
-            magWeatherDashboard.classList.remove('comb-in');
-            magWeatherDashboard.classList.add('comb-out');
-            setTimeout(() => {
-                if (!isHourlyNewsRunning) return;
-                renderPage(3);
-            }, 600);
-        }, (singlePageDurationMs * 2) - 600);
-
-        // Befejezés pontosan a teljes idő leteltével
-        setTimeout(() => {
-            endHourlyNewsBulletin();
-        }, totalDurationSec * 1000);
+            magWeatherDashboard.classList.remove('comb-in'); magWeatherDashboard.classList.add('comb-out');
+            setTimeout(() => { if (isHourlyNewsRunning) renderPage(3); }, 500);
+        }, Math.max(0, singlePageDurationMs * 2 - 500));
+        // Véges, saját hírklipnél az igazi médiaóra vezérli a kifutást és a befejezést.
+        // Így egy pufferelés nem indítja el idő előtt a következő klipet.
+        const hasMeasuredFiniteClip = Boolean(newsBgVideo && newsBlockUsesCustomClip &&
+            Number.isFinite(newsBgVideo.duration) && newsBgVideo.duration > 0);
+        if (!hasMeasuredFiniteClip) {
+            // Csak a hurkolt tartalék demónál (vagy nem mérhető forrásnál) kell faliórás tartalék.
+            setTimeout(() => fadeFinalWeatherCard(), Math.max(0, totalDurationSec * 1000 - 5000));
+            if (!newsBlockUsesCustomClip) {
+                setTimeout(() => endHourlyNewsBulletin(), totalDurationSec * 1000);
+            }
+        }
     }
 
     function endHourlyNewsBulletin() {
         if (!isHourlyNewsRunning) return;
         if (newsLaunchTimer) { clearTimeout(newsLaunchTimer); newsLaunchTimer = null; }
         isHourlyNewsRunning = false;
+        activeWeatherTier = 0;
+        renderActiveWeatherPage = null;
+        weatherFinalFadeStarted = false;
+        if (newsBgVideo) { newsBgVideo.onended = null; newsBgVideo.onerror = null; newsBgVideo.onloadedmetadata = null; newsBgVideo.ontimeupdate = null; }
+        if (magWeatherDashboard) magWeatherDashboard.classList.remove('final-fade-out');
 
         // 1. A hírek utáni dalt MINDIG az elejétől (0:00-tól) indítjuk el a takarás alatt:
         if (isTvBroadcasting) {
@@ -3371,6 +3403,9 @@
                         extreme: cachedExtremeWeatherData
                     }));
                 } catch (_) {}
+                // Az ikonok még az adás alatt, a következő kártyaoldal előtt bekerülhetnek a cache-be.
+                // A látható oldalt frissítés közben nem rajzoljuk újra, hogy ne villanjon meg a kép.
+                primeGoogleWeatherIcons();
 
                 const requested = Number(payload.requested) || (HUNGARIAN_CITIES.length + WORLD_CITIES.length + EXTREME_CITIES.length);
                 log(`⛅ Google Weather: ${successCount}/${requested} helyszín frissült${googleWeatherLastAttemptPartial ? ' · részleges frissítés' : ''}.`, googleWeatherLastAttemptPartial ? 'warn' : 'success');
@@ -4105,6 +4140,180 @@
         renderExternalLibraryTable();
     }
 
+    function normalizeClipKeyText(value) {
+        return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase().replace(/\.(mp4|webm|mp3|mkv|avi|mov|m3u8|m3u)$/i, '')
+            .replace(/\b(official music video|official video|official|music video|video clip|clip|video|hd|hq|4k|1080p|720p|480p|360p|live)\b/gi, ' ')
+            .replace(/[^a-z0-9]+/g, ' ').trim();
+    }
+
+    function getClipTitleIdentity(item) {
+        if (!item) return '';
+        const parsed = parseArtistAndTitle(item.title || item.filename || '');
+        const textKey = normalizeClipKeyText(`${parsed.artist || ''} ${parsed.title || ''}`);
+        return textKey.length >= 7 ? `title:${textKey}` : '';
+    }
+
+    function getClipAssetIdentity(item) {
+        if (!item) return '';
+        const filename = normalizeClipKeyText(item.filename || '');
+        if (filename) return `file:${filename}`;
+        // Queryban lévő v/id paraméter is hordozhat valódi asset-azonosságot; ezt nem dobjuk el.
+        return getClipUrlIdentity(item);
+    }
+
+    function getClipUrlIdentity(item) {
+        if (!item) return '';
+        const rawUrl = String(item.url || item.streamUrl || item.src || '').trim();
+        if (!rawUrl) return '';
+        try {
+            const u = new URL(rawUrl, location.href);
+            if (u.protocol !== 'https:' && u.protocol !== 'http:') return '';
+            u.hash = '';
+            for (const key of [...u.searchParams.keys()]) {
+                if (/^(utm_.+|fbclid|gclid|dclid|token|signature|sig|expires|expiry|policy|key-pair-id|x-amz-.+|download|response-content-disposition)$/i.test(key)) {
+                    u.searchParams.delete(key);
+                }
+            }
+            u.searchParams.sort();
+            const canonical = (u.origin + u.pathname).toLowerCase() + u.search;
+            return canonical ? `url:${canonical}` : '';
+        } catch (_) {
+            return `url:${rawUrl.toLowerCase().split('#')[0]}`;
+        }
+    }
+
+    function getClipIdentityKeys(item) {
+        if (!item) return [];
+        const filename = normalizeClipKeyText(item.filename || '');
+        const keys = [];
+        if (filename) keys.push(`file:${filename}`);
+        const assetKey = getClipAssetIdentity(item);
+        if (assetKey) keys.push(assetKey);
+        const urlKey = getClipUrlIdentity(item);
+        if (urlKey) keys.push(urlKey);
+        const titleKey = getClipTitleIdentity(item);
+        if (titleKey) keys.push(titleKey);
+        return [...new Set(keys)];
+    }
+
+    function loadRotationExclusions() {
+        try {
+            const raw = JSON.parse(localStorage.getItem(STORAGE_KEY_ROTATION_EXCLUSIONS) || '[]');
+            if (Array.isArray(raw)) rotationExcludedEntries = new Set(raw.map(String));
+        } catch (_) { rotationExcludedEntries = new Set(); }
+    }
+
+    function getRotationEntryKey(item, source) {
+        if (!item) return '';
+        const stableId = String(item.id || item.filename || item.url || item.title || 'unknown');
+        const identity = getClipAssetIdentity(item) || getClipTitleIdentity(item);
+        return `${source}:${stableId}:${identity}`;
+    }
+
+    function getRotationDuplicateExclusionCandidates() {
+        loadRotationExclusions();
+        const seen = new Set();
+        const candidates = [];
+        const entries = [
+            ...r2Library.filter(item => !item.isLiveStream && !item.isSpecialLink).map(item => ({ item, source: 'master' })),
+            ...externalLibrary.filter(item => !item.isLiveStream && !item.isSpecialLink && isAutoRotationFolder(item.folder)).map(item => ({ item, source: 'external' }))
+        ];
+        for (const entry of entries) {
+            const keys = getClipIdentityKeys(entry.item);
+            if (!keys.length) continue;
+            if (keys.some(key => seen.has(key))) candidates.push(getRotationEntryKey(entry.item, entry.source));
+            else keys.forEach(key => seen.add(key));
+        }
+        return [...new Set(candidates)].filter(key => !rotationExcludedEntries.has(key));
+    }
+
+    async function excludeDuplicateEntriesFromRotation() {
+        const candidates = getRotationDuplicateExclusionCandidates();
+        if (!candidates.length) { alert('Nincs újonnan kizárható duplikált bejegyzés.'); return; }
+        const ok = confirm(`A ${candidates.length} ismétlődő bejegyzést kizárjuk a napi automatikus rotációból, és a csoport első példányát hagyjuk meg? A fizikai R2/Hugging Face fájlokat nem töröljük; az újonnan hozzáadott klipek továbbra is használhatók maradnak.`);
+        if (!ok) return;
+        candidates.forEach(key => rotationExcludedEntries.add(key));
+        try { localStorage.setItem(STORAGE_KEY_ROTATION_EXCLUSIONS, JSON.stringify([...rotationExcludedEntries])); } catch (_) {}
+        updateClipDuplicateNotice();
+        renderBroadcastRundown();
+        log(`🎚️ ${candidates.length} duplikált bejegyzés kizárva az automatikus rotációból; egy példány marad adásba választható.`, 'success');
+    }
+
+    function getLibraryDuplicateGroups() {
+        const entries = [
+            ...r2Library.filter(item => !item.isLiveStream && !item.isSpecialLink).map(item => ({ source: 'R2/HF tár', item, location: 'master' })),
+            ...externalLibrary.filter(item => !item.isLiveStream && !item.isSpecialLink && isAutoRotationFolder(item.folder)).map(item => ({ source: `Külső tár · ${item.folder || 'klippek'}`, item, location: 'external' }))
+        ];
+        // Ugyanaz a fizikai fájl eltérő címmel is duplikátum lehet, ahogy az azonos dalcím
+        // külön URL-en is. Uniót képzünk mindkét kulcs alapján, nem csak az egyikre nézünk.
+        const parent = entries.map((_, i) => i);
+        const find = i => parent[i] === i ? i : (parent[i] = find(parent[i]));
+        const union = (a, b) => { const ra = find(a), rb = find(b); if (ra !== rb) parent[rb] = ra; };
+        const firstByKey = new Map();
+        entries.forEach((entry, index) => {
+            for (const key of getClipIdentityKeys(entry.item)) {
+                if (firstByKey.has(key)) union(index, firstByKey.get(key));
+                else firstByKey.set(key, index);
+            }
+        });
+        const groups = new Map();
+        entries.forEach((entry, index) => {
+            const root = find(index);
+            if (!groups.has(root)) groups.set(root, []);
+            groups.get(root).push(entry);
+        });
+        return Array.from(groups.entries()).filter(([, items]) => items.length > 1)
+            .map(([root, items]) => ({ key: getClipTitleIdentity(items[0].item) || getClipAssetIdentity(items[0].item) || String(root), items }));
+    }
+
+    function updateClipDuplicateNotice() {
+        const notice = document.getElementById('clip-duplicate-notice');
+        if (!notice) return;
+        const groups = getLibraryDuplicateGroups();
+        const removableExternal = new Set();
+        const seen = new Set();
+        // A központi R2/HF bejegyzést tartjuk meg először, a külső rotációs másolatok takaríthatók.
+        for (const item of r2Library) for (const key of getClipIdentityKeys(item)) seen.add(key);
+        for (const item of externalLibrary.filter(it => isAutoRotationFolder(it.folder) && !it.isLiveStream && !it.isSpecialLink)) {
+            const keys = getClipIdentityKeys(item);
+            if (keys.some(key => seen.has(key))) removableExternal.add(String(item.id));
+            else keys.forEach(key => seen.add(key));
+        }
+        if (!groups.length) {
+            notice.style.display = 'none';
+            notice.innerHTML = '';
+            return;
+        }
+        notice.style.display = 'block';
+        const examples = groups.slice(0, 4).map(group => escapeHtml(group.items[0].item.title || group.items[0].item.filename || 'Névtelen klip')).join(' · ');
+        const rotationCandidates = getRotationDuplicateExclusionCandidates();
+        notice.innerHTML = `<strong>⚠ ${groups.length} lehetséges klipduplikáció / ütköző cím.</strong> A napi rotáció eleve kihagyja az ismétlődő példányokat. ${rotationCandidates.length ? `<button class="btn-act" style="margin:6px 6px 0 0;color:#fff;background:#7c2d12;border-color:#fb923c" onclick="excludeDuplicateEntriesFromRotation()">🎚️ ${rotationCandidates.length} duplikátum kizárása a rotációból</button>` : ''}${removableExternal.size ? `<button class="btn-act" style="margin:6px 6px 0 0;color:#fff;background:#92400e;border-color:#f59e0b" onclick="removeDuplicateExternalEntries()">🧹 ${removableExternal.size} külső duplikátum törlése a katalógusból</button>` : ''}<div style="margin-top:5px;color:#cbd5e1">Példák: ${examples}${groups.length > 4 ? ' …' : ''}. A külső katalógustételek törlése nem töröl fizikai R2/HF fájlokat; a rotációból való kizárás visszafordítható böngészőtár-beállítás.</div>`;
+    }
+
+    async function removeDuplicateExternalEntries() {
+        const confirmed = confirm('Eltávolítsuk a rotációs külső műsortárból azokat a bejegyzéseket, amelyek ugyanahhoz a kliphez már szerepelnek a központi R2/HF tárban vagy egy korábbi külső bejegyzésben? A tényleges R2/HF fájlokat ez nem törli.');
+        if (!confirmed) return;
+        const seen = new Set();
+        for (const item of r2Library) for (const key of getClipIdentityKeys(item)) seen.add(key);
+        const kept = [];
+        let removed = 0;
+        for (const item of externalLibrary) {
+            if (item.isLiveStream || item.isSpecialLink || !isAutoRotationFolder(item.folder)) { kept.push(item); continue; }
+            const keys = getClipIdentityKeys(item);
+            if (keys.some(key => seen.has(key))) { removed++; continue; }
+            keys.forEach(key => seen.add(key));
+            kept.push(item);
+        }
+        if (!removed) { alert('Nincs törölhető külső rotációs duplikátum. A központi tárban lévő fizikai fájlokhoz külön, hitelesített Worker-törlőútvonal szükséges.'); return; }
+        externalLibrary = kept;
+        await saveExternalLibrary();
+        updateDynamicFolderTabs();
+        renderExternalLibraryTable();
+        updateCatalogueTotalDuration();
+        log(`🧹 ${removed} külső duplikált klipbejegyzés eltávolítva a rotációs katalógusból.`, 'success');
+    }
+
     function renderExternalLibraryTable() {
         const tbody = document.getElementById('ext-library-tbody');
         if (!tbody) return;
@@ -4143,6 +4352,7 @@
                 </tr>
             `;
         }).join('');
+        updateClipDuplicateNotice();
     }
 
     async function deleteFromExternalLibrary(id) {
@@ -4322,6 +4532,18 @@
         };
     }
 
+    function deduplicateRotationPool(items) {
+        const pool = [];
+        const seen = new Set();
+        for (const item of items) {
+            const keys = getClipIdentityKeys(item);
+            if (keys.some(key => seen.has(key))) continue;
+            keys.forEach(key => seen.add(key));
+            pool.push(item);
+        }
+        return pool;
+    }
+
     /* 🎲 MUSICMASTER ZENEI ROTÁCIÓ – TELJES RANDOM KEVERÉS R2 + HUGGING FACE-BŐL */
     async function autoGenerateDaySchedule(dayOffset, force = false, syncAfterGenerate = true) {
         const dateKey = getSelectedDateKey(dayOffset);
@@ -4334,32 +4556,28 @@
             await loadR2Library(true);
             await loadExternalLibrary();
         }
+        loadRotationExclusions();
 
         const seedVal = force ? (`cherry1_rnd_${Date.now()}_${Math.random()}`) : (`cherry1_${dateKey}`);
         const prng = createDateSeedPrng(seedVal);
         let schedule = [];
         let startSec = 0;
 
-        const masterPool = r2Library.filter(it => !it.isSpecialLink && !it.isLiveStream).map(it => ({
+        const masterPool = r2Library.filter(it => !it.isSpecialLink && !it.isLiveStream &&
+            !rotationExcludedEntries.has(getRotationEntryKey(it, 'master'))).map(it => ({
             ...it,
             isHfKlip: (it.source === 'huggingface')
         }));
 
-        const extKlippekPool = externalLibrary.filter(it => isAutoRotationFolder(it.folder) && !it.isLiveStream).map(it => ({
+        const extKlippekPool = externalLibrary.filter(it => isAutoRotationFolder(it.folder) && !it.isLiveStream &&
+            !rotationExcludedEntries.has(getRotationEntryKey(it, 'external'))).map(it => ({
             ...it,
             isHfKlip: true
         }));
         
-        const seenUrls = new Set();
-        let pool = [];
-
-        [...masterPool, ...extKlippekPool].forEach(item => {
-            const fileKey = item.url || item.filename;
-            if (!seenUrls.has(fileKey)) {
-                seenUrls.add(fileKey);
-                pool.push(item);
-            }
-        });
+        // Egyedi asset- és dalcím-kulcsok: ugyanaz a klip másik URL-lel/tárból sem kerül be kétszer.
+        // A központi tár elsőbbséget kap, utána következik a külső automatikus rotációs készlet.
+        let pool = deduplicateRotationPool([...masterPool, ...extKlippekPool]);
 
         if (pool.length === 0) {
             pool = [{ title: "Balázs Pali - Homok Szerelem", filename: "demo.mp4", url: BACKUP_DEMO_STREAM, duration: 210, rating: '12', isHfKlip: false }];
@@ -4563,6 +4781,29 @@
 
         const now = getBudapestNow();
         const curSecToday = (now.getHours() * 3600) + (now.getMinutes() * 60) + now.getSeconds();
+        const scheduleDuplicateCounts = new Map(); // rundown-index -> duplicate group size
+        const duplicateParent = sched.map((_, index) => index);
+        const duplicateFind = index => duplicateParent[index] === index ? index : (duplicateParent[index] = duplicateFind(duplicateParent[index]));
+        const duplicateUnion = (a, b) => { const ra = duplicateFind(a), rb = duplicateFind(b); if (ra !== rb) duplicateParent[rb] = ra; };
+        const duplicateOwners = new Map();
+        sched.forEach((item, index) => {
+            if (!item || item.isNews || item.isLiveStream || item.isSpecialLink) return;
+            for (const key of getClipIdentityKeys(item)) {
+                if (duplicateOwners.has(key)) duplicateUnion(index, duplicateOwners.get(key));
+                else duplicateOwners.set(key, index);
+            }
+        });
+        const duplicateGroupSizes = new Map();
+        sched.forEach((item, index) => {
+            if (!item || item.isNews || item.isLiveStream || item.isSpecialLink) return;
+            const root = duplicateFind(index);
+            duplicateGroupSizes.set(root, (duplicateGroupSizes.get(root) || 0) + 1);
+        });
+        sched.forEach((item, index) => {
+            if (!item || item.isNews || item.isLiveStream || item.isSpecialLink) return;
+            const count = duplicateGroupSizes.get(duplicateFind(index)) || 0;
+            if (count > 1) scheduleDuplicateCounts.set(index, count);
+        });
 
         container.innerHTML = sched.map((item, idx) => {
             const isCurrentOnAir = (selectedDayIndex === 0 && isTvBroadcasting && (idx === currentClipIndex || (currentClipIndex === -1 && curSecToday >= item.startSec && curSecToday < item.endSec)));
@@ -4610,6 +4851,7 @@
                     <div class="pro-title-cell">
                         <span class="pro-track-artist">${escapeHtml(parsed.artist)}</span>
                         ${parsed.title ? `<span class="pro-track-title">${escapeHtml(parsed.title)}</span>` : ''}
+                        ${(!item.isNews && !item.isLiveStream && !item.isSpecialLink && (scheduleDuplicateCounts.get(idx) || 0) > 1) ? `<span style="font-size:.64rem;font-weight:900;color:#fbbf24;">⚠ ISMÉTLŐDŐ KLIP · ${(scheduleDuplicateCounts.get(idx) || 0)}× — a sor ❌ gombjával törölhető az adástervből</span>` : ''}
                     </div>
                     <div>
                         <span class="pro-type-badge" style="color:${typeColor};">
@@ -4739,6 +4981,7 @@ async function loadR2Library(forceRefresh = false) {
         r2Library = [{ title: "Balázs Pali - Homok Szerelem", filename: "demo.mp4", url: BACKUP_DEMO_STREAM, duration: 210, rating: '12' }];
     }
     renderLibraryTable();
+    updateClipDuplicateNotice();
     updateCatalogueTotalDuration();
 }
 
@@ -4764,6 +5007,7 @@ function renderLibraryTable() {
             </tr>
         `;
     }).join('');
+    updateClipDuplicateNotice();
 }
 
 async function editLibraryTrackTitle(filename) {
