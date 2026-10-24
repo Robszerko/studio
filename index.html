@@ -2550,7 +2550,8 @@
             const secondsUntilEvent = Number(newClip.startSec || 0) - currentSec;
             if (isNewsEnabledForHour(eventHour) && secondsUntilEvent >= 0 && secondsUntilEvent <= 20) {
                 isVideoTransitioning = false;
-                startHourlyNewsBulletin(false, eventHour === 0);
+                const started = startHourlyNewsBulletin(false, eventHour === 0, secondsUntilEvent <= 1, true);
+                if (started) lastNewsSlotKey = `${getSelectedDateKey(0)}_${String(eventHour).padStart(2, '0')}`;
                 return;
             }
             // Ha a hírek időpontja még nincs közel, a következő zenei klip indul.
@@ -2923,15 +2924,17 @@
         return 86400;
     }
 
-    function startHourlyNewsBulletin(isManualTest = false, forceMidnight = false, startImmediately = false) {
+    function startHourlyNewsBulletin(isManualTest = false, forceMidnight = false, startImmediately = false, forceScheduled = false) {
         const todayKey = getSelectedDateKey(0);
         const curClip = (weekSchedules[todayKey] || [])[currentClipIndex];
 
-        if (curClip && (curClip.isSpecialLink || curClip.noNews || curClip.isLiveStream) && !isManualTest) {
-            log("🛑 Koncert/műsor alatt a Hírek röviden szünetel.", "info");
-            return;
+        // A pontos órára előírt híradó elsőbbséget élvez a klip metaadataival szemben.
+        // Így egy régebbi "noNews"/live jelölés nem nyeli el és nem tiltja le a teljes órás blokkot.
+        if (curClip && (curClip.isSpecialLink || curClip.noNews || curClip.isLiveStream) && !isManualTest && !forceScheduled) {
+            log("🛑 A jelenlegi műsor alatt a kézi/előzetes híradóindítás szünetel.", "info");
+            return false;
         }
-        if (isHourlyNewsRunning) return;
+        if (isHourlyNewsRunning) return false;
 
         isHourlyNewsRunning = true;
         isMidnightEdition = Boolean(forceMidnight);
@@ -2955,14 +2958,24 @@
         const waitMs = startImmediately ? 250 : (isManualTest ? 4000 : Math.max(100, nextMinuteMs));
         newsLaunchTimer = setTimeout(() => {
             newsLaunchTimer = null;
-            purgeDeckMemory(deckA);
-            purgeDeckMemory(deckB);
-            deckA.classList.remove('active');
-            deckB.classList.remove('active');
+            // A takarítás külön hibája se akadályozhassa meg az órás hírblokk indítását.
+            try { purgeDeckMemory(deckA); } catch (_) {}
+            try { purgeDeckMemory(deckB); } catch (_) {}
+            if (deckA) deckA.classList.remove('active');
+            if (deckB) deckB.classList.remove('active');
             if (stationClockOverlay) stationClockOverlay.classList.remove('active');
             isStationClockVisible = false;
-            launchNewsMagazinePlayback();
+            try {
+                launchNewsMagazinePlayback();
+            } catch (error) {
+                log(`⚠️ A hírblokk indítása közben hiba történt: ${error && error.message ? error.message : error}`, 'warn');
+                // Ne maradjon beragadva a vezérlés; a következő órás indítás próbálkozhat újra.
+                isHourlyNewsRunning = false;
+                if (hourlyNewsMagazine) hourlyNewsMagazine.classList.remove('active');
+                if (newsBgVideo) { try { newsBgVideo.pause(); } catch (_) {} newsBgVideo.classList.remove('active'); }
+            }
         }, waitMs);
+        return true;
     }
 
     function primeGoogleWeatherIcons() {
@@ -3008,6 +3021,7 @@
         renderActiveWeatherPage = null;
         let contentStarted = false;
         let fallbackStartTimer = null;
+        let newsFallbackActivated = false;
 
         hourlyNewsMagazine.classList.add('active');
         if (magMainTitleTxt) magMainTitleTxt.textContent = isMidnightEdition ? 'Éjféli hírek' : 'Hírek röviden';
@@ -3102,13 +3116,53 @@
             // A saját hírvideó a valódi végén fut ki; csak a tartalék demó marad loopban.
             newsBgVideo.loop = !isFiniteCustomClip;
             newsBgVideo.classList.add('active');
+            const activateNewsFallback = () => {
+                if (!isHourlyNewsRunning) return;
+                if (!newsFallbackActivated) {
+                    newsFallbackActivated = true;
+                    newsBlockUsesCustomClip = false;
+                    // Egy hibás/lejárt egyedi hírvideó ne zárja le rögtön a híradót.
+                    // Tartalék háttérre váltunk, a hírek és az időjárás közben tovább futnak.
+                    newsBgVideo.onloadedmetadata = null;
+                    newsBgVideo.onended = null;
+                    newsBgVideo.ontimeupdate = null;
+                    try { newsBgVideo.pause(); } catch (_) {}
+                    newsBgVideo.loop = true;
+                    newsBgVideo.onerror = () => {
+                        newsBgVideo.onerror = null;
+                        try { newsBgVideo.pause(); } catch (_) {}
+                        newsBgVideo.classList.remove('active');
+                    };
+                    newsBgVideo.src = BACKUP_DEMO_STREAM;
+                    try { newsBgVideo.load(); } catch (_) {}
+                    try {
+                        const fallbackPlay = newsBgVideo.play();
+                        if (fallbackPlay && typeof fallbackPlay.catch === 'function') fallbackPlay.catch(() => newsBgVideo.classList.remove('active'));
+                    } catch (_) { newsBgVideo.classList.remove('active'); }
+                    if (!contentStarted) beginContent(defaultDurationSec);
+                } else {
+                    // Ha a tartalék videó is hibás, csak a háttérvideót rejtjük el;
+                    // a műsorkártyák és az órás blokk rendesen kifuthatnak.
+                    newsBgVideo.onerror = null;
+                    try { newsBgVideo.pause(); } catch (_) {}
+                    newsBgVideo.classList.remove('active');
+                    if (!contentStarted) beginContent(defaultDurationSec);
+                }
+            };
             if (isFiniteCustomClip) {
                 newsBgVideo.onloadedmetadata = () => beginContent(Number(newsBgVideo.duration));
                 newsBgVideo.onended = () => { if (isHourlyNewsRunning) endHourlyNewsBulletin(); };
-                // Hiba esetén ne maradjon beragadva az órás hírréteg; a csatorna folytassa a műsort.
-                newsBgVideo.onerror = () => { if (isHourlyNewsRunning) endHourlyNewsBulletin(); };
+                newsBgVideo.onerror = activateNewsFallback;
             }
-            newsBgVideo.play().catch(() => {});
+            let initialPlay = null;
+            try {
+                initialPlay = newsBgVideo.play();
+            } catch (_) {
+                if (isFiniteCustomClip && isHourlyNewsRunning) activateNewsFallback();
+            }
+            if (initialPlay && typeof initialPlay.catch === 'function') initialPlay.catch(() => {
+                if (isFiniteCustomClip && isHourlyNewsRunning) activateNewsFallback();
+            });
             if (isFiniteCustomClip && newsBgVideo.readyState >= 1) beginContent(Number(newsBgVideo.duration));
         }
         if (!isFiniteCustomClip || !newsBgVideo) beginContent(defaultDurationSec);
@@ -3616,8 +3670,8 @@
             const curDeck = getActiveVideoElement();
             if (curDeck) curDeck.volume = Math.max(0, masterVolume * (1 - fadeProgress));
             if (!isHourlyNewsRunning && lastNewsSlotKey !== newsSlotKey) {
-                lastNewsSlotKey = newsSlotKey;
-                startHourlyNewsBulletin(false, nextHour === 0);
+                const started = startHourlyNewsBulletin(false, nextHour === 0, false, true);
+                if (started) lastNewsSlotKey = newsSlotKey;
             }
         }
 
@@ -3644,8 +3698,8 @@
         if (isTvBroadcasting && !isHourlyNewsRunning && scheduledNews && isNewsEnabledForHour(h)) {
             const activeSlotKey = `${getSelectedDateKey(0)}_${String(h).padStart(2, '0')}`;
             if (lastNewsSlotKey !== activeSlotKey) {
-                lastNewsSlotKey = activeSlotKey;
-                startHourlyNewsBulletin(false, h === 0, true);
+                const started = startHourlyNewsBulletin(false, h === 0, true, true);
+                if (started) lastNewsSlotKey = activeSlotKey;
             }
         }
 
@@ -3711,7 +3765,8 @@
         if (clip && clip.isNews) {
             const hour = now.getHours();
             if (isNewsEnabledForHour(hour)) {
-                startHourlyNewsBulletin(false, hour === 0, true);
+                const started = startHourlyNewsBulletin(false, hour === 0, true, true);
+                if (started) lastNewsSlotKey = `${todayKey}_${String(hour).padStart(2, '0')}`;
                 return;
             }
             const hourStart = Math.floor(curSec / 3600) * 3600;
