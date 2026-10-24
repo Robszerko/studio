@@ -220,8 +220,8 @@
     .tv-video-deck {
         position: absolute; top: 0; left: 0; width: 100%; height: 100%;
         object-fit: contain; background: transparent; z-index: 2; opacity: 0;
-        pointer-events: none; transition: opacity 1.8s cubic-bezier(0.4, 0, 0.2, 1);
-        will-change: opacity, transform; border: none !important; outline: none !important;
+        pointer-events: none; transition: opacity .42s ease-out;
+        will-change: opacity; border: none !important; outline: none !important;
     }
     .tv-video-deck.active { opacity: 1; z-index: 3; pointer-events: auto; }
     .tv-video-deck.aspect-mode-zoom { object-fit: cover !important; }
@@ -1843,6 +1843,7 @@
         try {
             deck.pause();
             deck.removeAttribute('src');
+            deck.__c1PreparedSrc = '';
             deck.load();
         } catch(e){}
 
@@ -1984,7 +1985,7 @@
         if (lbl) lbl.textContent = formatted;
     }
 
-    function recalculateScheduleTimings(dateKey) {
+    function recalculateScheduleTimings(dateKey, renderAfter = true) {
         const schedule = weekSchedules[dateKey];
         if (!schedule || schedule.length === 0) return;
 
@@ -1994,14 +1995,13 @@
             if (!item || !Number.isFinite(Number(item.duration))) continue;
 
             if (item.isNews) {
-                // Hírek fix órakezdésre vannak kötve, az időtartamuk nem függhet a háttérvideótól.
+                // A hírek kezdése fix esemény: az előző klip csak eddig tarthat.
                 const preferredStart = Number.isFinite(Number(item.startSec)) ? Number(item.startSec) : previousEnd;
                 item.startSec = Math.max(previousEnd, preferredStart);
                 item.duration = Math.max(1, Number(item.duration) || 137);
                 item.endSec = item.startSec + item.duration;
             } else if (item.isSpecialLink) {
-                // Kézzel időzített különműsor/live elem megtartja a tervezett kezdését,
-                // de nem kezdődhet az előző műsorelem vége előtt.
+                // A kézzel időzített különműsor megőrzi a fix kezdést, ha az előző elem nem lóg bele.
                 const preferredStart = Number.isFinite(Number(item.startSec)) ? Number(item.startSec) : previousEnd;
                 item.startSec = Math.max(previousEnd, preferredStart);
                 const cachedSpecialDuration = clipDurationsCache[item.filename || item.url];
@@ -2009,13 +2009,18 @@
                 item.endSec = item.startSec + Math.max(1, Number(item.duration) || 180);
             } else {
                 item.startSec = previousEnd;
-                const hourBoundary = (Math.floor(item.startSec / 3600) + 1) * 3600;
                 const nextFixed = schedule.slice(i + 1).find(next => next && (next.isNews || next.isSpecialLink));
-                const boundary = Math.min(hourBoundary, nextFixed && Number.isFinite(Number(nextFixed.startSec)) ? Number(nextFixed.startSec) : 86400);
+                const boundary = nextFixed && Number.isFinite(Number(nextFixed.startSec))
+                    ? Number(nextFixed.startSec)
+                    : 86400;
                 const available = Math.max(1, boundary - item.startSec);
                 const cachedDuration = clipDurationsCache[item.filename || item.url];
-                const desiredDuration = cachedDuration && cachedDuration > 10 ? cachedDuration : (Number(item.duration) || 180);
-                // A klip nem lóghat bele a következő órába, híradóba vagy fix különműsorba.
+                const desiredDuration = item.isContinuation
+                    ? (Number(item.duration) || 1)
+                    : (cachedDuration && cachedDuration > 10 ? cachedDuration : (Number(item.duration) || 180));
+
+                // Fontos: a normál klip átlépheti az órahatárt. Csak a következő
+                // hírek vagy fix különműsor előtti tényleges határ vághatja rövidebbre.
                 item.duration = Math.max(1, Math.min(desiredDuration, available));
                 item.endSec = item.startSec + item.duration;
             }
@@ -2025,7 +2030,7 @@
             previousEnd = item.endSec;
         }
 
-        renderBroadcastRundown();
+        if (renderAfter) renderBroadcastRundown();
     }
 
     function ensureDeckAudio(deckElement, targetVol = masterVolume) {
@@ -2034,9 +2039,9 @@
         deckElement.volume = targetVol;
     }
 
-    function performAudioCrossfade(outDeck, inDeck, durationMs = 2800) {
+    function performAudioCrossfade(outDeck, inDeck, durationMs = 420) {
         if (audioFadeInterval) clearInterval(audioFadeInterval);
-        const steps = 28;
+        const steps = 10;
         const stepTime = durationMs / steps;
         let step = 0;
 
@@ -2061,6 +2066,29 @@
         }, stepTime);
     }
 
+    function reconcileClipDurationFromDeck(deckElement, clipOverride = null, dateKeyOverride = null) {
+        if (!deckElement || !Number.isFinite(deckElement.duration) || deckElement.duration <= 10) return;
+        const exactSec = Math.round(deckElement.duration);
+        const todayKey = dateKeyOverride || getSelectedDateKey(0);
+        const schedule = weekSchedules[todayKey] || [];
+        const curClip = clipOverride || schedule[currentClipIndex];
+        if (!curClip || curClip.isSpecialLink || curClip.isNews || curClip.isLiveStream) return;
+
+        const durationKey = curClip.filename || curClip.url;
+        if (durationKey && Number(clipDurationsCache[durationKey]) !== exactSec) {
+            clipDurationsCache[durationKey] = exactSec;
+            saveCachedDurations();
+            updateCatalogueTotalDuration();
+        }
+
+        if (Math.abs((Number(curClip.duration) || 0) - exactSec) > 3) {
+            curClip.duration = exactSec;
+            curClip.endSec = (Number(curClip.startSec) || 0) + exactSec;
+            curClip.endTimeStr = formatSecToHMS(curClip.endSec);
+            recalculateScheduleTimings(todayKey);
+        }
+    }
+
     function playMediaSource(deckElement, streamUrl, offsetSec = 0, isLive = false) {
         const isDeckA = (deckElement === deckA);
         
@@ -2072,6 +2100,7 @@
         }
 
         const isHls = streamUrl.includes('.m3u8') || streamUrl.includes('.m3u');
+        deckElement.__c1PreparedSrc = streamUrl;
 
         const tryPlay = () => {
             const playPromise = deckElement.play();
@@ -2129,22 +2158,7 @@
             deckElement.onloadedmetadata = () => {
                 detectVideoAspectRatio(deckElement);
 
-                if (deckElement.duration && !isNaN(deckElement.duration) && deckElement.duration > 10) {
-                    const exactSec = Math.round(deckElement.duration);
-                    const todayKey = getSelectedDateKey(0);
-                    const curClip = (weekSchedules[todayKey] || [])[currentClipIndex];
-                    if (curClip && !curClip.isSpecialLink && !curClip.isNews) {
-                        clipDurationsCache[curClip.filename || curClip.url] = exactSec;
-                        saveCachedDurations();
-                        updateCatalogueTotalDuration();
-                        if (Math.abs(curClip.duration - exactSec) > 3) {
-                            curClip.duration = exactSec;
-                            curClip.endSec = curClip.startSec + exactSec;
-                            curClip.endTimeStr = formatSecToHMS(curClip.endSec);
-                            recalculateScheduleTimings(todayKey);
-                        }
-                    }
-                }
+                reconcileClipDurationFromDeck(deckElement);
 
                 if (!isLive && offsetSec > 0) {
                     try { deckElement.currentTime = offsetSec; } catch(e){}
@@ -2415,24 +2429,14 @@
                 startOutroTrackSequence(schedule, curClip, playbackSessionId);
             }
 
-            // 🌟 3. ANDROID TV PIROS KARIKA KIVÉDÉSE: 15 mp-cel a vége előtt elindul az inaktív dekk előtöltése és memóriamelegítése!
-            if (remaining <= 15.0 && remaining > 5.5 && !incomingDeckPreloaded && !isVideoTransitioning) {
-                incomingDeckPreloaded = true;
+            // A következő normál klipet előkészítjük, de nem indítjuk el idő előtt.
+            // Így az aktuális videó a valódi utolsó képkockájáig lejátszódhat.
+            if (remaining <= 20.0 && remaining > 0.8 && !incomingDeckPreloaded && !isVideoTransitioning) {
                 const nextClip = schedule[(currentClipIndex + 1) % schedule.length];
-                if (nextClip) {
+                if (nextClip && !nextClip.isNews && !nextClip.isSpecialLink && !nextClip.isLiveStream) {
                     const incDeck = getInactiveVideoElement();
-                    incDeck.src = getCanonicalStreamUrl(nextClip.filename, nextClip.url);
-                    incDeck.preload = "auto";
-                    incDeck.volume = 0;
-                    incDeck.muted = true;
-                    incDeck.load();
+                    incomingDeckPreloaded = preloadDeckForClip(incDeck, nextClip);
                 }
-            }
-
-            // 🌟 4. PONTOSAN 5 MP-CEL A VÉGE ELŐTT INDUL AZ ÁTFEDÉS:
-            if (remaining <= 5.0 && remaining > 0 && !isVideoTransitioning) {
-                log(`🎬 5 mp precíz zenei átfedés indítása: ${curClip.title}`, 'info');
-                advanceToNextScheduledClip();
             }
         };
 
@@ -2493,6 +2497,26 @@
         hideCherryTrackCard();
     }
 
+    function preloadDeckForClip(deckElement, clip) {
+        if (!deckElement || !clip || clip.isNews || clip.isSpecialLink || clip.isLiveStream) return false;
+        const streamUrl = getCanonicalStreamUrl(clip.filename, clip.url);
+        // A HLS.js-es stream másik motorutat használ; ne tartsunk feleslegesen két HLS-puffert.
+        if (/\.m3u8?(?:$|[?#])/i.test(streamUrl)) return false;
+        if (deckElement.__c1PreparedSrc === streamUrl && !deckElement.error) return true;
+
+        purgeDeckMemory(deckElement);
+        deckElement.preload = 'auto';
+        deckElement.muted = true;
+        deckElement.volume = 0;
+        deckElement.__c1PreparedSrc = streamUrl;
+        deckElement.src = streamUrl;
+        try { deckElement.load(); } catch (e) {
+            deckElement.__c1PreparedSrc = '';
+            return false;
+        }
+        return true;
+    }
+
     /* 🎬 DINAMIKUS DUAL-DECK ÁTFEDÉS (ELŐTÖLTVE, KARIKÁZÁS NÉLKÜL) */
     async function executeVideoCrossfade(customTargetIndex = -1) {
         const todayKey = getSelectedDateKey(0);
@@ -2501,6 +2525,7 @@
 
         isVideoTransitioning = true;
         playbackSessionId++;
+        const transitionSessionId = playbackSessionId;
         resetTrackGraphicsState();
 
         const currentDeck = getActiveVideoElement();
@@ -2519,7 +2544,7 @@
                 startHourlyNewsBulletin(false, eventHour === 0);
                 return;
             }
-            // A hírkapcsoló kikapcsolt állapotában vagy túl korai zeneszám-vég esetén továbbmegyünk a következő zenére.
+            // Ha a hírek időpontja még nincs közel, a következő zenei klip indul.
             let searched = 0;
             do {
                 nextIdx = (nextIdx + 1) % schedule.length;
@@ -2531,60 +2556,81 @@
                 return;
             }
         }
+
         const previousClipIndex = currentClipIndex;
         currentClipIndex = nextIdx;
 
         currentAgeRating = newClip.rating || '12';
         updateAgeRatingBadgeUI();
         evaluateAgeRatingVisibility();
-
-        if (wmMainLogoBox) {
-            wmMainLogoBox.classList.toggle('is-live', Boolean(newClip.isLiveStream));
-        }
+        if (wmMainLogoBox) wmMainLogoBox.classList.toggle('is-live', Boolean(newClip.isLiveStream));
 
         hideColorBarScreen();
         renderBroadcastRundown();
-
         if (tvBroadcastStinger && stingerCurtain) {
             const parsed = parseArtistAndTitle(newClip.title);
-            if (stingerSubText) stingerSubText.textContent = parsed.artist || "CHERRY1 MUSIC";
+            if (stingerSubText) stingerSubText.textContent = parsed.artist || 'CHERRY1 MUSIC';
             tvBroadcastStinger.classList.add('stinger-active');
             stingerCurtain.className = 'stinger-wipe-curtain wipe-in';
             if (stingerContent) stingerContent.classList.add('pop');
         }
 
         const nextSrc = getCanonicalStreamUrl(newClip.filename, newClip.url);
-        
-        // Ha az előtöltő nem állította még be a forrást:
-        if (incomingDeck.src !== nextSrc) {
-            incomingDeck.src = nextSrc;
-        }
-
-        incomingDeck.currentTime = 0;
+        const sourceAlreadyPrepared = incomingDeck.__c1PreparedSrc === nextSrc && !incomingDeck.error;
+        incomingDeck.preload = 'auto';
         incomingDeck.muted = false;
         incomingDeck.volume = 0;
+        if (!sourceAlreadyPrepared) {
+            // Csak akkor törlünk és töltünk újra, ha valóban más forrás kell.
+            purgeDeckMemory(incomingDeck);
+            incomingDeck.preload = 'auto';
+            incomingDeck.muted = false;
+            incomingDeck.volume = 0;
+        } else {
+            // A már előtöltött MP4 forrását nem állítjuk be újra, mert az eldobná a puffert.
+            try { if (incomingDeck.readyState >= 1 && incomingDeck.currentTime > 0.05) incomingDeck.currentTime = 0; } catch (e) {}
+            if (incomingDeck.readyState >= 1) {
+                reconcileClipDurationFromDeck(incomingDeck, newClip, todayKey);
+            } else {
+                incomingDeck.addEventListener('loadedmetadata', () => {
+                    if (transitionSessionId === playbackSessionId && currentClipIndex === nextIdx) {
+                        reconcileClipDurationFromDeck(incomingDeck, newClip, todayKey);
+                    }
+                }, { once: true });
+            }
+        }
 
         let hasSwitched = false;
         let switchFallbackTimer = null;
         const performDeckSwap = () => {
-            if (hasSwitched) return;
+            if (hasSwitched || transitionSessionId !== playbackSessionId) return;
             hasSwitched = true;
             if (switchFallbackTimer) { clearTimeout(switchFallbackTimer); switchFallbackTimer = null; }
 
             detectVideoAspectRatio(incomingDeck);
             incomingDeck.classList.add('active');
-
             activeDeckName = incomingDeckName;
             applyAspectRatioToDecks();
 
-            performAudioCrossfade(currentDeck, incomingDeck, 2800);
+            // A régi deck addig marad képen, amíg az új ténylegesen el nem indul.
+            // Ha a régi klip már természetesen véget ért, nem halkítunk rá még 2-3 másodpercet.
+            if (currentDeck.ended || currentDeck.paused) {
+                if (audioFadeInterval) { clearInterval(audioFadeInterval); audioFadeInterval = null; }
+                incomingDeck.muted = false;
+                incomingDeck.volume = masterVolume;
+                currentDeck.volume = 0;
+                currentDeck.muted = true;
+            } else {
+                performAudioCrossfade(currentDeck, incomingDeck, 420);
+            }
 
             setTimeout(() => {
                 currentDeck.classList.remove('active');
                 purgeDeckMemory(currentDeck);
                 isVideoTransitioning = false;
+                incomingDeckPreloaded = false;
                 applyDaypartTheme(newClip.cat || getDaypartKeyForHour(getBudapestNow().getHours()));
-            }, 3200);
+            }, 520);
 
             if (stingerCurtain) {
                 stingerCurtain.className = 'stinger-wipe-curtain wipe-out';
@@ -2596,13 +2642,23 @@
         };
 
         incomingDeck.addEventListener('playing', performDeckSwap, { once: true });
-        playMediaSource(incomingDeck, nextSrc, 0, Boolean(newClip.isLiveStream));
+        if (sourceAlreadyPrepared) {
+            const playPromise = incomingDeck.play();
+            if (playPromise && typeof playPromise.catch === 'function') {
+                playPromise.catch(() => {
+                    incomingDeck.muted = true;
+                    incomingDeck.play().catch(() => {});
+                    if (unmuteBanner) unmuteBanner.style.display = 'flex';
+                });
+            }
+        } else {
+            playMediaSource(incomingDeck, nextSrc, 0, Boolean(newClip.isLiveStream));
+        }
 
-        // Csak akkor váltunk tartalékból, ha már dekódolható képkocka áll rendelkezésre.
-        // Gyenge mobilhálózaton a régi deck marad látható a betöltés alatt.
+        // Ha az új forrás hibás vagy nem indul, a régi utolsó képe megmarad; nincs fekete villanás.
         switchFallbackTimer = setTimeout(() => {
-            if (hasSwitched) return;
-            if (incomingDeck.readyState >= 2 && !incomingDeck.paused) {
+            if (hasSwitched || transitionSessionId !== playbackSessionId) return;
+            if (incomingDeck.readyState >= 2 && !incomingDeck.paused && !incomingDeck.error) {
                 performDeckSwap();
                 return;
             }
@@ -2611,8 +2667,14 @@
             purgeDeckMemory(incomingDeck);
             currentClipIndex = previousClipIndex;
             isVideoTransitioning = false;
+            incomingDeckPreloaded = false;
+            if (stingerCurtain) stingerCurtain.className = 'stinger-wipe-curtain wipe-out';
+            setTimeout(() => {
+                if (tvBroadcastStinger) tvBroadcastStinger.classList.remove('stinger-active');
+                if (stingerContent) stingerContent.classList.remove('pop');
+            }, 500);
             renderBroadcastRundown();
-            log(`⚠️ A következő klip nem indult el időben: ${newClip.title}. Az előző kép megőrizve, újrapróbálható.`, 'warn');
+            log(`⚠️ A következő klip nem indult el időben: ${newClip.title}. Az előző kép megőrizve, automatikus újrapróbálás következhet.`, 'warn');
         }, 6500);
     }
 
@@ -2631,10 +2693,24 @@
             return;
         }
 
-        if (curClip && curSec >= curClip.endSec && !curClip.isLiveStream && !isVideoTransitioning) {
+        if (!curClip || isVideoTransitioning) return;
+        const activeDeck = getActiveVideoElement();
+
+        // Fix idejű különműsor a terv szerint zárulhat. Normál klipet viszont nem
+        // léptetünk tovább pusztán egy becsült/adatbázisból származó endSec alapján.
+        if (curClip.isSpecialLink && !curClip.isLiveStream && curSec >= Number(curClip.endSec || Infinity)) {
+            advanceToNextScheduledClip();
+            return;
+        }
+
+        // Biztonsági őr az onended esemény mellé: csak a média tényleges végén vált.
+        if (!curClip.isLiveStream && !curClip.isNews && activeDeck &&
+            (activeDeck.ended || (Number.isFinite(activeDeck.duration) && activeDeck.duration > 0 &&
+             activeDeck.currentTime >= activeDeck.duration - 0.15))) {
             advanceToNextScheduledClip();
         }
     }
+
     setInterval(runBroadcastHealthCheck, 1000);
 
     /* 📺 EPG SÁV — a kijelzett pillanattól számított pontos 30 perces ablak */
@@ -2826,6 +2902,16 @@
     function isNewsEnabledForHour(hour) {
         if (hour === 0) return Boolean(enableMidnightNews);
         return Boolean(enableDaytimeNews && isHourInsideNewsWindow(hour));
+    }
+
+    function getNextNewsBoundarySec(fromSec) {
+        const safeSec = Math.max(0, Number(fromSec) || 0);
+        const currentHour = Math.floor(safeSec / 3600);
+        for (let h = currentHour + 1; h < 24; h++) {
+            if (isNewsEnabledForHour(h)) return h * 3600;
+        }
+        // A napi műsorterv határa megmarad védőkorlátnak; a napközbeni órahatár önmagában nem vág klipet.
+        return 86400;
     }
 
     function startHourlyNewsBulletin(isManualTest = false, forceMidnight = false, startImmediately = false) {
@@ -3399,6 +3485,39 @@
         }
     }
 
+    function carryActiveClipIntoNextDay(previousDateKey, nextDateKey, previousClip, activeDeck) {
+        if (!isTvBroadcasting || isHourlyNewsRunning || enableMidnightNews || !previousClip || !activeDeck) return false;
+        if (previousClip.isNews || previousClip.isSpecialLink || previousClip.isLiveStream) return false;
+        if (activeDeck.ended || !Number.isFinite(activeDeck.duration) || activeDeck.duration <= 10) return false;
+
+        const remainingSec = Math.ceil(activeDeck.duration - activeDeck.currentTime);
+        if (!Number.isFinite(remainingSec) || remainingSec < 1) return false;
+
+        let nextSchedule = weekSchedules[nextDateKey];
+        if (!Array.isArray(nextSchedule) || nextSchedule.length === 0) return false;
+
+        // Régi mentésből bent maradhat éjféli hír-elem kikapcsolt éjféli híradó mellett.
+        nextSchedule = nextSchedule.filter(item => !(item && item.isNews && Number(item.startSec) === 0 && !enableMidnightNews));
+        const continuation = {
+            ...previousClip,
+            id: `carry_${previousDateKey}_${String(previousClip.id || currentClipIndex)}`,
+            startSec: 0,
+            endSec: remainingSec,
+            duration: remainingSec,
+            startTimeStr: '00:00:00',
+            endTimeStr: formatSecToHMS(remainingSec),
+            isContinuation: true
+        };
+
+        weekSchedules[nextDateKey] = [continuation, ...nextSchedule];
+        currentClipIndex = 0;
+        recalculateScheduleTimings(nextDateKey, false);
+        saveWeekSchedules();
+        renderBroadcastRundown();
+        log(`🌙 Éjfélkor folytatódik a klip a végéig: ${previousClip.title}`, 'info');
+        return true;
+    }
+
     /* ⏱️ VALÓS IDEJŰ MESTER ÓRA & 59:40-ES ZENEI LEHALKULÁS (20 MP FADER) */
     function updateClock() {
         const now = getBudapestNow();
@@ -3416,15 +3535,23 @@
         if (!lastObservedScheduleDateKey) {
             lastObservedScheduleDateKey = todayKeyForRollover;
         } else if (todayKeyForRollover !== lastObservedScheduleDateKey) {
+            const previousDateKey = lastObservedScheduleDateKey;
+            const previousSchedule = weekSchedules[previousDateKey] || [];
+            const previousClip = previousSchedule[currentClipIndex];
+            const deckAtRollover = getActiveVideoElement();
             lastObservedScheduleDateKey = todayKeyForRollover;
             currentClipIndex = -1;
             if (isTvBroadcasting && !isHourlyNewsRunning && !isDayRolloverSyncing) {
                 isDayRolloverSyncing = true;
                 Promise.resolve().then(async () => {
                     if (!weekSchedules[todayKeyForRollover] || weekSchedules[todayKeyForRollover].length === 0) {
-                        await autoGenerateDaySchedule(0, false);
+                        // Ne indítsuk újra a forrást: előbb lehetőséget adunk az éjfélkor futó klip folytatására.
+                        await autoGenerateDaySchedule(0, false, false);
                     }
-                    if (isTvBroadcasting && !isHourlyNewsRunning) await syncToCurrentWallClockTime();
+                    if (isTvBroadcasting && !isHourlyNewsRunning) {
+                        const carried = carryActiveClipIntoNextDay(previousDateKey, todayKeyForRollover, previousClip, deckAtRollover);
+                        if (!carried) await syncToCurrentWallClockTime();
+                    }
                 }).catch(error => log(`⚠️ Éjfél utáni adásszinkron hiba: ${error.message || error}`, 'warn'))
                   .finally(() => { isDayRolloverSyncing = false; });
             }
@@ -4196,7 +4323,7 @@
     }
 
     /* 🎲 MUSICMASTER ZENEI ROTÁCIÓ – TELJES RANDOM KEVERÉS R2 + HUGGING FACE-BŐL */
-    async function autoGenerateDaySchedule(dayOffset, force = false) {
+    async function autoGenerateDaySchedule(dayOffset, force = false, syncAfterGenerate = true) {
         const dateKey = getSelectedDateKey(dayOffset);
         if (!force && weekSchedules[dateKey] && weekSchedules[dateKey].length > 0) {
             renderBroadcastRundown();
@@ -4260,7 +4387,11 @@
             const hourEnd = (h + 1) * 3600;
             const isNewsHour = isNewsEnabledForHour(h);
 
-            if (isNewsHour) {
+            // A folytonos idővonal nem áll vissza minden egész óránál: a zene átérhet
+            // olyan órába, ahol nincs híradó. Híres óránál a korábbi klip eddig a határig fut.
+            if (startSec < hourStart) startSec = hourStart;
+            if (isNewsHour && startSec <= hourStart) {
+                startSec = hourStart;
                 const isMidnight = (h === 0);
                 const newsDur = isMidnight ? 600 : 137;
                 schedule.push({
@@ -4278,15 +4409,14 @@
                     isNews: true
                 });
                 startSec = hourStart + newsDur;
-            } else {
-                startSec = hourStart;
             }
 
             while (startSec < hourEnd) {
-                const remainingSecInHour = hourEnd - startSec;
+                const nextNewsBoundary = getNextNewsBoundarySec(startSec);
+                const remainingUntilFixedEvent = Math.max(1, nextNewsBoundary - startSec);
 
-                // Minden órát folytonosan fedünk le; az utolsó klipet a következő műsorhatárnál levágjuk,
-                // így a következő óra/hírblokk nem ütközik a mostani klip időintervallumával.
+                // A klip az óraváltáson is átérhet. Az időtervet csak a következő híradó
+                // vagy a napi műsorterv határa korlátozza; egy nem híres óra önmagában nem vág.
                 let candidates = pool.filter(clip => {
                     const parsed = parseArtistAndTitle(clip.title);
                     const artistKey = parsed.artist.toLowerCase();
@@ -4321,11 +4451,11 @@
                 });
 
                 let chosenClip;
-                if (remainingSecInHour <= 380 && remainingSecInHour >= 120) {
+                if (remainingUntilFixedEvent <= 380 && remainingUntilFixedEvent >= 120) {
                     const bestFit = [...candidates].sort((a, b) => {
                         const durA = clipDurationsCache[a.filename || a.url] || a.duration || 180;
                         const durB = clipDurationsCache[b.filename || b.url] || b.duration || 180;
-                        return Math.abs(durA - remainingSecInHour) - Math.abs(durB - remainingSecInHour);
+                        return Math.abs(durA - remainingUntilFixedEvent) - Math.abs(durB - remainingUntilFixedEvent);
                     });
                     chosenClip = bestFit[0];
                 } else {
@@ -4344,7 +4474,7 @@
                 lastArtistPlayedSec[parsedChosen.artist.toLowerCase()] = startSec;
 
                 const mediaDuration = clipDurationsCache[fileKey] || chosenClip.duration || 180;
-                const realDur = Math.max(1, Math.min(mediaDuration, remainingSecInHour));
+                const realDur = Math.max(1, Math.min(mediaDuration, remainingUntilFixedEvent));
                 const clipEnd = startSec + realDur;
 
                 schedule.push({
@@ -4352,7 +4482,7 @@
                     filename: chosenClip.filename,
                     title: chosenClip.title,
                     url: getCanonicalStreamUrl(chosenClip.filename, chosenClip.url),
-                    cat: getDaypartKeyForHour(h),
+                    cat: getDaypartKeyForHour(Math.min(23, Math.floor(startSec / 3600))),
                     rating: chosenClip.rating || '12',
                     duration: realDur,
                     startSec: startSec,
@@ -4370,7 +4500,7 @@
         saveWeekSchedules();
         renderBroadcastRundown();
 
-        if (dayOffset === 0 && isTvBroadcasting && selectedDayIndex === 0 && !isHourlyNewsRunning) {
+        if (syncAfterGenerate && dayOffset === 0 && isTvBroadcasting && selectedDayIndex === 0 && !isHourlyNewsRunning) {
             syncToCurrentWallClockTime();
         }
     }
@@ -4940,24 +5070,24 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (midnightBtn) { midnightBtn.textContent = 'KI'; midnightBtn.className = 'btn-act'; }
     }
 
-    // Korábbi HTML-verziókból megmaradt, óraváltáson átlógó klipintervallumok javítása.
-    // Csak tényleges időütközésnél nyúlunk a naphoz, és a meglévő tételeket megtartjuk.
+    // Régi adástervek javítása: a mentett, ismert teljes kliphosszak visszaállnak,
+    // a normál zene nem vágódik el minden egész óránál, a hírek/fix műsorok maradnak határok.
     let repairedLoadedSchedules = false;
     for (const [dateKey, daySchedule] of Object.entries(weekSchedules || {})) {
-        if (!Array.isArray(daySchedule) || daySchedule.length < 2) continue;
-        const hasClipOverlap = daySchedule.some((item, index) => {
-            const next = daySchedule[index + 1];
-            if (!item || !next || item.isNews || item.isSpecialLink || next.isSpecialLink) return false;
-            return Number(item.endSec) > Number(next.startSec) + 1;
-        });
-        if (hasClipOverlap) {
-            recalculateScheduleTimings(dateKey);
-            repairedLoadedSchedules = true;
-        }
+        if (!Array.isArray(daySchedule) || daySchedule.length === 0) continue;
+        const before = JSON.stringify(daySchedule.map(item => item && ({
+            id: item.id, startSec: item.startSec, endSec: item.endSec, duration: item.duration
+        })));
+        recalculateScheduleTimings(dateKey, false);
+        const after = JSON.stringify(daySchedule.map(item => item && ({
+            id: item.id, startSec: item.startSec, endSec: item.endSec, duration: item.duration
+        })));
+        if (before !== after) repairedLoadedSchedules = true;
     }
     if (repairedLoadedSchedules) {
         await saveWeekSchedules();
-        log('🕒 Régi adásterv időátfedései javítva; a műsorelemek megmaradtak.', 'success');
+        renderBroadcastRundown();
+        log('🕒 Régi adástervek újraszámolva: a normál klip az óraváltáson is átfuthat; a hírek és fix műsorok határa megmaradt.', 'success');
     }
 
     const todayKey = getSelectedDateKey(0);
